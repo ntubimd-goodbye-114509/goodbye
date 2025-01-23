@@ -18,6 +18,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 MEDIA_URL = '/upload/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'upload')
+
+# User更改
 AUTH_USER_MODEL = 'goodBuy_web.User'
 
 # Quick-start development settings - unsuitable for production
