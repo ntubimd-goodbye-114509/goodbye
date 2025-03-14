@@ -82,10 +82,18 @@ WSGI_APPLICATION = 'goodBuy.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',  # 使用 MySQL 作为数据库
+        'NAME': '114-509',         # 数据库名称
+        'USER': '114509',         # 数据库用户名
+        'PASSWORD': 'Ntubimd_1145@9', # 数据库密码
+        'HOST': '140.131.114.242',                  # 数据库服务器地址，远程服务器需填写 IP
+        'PORT': '3306',                        # MySQL 端口号（默认 3306）
+        'OPTIONS': {
+            'charset': 'utf8mb4',  # 解决存储中文字符问题
+        }
     }
 }
+
 
 
 # Password validation
