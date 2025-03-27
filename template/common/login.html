@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登入</title>
+    <link rel="stylesheet" href="/static/css/login.css">
+</head>
+<body>
+    <div class="login-container"> 
+        <div class="login-box"> 
+            
+            <div class="header">
+                <h1 style="color: white;">登入</h1>
+            </div>
+
+           
+            <div>
+                <form action="/login/" method="post">
+                    {% csrf_token %}
+                    <h3 style="color: red;">{{ msg }}</h3>
+                    {% if messages and not message_displayed %}
+                        {% with message_displayed=True %}
+                            {% for message in messages %}
+                            <p{% if message.tags %} class="{{ message.tags }}"{% endif %} style="color: red;">{{ message }}</p>
+                            {% endfor %}
+                        {% endwith %}
+                    {% endif %}
+                    <div class="field">
+                        帳號：
+                        <input type="text" name="username" class="input-box" placeholder="請輸入您的帳號">
+                    </div>
+    
+                    <div class="field" style="margin-top: 25px;"> 
+                        密碼：
+                        <input type="password" name="password" class="input-box" placeholder="請輸入您的密碼">
+                    </div>
+                    <input type="submit" value="確認" class="confirm-button"> 
+                    <div class="register-link">
+                        還沒有帳號嗎？<a href="/register/">註冊一個吧</a> 
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

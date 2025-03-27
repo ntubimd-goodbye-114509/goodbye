@@ -19,4 +19,7 @@ from django.urls import path
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('login/', login, name='login'),   #登入
+    path('register/', register, name='register'), #註冊
+    path('logout/', logout, name='logout'),    #登出
 ]
