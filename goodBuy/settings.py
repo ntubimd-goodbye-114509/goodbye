@@ -44,6 +44,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'goodBuy_web',
+    'goodBuy_shop',
+    'goodBuy_order',
+    'goodBuy_want',
 ]
 
 MIDDLEWARE = [
