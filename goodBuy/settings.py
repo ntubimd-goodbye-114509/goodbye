@@ -44,6 +44,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'goodBuy_web',
+    'goodBuy_shop',
+    'goodBuy_order',
+    'goodBuy_want',
 ]
 
 MIDDLEWARE = [
@@ -131,6 +134,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
+
+MEDIA_URL = '/upload/'
+MEDIA_ROOT = BASE_DIR / 'upload'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
