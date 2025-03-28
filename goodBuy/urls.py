@@ -16,10 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from goodBuy_web.views import logins, register, logouts  # Replace 'your_app' with the actual app name
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('login/', login, name='login'),   #登入
+    path('login/', logins, name='login'),   #登入
     path('register/', register, name='register'), #註冊
-    path('logout/', logout, name='logout'),    #登出
+    path('logout/', logouts, name='logout'),    #登出
 ]
