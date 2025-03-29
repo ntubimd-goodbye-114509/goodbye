@@ -22,6 +22,11 @@ class Order(models.Model):
     second_supplement = models.TextField(blank=True, null=True)
     pay = models.DecimalField(max_digits=10, decimal_places=2)
 
+class Cart(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    amount = models.IntegerField()
+
 class Product_Order(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
