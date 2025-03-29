@@ -48,3 +48,18 @@ class Product(models.Model):
     amount = models.IntegerField()
     introduce = models.TextField(blank=True, null=True)
     img = models.ImageField(upload_to='product_images/', blank=True, null=True)
+
+class Tag_Collect(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
+    date = models.DateTimeField(auto_now_add=True)
+
+class Shop_Collect(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
+    date = models.DateTimeField(auto_now_add=True)
+
+class Shop_Footprints(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
+    date = models.DateTimeField(auto_now_add=True)

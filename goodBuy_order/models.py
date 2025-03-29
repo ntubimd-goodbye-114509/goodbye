@@ -31,3 +31,10 @@ class Product_Order(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     amount = models.IntegerField()
+
+class Comment(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE) 
+    rank = models.IntegerField()
+    comment = models.TextField()
+    update = models.DateTimeField(auto_now=True)
