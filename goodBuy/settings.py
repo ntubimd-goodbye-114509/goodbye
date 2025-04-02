@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'goodBuy_shop',
     'goodBuy_order',
     'goodBuy_want',
+    'goodBuy_tag'
 ]
 
 MIDDLEWARE = [

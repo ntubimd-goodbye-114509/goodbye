@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from goodBuy_web.views import logins, register, logouts  # Replace 'your_app' with the actual app name
+from goodBuy_web.views.user_login_register import logins, register, logouts  # Replace 'your_app' with the actual app name
 
 urlpatterns = [
     path('admin/', admin.site.urls),
