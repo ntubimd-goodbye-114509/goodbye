@@ -23,4 +23,6 @@ urlpatterns = [
     path('login/', logins, name='login'),   #登入
     path('register/', register, name='register'), #註冊
     path('logout/', logouts, name='logout'),    #登出
+
+    path('', homePage, name='home'),    #主頁
 ]
