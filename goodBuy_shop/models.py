@@ -1,9 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from goodBuy_web.models import User
-
-class Tag(models.Model):
-    name = models.CharField(max_length=50, unique=True)
+from goodBuy_tag.models import Tag
 
 class Permission(models.Model):
     name = models.CharField(max_length=100)
@@ -51,11 +49,6 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
-
-class Tag_Collect(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
-    date = models.DateTimeField(auto_now_add=True)
 
 class Shop_Collect(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
