@@ -28,7 +28,8 @@ class Shop(models.Model):
     shop_state = models.ForeignKey(Shop_State, on_delete=models.CASCADE)
     permission = models.ForeignKey(Permission, on_delete=models.CASCADE)
     purchase_priority = models.ForeignKey(Purchase_Priority, on_delete=models.CASCADE)
-
+    date = models.DateTimeField(auto_now_add=True)
+    
 class Shop_Payment(models.Model):
     shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
     payment = models.ForeignKey(Payment, on_delete=models.SET_NULL, null=True, blank=True)
