@@ -79,7 +79,7 @@ def change_pass(request):
             request.user.save()
             messages.success(request, '密碼修改成功')
             return redirect('/login/')
-    return render(request, 'change_pass.html')
+    return render(request, 'common/change_pass.html')
 
 @login_required
 def edit_profile(request):
