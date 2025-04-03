@@ -1,5 +1,4 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
 from goodBuy_web.models import User
 from goodBuy_tag.models import Tag
 
@@ -23,7 +22,7 @@ class Shop(models.Model):
     name = models.CharField(max_length=255)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     introduce = models.TextField(blank=True, null=True)
-    img = models.ImageField(upload_to='shop_images/', blank=True, null=True)
+    img = models.ImageField(upload_to='shop_img/', blank=True, null=True)
     start_time = models.TimeField()
     end_time = models.TimeField()
     shop_state = models.ForeignKey(Shop_State, on_delete=models.CASCADE)
@@ -33,6 +32,8 @@ class Shop(models.Model):
 class Shop_Payment(models.Model):
     shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
     payment = models.ForeignKey(Payment, on_delete=models.SET_NULL, null=True, blank=True)
+    img = models.ImageField(upload_to='payment_img/', blank=True, null=True)
+    account = models.CharField(max_length=255, blank=True, null=True)
 
 class Shop_Tag(models.Model):
     shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
@@ -45,7 +46,7 @@ class Product(models.Model):
     stock = models.IntegerField()
     amount = models.IntegerField()
     introduce = models.TextField(blank=True, null=True)
-    img = models.ImageField(upload_to='product_images/', blank=True, null=True)
+    img = models.ImageField(upload_to='product_img/', blank=True, null=True)
 
     def __str__(self):
         return self.name
