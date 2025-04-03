@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>購物網站</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        header {
+        background-color: #98b4e1;
+        padding: 15px;
+        text-align: center;
+        position: sticky ;  /* 使用 sticky 讓 header 可滾動 */
+        top: 0;  /* 距離頁面頂部為 0 */
+        left: 0;  /* 距離頁面左邊為 0 */
+        width: 100%;  /* 讓header佔滿整個頁面寬度 */
+        z-index: 1000;  /* 確保header顯示在其他元素之上 */
+    }
+
+
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f8f4e5;
+        margin: 0;
+        padding: 0;
+        padding-top: 60px;  /* 頁面內容下移，避免被固定header遮住 */
+    }
+
+        .logo img {
+            width: 10%;  /* 設定 LOGO 圖片寬度 */
+            height: 10%;  /* 高度自動調整，保持比例 */
+        }
+        input {
+            padding: 8px;
+            width: 700px; /* 根據需要調整寬度 */
+            border-radius: 50px; /* 使搜尋框變成橢圓形 */
+            border: 1px solid #ddd;
+            margin-top: 5px;  /* 在搜尋框和 LOGO 之間加入間距 */
+        }
+
+        footer {
+            display: flex;
+            justify-content: right;  /* 使篩選選單置中 */
+            gap: 15px;  /* 設定選單之間的間距 */
+            margin-top: 20px;
+        }
+
+        main {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            padding: 20px;
+            padding-left: 100px;  /* 左側間距 */
+            padding-right: 100px; /* 右側間距 */
+        }
+        .product {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 180px;  /* 設定固定寬度 */
+            height: 250px; /* 設定固定高度 */
+            position: relative;
+
+        }
+        .product img {
+            width: 100%;  /* 設定圖片寬度為商品格的 100% */
+            height: 70%; /* 高度自動調整以保持比例 */
+        }
+        h3 {
+            text-align: left;
+            font-size: 18px; /* 調整字體大小 */
+            margin: 2px 0 2px 5px; /* 調整 `margin-top`，減少上方空間 */
+            height: auto;
+            padding-left: 2px;
+        }
+
+        p {
+            text-align: left;
+            font-size: 14px;
+            margin: 7px 0 2px 5px;
+            padding-left: 2px;
+            color: red; /* 設定價格顏色 */
+        }
+        .sold-out {
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: bold;
+            
+        }
+        .sale-tag {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: red;
+            color: white;
+            padding: 5px;
+            font-size: 12px;
+            border-radius: 5px;
+        }
+
+        /* 藍色邊框 - 收物文 */
+        .receive {
+            border: 5px solid rgb(162, 212, 255); /* 藍色邊框 */
+        }
+        /* 粉色邊框 - 售物文 */
+        .sell {
+            border: 5px solid rgb(252, 205, 213); /* 粉色邊框 */
+        }
+
+                /* 針對下拉選單修改字體 */
+        select {
+            font-family: "Arial", sans-serif;  /* 設定字體為 Arial */
+            font-size: 16px;  /* 設定字體大小 */
+            padding: 8px 12px; /* 設定內邊距 */
+            border-radius: 5px;  /* 設定邊框圓角 */
+            border: 1px solid #ccc;  /* 設定邊框顏色 */
+            background-color: #fff;  /* 設定背景顏色 */
+        }
+
+        /* 針對下拉選單選項字體大小 */
+        option {
+            font-family: "Arial", sans-serif;  /* 設定字體為 Arial */
+            font-size: 16px;  /* 設定字體大小 */
+        }
+
+        /* 篩選選單區域 */
+        .filters {
+            background-color:  #9e9c9c;
+            display: flex;
+            gap: 15px;  /* 設定選單之間的間距 */
+            justify-content: center;  /* 使篩選選單置中 */
+            margin-top: 20px;
+            
+        }
+
+        .tags {
+            margin-top: 5px;
+            font-size: 12px; /* 字體變小 */
+            white-space: nowrap; /* 防止換行 */
+            overflow: hidden; /* 超出隱藏 */
+            text-overflow: ellipsis; /* 超出時顯示省略號 */
+            width: 100%; /* 確保標籤區域不超出商品框 */
+            display: flex; /* 讓標籤靠左 */
+            gap: 4px; /* 標籤之間有點間距 */
+        }
+
+        .tag {
+            background: #f0f0f0;
+            padding: 2px 6px; /* 讓標籤更小 */
+            border-radius: 3px; /* 圓角縮小 */
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 10px; /* 標籤字體變小 */
+            white-space: nowrap; /* 防止標籤換行 */
+        }
+
+        .tag:hover {
+            background: #dcdcdc;
+        }
+
+
+    </style>
+</head>
+<body>
+    <content>
+        <header>
+            <button class="menu-btn" id="menu-toggle">
+                ☰
+            </button>
+            <!-- LOGO 置中顯示 -->
+            <div class="logo">
+                <img src="image/logo1.png" alt="GoodBuy Logo">
+            </div>
+            <!-- 搜尋框置中顯示 -->
+            <input type="text" id="search" placeholder="有什麼喜歡的東西嗎?">
+            
+        
+        </header>
+        <footer>
+            <!-- 下拉選單篩選商品類型 -->
+            <select id="type-filter">
+                <option value="all">所有商品類型</option>
+                <option value="sell">售物文</option>
+                <option value="receive">收物文</option>
+            </select>
+            
+            <!-- 下拉選單篩選銷售狀態 -->
+            <select id="status-filter">
+                <option value="all">所有銷售狀態</option>
+                <option value="on-sale">銷售中</option>
+                <option value="sold-out">已結束</option>
+            </select>
+            
+        </footer>
+    </content>
+        <main id="product-list">
+            <!-- 這裡將由 JavaScript 動態插入商品 -->
+        </main>
+        <script src="js/script.js"></script>
+</body>
+</html>
