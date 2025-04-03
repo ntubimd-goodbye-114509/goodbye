@@ -8,7 +8,7 @@ from django.contrib import messages
 @login_required
 def view_blacklist(request):
     blacklist = Blacklist.objects.filter(user=request.user)
-    return render(request, 'blacklist.html', {'blacklist': blacklist})
+    return render(request, 'blacklist/add_blacklist.html', {'blacklist': blacklist})
 
 @login_required
 def add_to_blacklist(request):
@@ -19,7 +19,7 @@ def add_to_blacklist(request):
         else:
             Blacklist.objects.create(user=request.user, blocked_user_id=blocked_user_id)
             messages.success(request, '成功加入黑名單')
-        return redirect('view_blacklist')
+        return redirect('blacklist/view_blacklist.html')
 
 @login_required
 def remove_from_blacklist(request):
@@ -27,4 +27,4 @@ def remove_from_blacklist(request):
         blocked_user_id = request.POST.get('blocked_user_id')
         Blacklist.objects.filter(user=request.user, blocked_user_id=blocked_user_id).delete()
         messages.success(request, '已從黑名單中移除')
-        return redirect('view_blacklist')
+        return redirect('blacklist/view_blacklist.html')
