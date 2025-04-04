@@ -5,7 +5,6 @@ from .models import *
 admin.site.register(Permission)
 admin.site.register(Shop_State)
 admin.site.register(Purchase_Priority)
-admin.site.register(Payment)
 admin.site.register(Shop)
 admin.site.register(Shop_Payment)
 admin.site.register(Shop_Tag)

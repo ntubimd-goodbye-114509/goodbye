@@ -1,5 +1,5 @@
 from django.db import models
-from goodBuy_web.models import User
+from goodBuy_web.models import User,Payment_Account
 from goodBuy_tag.models import Tag
 
 class Permission(models.Model):
@@ -15,12 +15,6 @@ class Shop_State(models.Model):
         return self.name 
 
 class Purchase_Priority(models.Model):
-    name = models.CharField(max_length=100)
-    description = models.TextField(blank=True, null=True)
-    def __str__(self):
-        return self.name 
-
-class Payment(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
     def __str__(self):
@@ -42,9 +36,7 @@ class Shop(models.Model):
     
 class Shop_Payment(models.Model):
     shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
-    payment = models.ForeignKey(Payment, on_delete=models.SET_NULL, null=True, blank=True)
-    img = models.ImageField(upload_to='payment_img/', blank=True, null=True)
-    account = models.CharField(max_length=255, blank=True, null=True)
+    payment = models.ForeignKey(Payment_Account, on_delete=models.CASCADE)
 
 class Shop_Tag(models.Model):
     shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
