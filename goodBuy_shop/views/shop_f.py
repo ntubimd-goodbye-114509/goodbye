@@ -1,4 +1,4 @@
-from goodBuy_shop.models import Shop
+from goodBuy_shop.models import *
 from datetime import datetime
 
 # 全部商店時間排序
@@ -6,6 +6,13 @@ from datetime import datetime
 def allShopByUpdate():
     shops = Shop.objects.filter(permission=1).order_by('date', 'name')
     return shops
+
+def search_shop():
+    shops_by_name = Shop.objects.filter(name__icontains=kw)
+    shops_by_tag = Shop.objects.filter(
+            id__in=Shop_Tag.objects.filter(tag__name__icontains=kw).values_list('shop_id', flat=True)
+        )
+    shops = (shops_by_name | shops_by_tag).distinct()
 
 # 時間格式轉換&NULL賦值
 def timeFormatChange_now(t):
