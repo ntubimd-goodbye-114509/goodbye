@@ -76,6 +76,18 @@ def shopByTag(request, tag_id):
 
     return render(request, '搜尋結果界面', locals())
 
+@user_exists_required
+def shopByPermissionId(request, user_id, permission_id):
+    shops = (
+        Shop.objects
+        .select_related('permission', 'shop_state', 'purchase_priority')
+        .prefetch_related(
+            Prefetch('shop_payment_set', queryset=Shop_Payment.objects.select_related('payment_account')),
+            Prefetch('shop_tag_set', queryset=Shop_Tag.objects.select_related('tag')),
+        ).get(owner__id=user_id, permission__id=permission_id)
+    )
+    return render(request, '查詢完成頁面', locals())
+
 ####################################################
 # 商店
 @login_required(login_url='login')
