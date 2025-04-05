@@ -36,7 +36,7 @@ class Shop(models.Model):
     
 class Shop_Payment(models.Model):
     shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
-    payment = models.ForeignKey(Payment_Account, on_delete=models.CASCADE)
+    payment_account = models.ForeignKey(Payment_Account, on_delete=models.CASCADE)
 
 class Shop_Tag(models.Model):
     shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
@@ -53,6 +53,11 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+
+class Shop_Announcement(models.Model):
+    shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
+    announcement = models.TextField(blank=True, null=True)
+    date = models.DateTimeField(auto_now_add=True)
 
 class Shop_Collect(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
