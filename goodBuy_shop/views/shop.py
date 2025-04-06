@@ -138,6 +138,7 @@ def change_shop_state(request, shop_id, shop_state_id):
     shop = Shop.objects.get(id=shop_id)
     shop.shop_state = ShopState(id=shop_state_id)
     shop.save()
+    messages.success(request, '修改成功')
     return render(request, '')
 
 @shop_owner_required
@@ -145,6 +146,7 @@ def change_permission(request, shop_id, permission_id):
     shop = Shop.objects.get(id=shop_id)
     shop.permission = Permission(id=permission_id)
     shop.save()
+    messages.success(request, '修改成功')
     return render(request, '')
 
 @shop_owner_required
@@ -153,6 +155,7 @@ def change_start_time(request, shop_id):
     start = timeFormatChange_now(request.GET.get('start_time'))
     shop.start_time = start
     shop.save()
+    messages.success(request, '修改成功')
     return render(request, '')
 
 @shop_owner_required
@@ -161,6 +164,7 @@ def change_end_time(request, shop_id):
     end = timeFormatChange_longtime(request.GET.get('end_time'))
     shop.start_time = end
     shop.save()
+    messages.success(request, '修改成功')
     return render(request, '')
 
 ####################################################
@@ -194,20 +198,23 @@ def deleteAnnouncement(request, shop_id, announcement_id):
     try:
         announcement = Shop_Announcement.objects.delete(id=announcement_id, shop__id=shop_id)
     except Shop_Announcement.DoesNotExist:
+        messages.error(request, '查無公告')
         return redirect('查無公告')
+    messages.success(request, '刪除成功')
     return redirect('刪除成功導向')
 
 @shop_owner_required
 def editAnnouncement(request, shop_id, announcement_id):
     shop = get_object_or_404(Shop, id=shop_id)
     announcement = get_object_or_404(Shop_Announcement, id=announcement_id, shop=shop)
-
     if request.method == 'POST':
         form = AnnouncementForm(request.POST, instance=announcement)
         if form.is_valid():
             form.save()
-
+            messages.success(request, '公告修改成功')
             return redirect('shop_detail', shop_id=shop.id)
+        else:
+            messages.error(request, '公告修改失敗')
     else:
         form = AnnouncementForm(instance=announcement)
 
