@@ -15,7 +15,6 @@ document.addEventListener("DOMContentLoaded", function () {
         { name: "藝術夢三款", price: "$350 - $780", image: "image/666.jpg", sale: true, soldOut: true, type: "sell", tags: ["#烏薩其", "#限量"] },
         { name: "藝術夢四款", price: "$330 - $770", image: "image/555.jpg", sale: false, soldOut: false, type: "receive", tags: ["#設計"] },
         { name: "藝術夢五款", price: "$310 - $755", image: "image/537.jpg", sale: true, soldOut: false, type: "sell", tags: ["#藝術", "#收藏" ,"#烏薩其", "#吉伊卡哇"] }
-        
     ];
 
     const productList = document.getElementById("product-list");
@@ -30,18 +29,17 @@ document.addEventListener("DOMContentLoaded", function () {
             productDiv.classList.add("product");
 
             if (product.type === "receive") {
-                productDiv.classList.add("receive"); // 藍色邊框
+                productDiv.classList.add("receive");
             } else if (product.type === "sell") {
-                productDiv.classList.add("sell"); // 粉色邊框
+                productDiv.classList.add("sell");
             }
 
-            // 生成標籤 HTML，並讓標籤可點擊
             const tagsHtml = product.tags.map(tag => 
                 `<span class="tag" data-tag="${tag}">${tag}</span>`
             ).join(" ");
 
             productDiv.innerHTML = `
-                <img src="${product.image}" alt="${product.name}" width="150">
+                <img src="${product.image}" alt="${product.name}" width="150" onerror="this.onerror=null; this.src='image/default.jpg';">
                 <h3>${product.name}</h3>
                 <p class="price">${product.price}</p>
                 <div class="tags">${tagsHtml}</div>
@@ -51,7 +49,7 @@ document.addEventListener("DOMContentLoaded", function () {
             productList.appendChild(productDiv);
         });
 
-        // 綁定標籤點擊事件
+        // 點擊標籤篩選
         document.querySelectorAll(".tag").forEach(tagElement => {
             tagElement.addEventListener("click", function () {
                 const selectedTag = this.dataset.tag;
@@ -60,6 +58,21 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    // 側邊欄開關按鈕
+    document.getElementById("menu-toggle").addEventListener("click", function() {
+        const sidebar = document.getElementById("sidebar");
+        if (sidebar.style.width === "250px") {
+            sidebar.style.width = "0";
+        } else {
+            sidebar.style.width = "250px";
+        }
+    });
+
+    // 側邊欄 ✕ 關閉按鈕
+    document.getElementById("close-sidebar").addEventListener("click", function (e) {
+        e.preventDefault();
+        document.getElementById("sidebar").style.width = "0";
+    });
 
     function filterProducts(keyword = "") {
         const type = typeFilter.value;
@@ -80,11 +93,10 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function searchByTag(tag) {
-        searchInput.value = tag; // 更新搜尋框
-        filterProducts(tag.toLowerCase()); // 執行篩選
+        searchInput.value = tag;
+        filterProducts(tag.toLowerCase());
     }
 
-    // 監聽搜尋框和篩選選單
     searchInput.addEventListener("input", () => filterProducts(searchInput.value.toLowerCase()));
     typeFilter.addEventListener("change", () => filterProducts(searchInput.value.toLowerCase()));
     statusFilter.addEventListener("change", () => filterProducts(searchInput.value.toLowerCase()));
