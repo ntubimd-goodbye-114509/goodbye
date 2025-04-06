@@ -1,13 +1,15 @@
 from django.db.models import *
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.shortcuts import *
 from django.core.files.storage import FileSystemStorage
 from datetime import datetime
 
 from goodBuy_shop.models import *
 from goodBuy_web.models import *
-from .shop_f import *
 from .utils import *
+from .forms import *
+from .shop_f import *
 
 def shopAll_update(request):
     shops = Shop.objects.filter(permission__id=1).order_by('-date')
@@ -94,84 +96,40 @@ def shopByPermissionId(request, user_id, permission_id):
 @login_required(login_url='login')
 def addShop(request):
     if request.method == 'POST':
-        name = request.POST.get('name')
-        introduce = request.POST.get('introduce')
-        img = request.FILES.get('img')
-        start_time = timeFormatChange_now(request.POST.get('start_time'))
-        end_time = timeFormatChange_longtime(request.POST.get('end_time'))
-        shop_state_id = request.POST.get('shop_state')
-        permission_id = request.POST.get('permission')
-        purchase_priority_id = request.POST.get('purchase_priority')
-        # payment等前端出寫法再修改
-        payment_account_ids = request.POST.getlist('payment_ids')
-        # tag
-        tag_ids = request.POST.getlist('tag_ids')
-
-        shop = Shop.objects.create(name=name, owner=request.user,introduce=introduce,img=img,start_time=start_time,
-                            end_time=end_time,shop_state=ShopState.objects.get(id=shop_state_id),
-                            permission=Permission.objects.get(id=permission_id),purchase_priority=PurchasePriority.objects.get(id=purchase_priority_id))
-        for payment_account_id in payment_account_ids:
-            PaymentAccount.objects.create(shop=shop,payment=PaymentAccount.objects.get(id=payment_account_id))
-        for tag_id in tag_ids:
-            ShopTag.objects.create(shop=shop,tag=Tag.objects.get(id=tag_id))
-        return render(request, '新增成功導向', locals())
-    return render(request, '新增表單')
+        form = ShopForm(request.POST, request.FILES, user=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, '新增成功')
+            return redirect('shop_list')
+        else:
+            messages.error(request, '新增失敗')
+    else:
+        form = ShopForm(user=request.user)
+    return render(request, 'shop_form.html', {'form': form})
 
 @shop_owner_required
 def deleteShop(request, shop_id):
     shop = Shop.objects.get(id=shop_id)
     shop.delete()
+    messages.success(request, '刪除成功！')
     return redirect('刪除成功導向')
 
 # 多樣同時修改
 @shop_owner_required
-def editShop(request, shop_id):
+def edit_shop(request, shop_id):
     shop = Shop.objects.get(id=shop_id)
-    payments = ShopPayment.objects.select_related('Payment_Account').filter(shop=shop)
-    tags = ShopTag.objects.select_related('Tag').filter(shop=shop)
     if request.method == 'POST':
-        name = request.POST.get('name')
-        introduce = request.POST.get('introduce')
-        img = request.FILES.get('img')
-        start_time = timeFormatChange_now(request.POST.get('start_time'))
-        end_time = timeFormatChange_longtime(request.POST.get('end_time'))
-        shop_state_id = request.POST.get('shop_state')
-        permission_id = request.POST.get('permission')
-        # payment等前端出寫法再寫
-        payment_account_ids = request.POST.getlist('payment_ids')
-        old_payment_account_ids = [p.payment_account.id for p in payments]
-        tag_ids = payment_account_ids = request.POST.getlist('payment_ids')
-        old_tag_ids = [t.tag_id for t in tags]
+        form = ShopForm(request.POST, request.FILES, instance=shop, user=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, '修改成功')
+            return redirect('shop_detail', shop_id=shop.id)
+        else:
+            messages.error(request, '修改失敗')
+    else:
+        form = ShopForm(instance=shop, user=request.user)
 
-        shop.name = name
-        shop.introduce = introduce
-        shop.img = img
-        shop.start_time = start_time
-        shop.end_time = end_time
-        shop.shop_state = ShopState.objects.get(id=shop_state_id)
-        shop.permission = Permission.objects.get(id=permission_id)
-        shop.save()
-
-        # 有新出現的新增，沒出現的刪除
-        # payment
-        payment_to_add = set(payment_account_ids) - set(old_payment_account_ids)
-        payment_to_remove = set(old_payment_account_ids) - set(payment_account_ids)
-        for pid in payment_to_add:
-            ShopPayment.objects.create(
-                shop=shop,
-                payment_account=PaymentAccount.objects.get(id=pid)
-            )
-        ShopPayment.objects.filter(shop=shop, payment_account__id__in=payment_to_remove).delete()
-        # tag
-        tag_to_add = set(tag_ids) - set(old_tag_ids)
-        tag_to_remove = set(old_tag_ids) - set(tag_ids)
-        for pid in tag_to_add:
-            ShopTag.objects.create(
-                shop=shop,
-                tag=Tag.objects.get(id=pid)
-            )
-        ShopTag.objects.filter(shop=shop, tag__id__in=tag_to_remove).delete()
-    return render(request, '修改成界面', locals())
+    return render(request, '商店修改', locals())
 
 ####################################################
 # 單項狀態修改
@@ -214,12 +172,22 @@ def showShopAnnouncement(request, shop_id):
 
 @shop_owner_required
 def addAnnouncement(request, shop_id):
+    shop = get_object_or_404(Shop, id=shop_id)
+
     if request.method == 'POST':
-        shop = Shop.objects.get(id=shop_id)
-        announcement = request.GET.get('announcement')
-        Shop_Announcement.objects.create(shop=shop,announcement=announcement)
-        return render(request, '新增完成界面')
-    return render(request, '新增form')
+        form = AnnouncementForm(request.POST)
+        if form.is_valid():
+            announcement = form.save(commit=False)
+            announcement.shop = shop  # 綁定店家
+            announcement.save()
+            messages.success(request, '公告新增成功')
+            return redirect('shop_detail', shop_id=shop.id)
+        else:
+            messages.error(request, '公告新增失敗')
+    else:
+        form = AnnouncementForm()
+
+    return render(request, 'announcement_form.html', locals())
 
 @shop_owner_required
 def deleteAnnouncement(request, shop_id, announcement_id):
@@ -231,16 +199,18 @@ def deleteAnnouncement(request, shop_id, announcement_id):
 
 @shop_owner_required
 def editAnnouncement(request, shop_id, announcement_id):
-    try:
-        shop_announcement = Shop_Announcement.objects.get(id=announcement_id, shop_id=shop_id)
-    except Shop_Announcement.DoesNotExist:
-        return redirect('查無公告')
+    shop = get_object_or_404(Shop, id=shop_id)
+    announcement = get_object_or_404(Shop_Announcement, id=announcement_id, shop=shop)
+
     if request.method == 'POST':
-        announcement = request.POST.get('announcement')
-        shop_announcement.announcement = announcement
-        shop_announcement.date = datetime.strptime(datetime.now(), "%Y-%m-%dT%H:%M")
-        shop_announcement.save()
-        return render(request,' 修改完成界面')
-    return render('修改form')
+        form = AnnouncementForm(request.POST, instance=announcement)
+        if form.is_valid():
+            form.save()
+
+            return redirect('shop_detail', shop_id=shop.id)
+    else:
+        form = AnnouncementForm(instance=announcement)
+
+    return render(request, 'announcement_form.html', locals())
 
 ####################################################
