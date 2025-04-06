@@ -3,13 +3,12 @@ from .models import *
 # Register your models here.
 
 admin.site.register(Permission)
-admin.site.register(Shop_State)
-admin.site.register(Purchase_Priority)
-admin.site.register(Payment)
+admin.site.register(ShopState)
+admin.site.register(PurchasePriority)
 admin.site.register(Shop)
-admin.site.register(Shop_Payment)
-admin.site.register(Shop_Tag)
+admin.site.register(ShopPayment)
+admin.site.register(ShopTag)
 admin.site.register(Product)
 
-admin.site.register(Shop_Collect)
-admin.site.register(Shop_Footprints)
+admin.site.register(ShopCollect)
+admin.site.register(ShopFootprints)
