@@ -3,4 +3,4 @@ from .models import *
 # Register your models here.
 
 admin.site.register(Tag)
-admin.site.register(Tag_Collect)
+admin.site.register(TagCollect)
