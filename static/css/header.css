@@ -1,67 +1,246 @@
-.body {
+.head {
     margin: 0;
-    font-family: Arial, sans-serif;
-    background-color: #ffffff;
+    padding: 0;
+    font-family: 'Noto Sans TC', sans-serif;
 }
 
 .header {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: space-between;
-    background-color: #ffffff;
-    padding: 10px 20px;
+    background-color: #A3C6E0;
+    position: relative;  /* ✅ 這是 z-index 有效的前提 */
+    width: 100%;
+    z-index: 100;         /* ✅ 比 menu 的 99 高 */
 }
 
-.menu-btn {
-    font-size: 24px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: #3468af;
-}
-
+/* 隱藏的側邊欄 */
 .menu {
-    display: none;
-    position: absolute;
-    top: 50px;
-    left: 10px;
-    background: white;
-    padding: 10px;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    top: 146px;
+    left: -550px; /* 初始位置在視窗外 */
+    width: 500px; /* 側邊欄寬度 */
+    height: 100%; /* 側邊欄全屏高度 */
+    background-color: rgba(219, 232, 242, 0.8); /* 使用半透明背景 */
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1); /* 添加陰影 */
+    transition: left 0.3s ease; /* 滑動動畫 */
+    z-index: 50; /* 確保在功能列後方但不遮擋 */
+    padding: 20px;
 }
 
+/* 側邊欄滑出樣式 */
+.menu.active {
+    left: 0; /* 將側邊欄滑出 */
+}
+
+/* 側邊欄內部樣式 */
 .menu ul {
-    list-style: none;
+    list-style: none; /* 移除列表樣式 */
     padding: 0;
     margin: 0;
 }
 
 .menu ul li {
-    padding: 8px 0;
+    margin-bottom: 15px; /* 調整項目間距 */
 }
 
-.search-bar {
-    flex-grow: 1;
-    display: flex;
-    justify-content: center;
+.menu ul li a {
+    text-decoration: none; /* 移除下劃線 */
+    color: #5476a7; /* 文字顏色 */
+    font-size: 18px; /* 字體大小 */
 }
 
-.search-bar input {
-    padding: 5px;
-    border: 1px solid #ccc;
-    border-radius: 20px;
-    width: 250px;
-}
-
-.search-bar button {
-    background-color: #aac8e4;
+.menu-btn {
+    position: absolute; /* 絕對定位 */
+    top: 20px; /* 距離頂部位置 */
+    left: 20px; /* 確保在左側 */
+    background: none;
     border: none;
-    padding: 5px 10px;
-    border-radius: 5px;
-    margin-left: 5px;
     cursor: pointer;
+    margin-top: 1%;
+}
+
+.menu-btn img {
+    width: 60px; /* 控制圖片大小 */
+    height: 60px;
+}
+
+.logo {
+    margin-bottom: 15px; /* 調整 logo 與搜尋欄的距離 */
+    margin-top: -30px;
 }
 
 .logo img {
-    height: 256px;
+    height: 150px; /* 控制 logo 高度 */
+    object-fit: contain;
 }
+
+.search-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 75%; /* 搜尋欄寬度 */
+    max-width: 75%;
+    margin-top: -50px;
+    margin-bottom: 20px; /* 與下方元素間距 */
+}
+
+.search-bar input {
+    width: 100%;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 25px 0 0 25px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    outline: none;
+}
+
+.search-bar button {
+    padding: 10px 16px;
+    border: none;
+    background-color: white;
+    border-left: 1px solid #ccc;
+    border-radius: 0 25px 25px 0;
+    cursor: pointer;
+    color: #270303;
+}
+
+.msg-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+.msg-btn img {
+    width: 32px;
+    height: 32px;
+}
+
+/* 手機版 (max-width: 600px) */
+@media (max-width: 600px) {
+    .menu {
+        width: 80%;         /* 手機上側欄變窄一點 */
+        left: -80%;
+        top:206px
+    }
+
+    .menu.active {
+        left: 0;
+        top:206px
+    }
+
+    .menu ul li a {
+        font-size: 16px;
+    }
+
+    .menu-btn img {
+        width: 40px;
+        height: 40px;
+    }
+
+    .logo img {
+        height: 100px;
+    }
+
+    .search-bar {
+        width: 90%;
+        flex-direction: column; /* 垂直排列 */
+    }
+
+    .search-bar input,
+    .search-bar button {
+        width: 100%;
+        border-radius: 25px;
+        margin-bottom: 10px;
+    }
+
+    .search-bar button {
+        border-left: none;
+    }
+
+    .msg-btn img {
+        width: 28px;
+        height: 28px;
+    }
+}
+
+/* 平板裝置 (601px - 1024px) */
+@media (max-width: 600px) {
+    .menu {
+        width: 70%;           /* 更小一點，不會蓋住整個畫面 */
+        left: -70%;
+        top: 60px;
+        max-width: 300px;     /* 限制最大寬度 */
+    }
+
+    .menu {
+        width: 80%;
+        left: -80%;
+        top: 60px; /* 下移避免擋到 header */
+    }
+
+    .menu.active {
+        left: 0;
+    }
+
+    .menu ul li a {
+        font-size: 16px;
+    }
+
+    .menu-btn img,
+    .msg-btn img {
+        width: 40px;
+        height: 40px;
+    }
+
+    .logo img {
+        height: 100px;
+    }
+
+    .search-bar {
+        flex-direction: column;
+        width: 90%;
+        max-width: 90%;
+        margin-top: 10px;
+    }
+
+    .search-bar input,
+    .search-bar button {
+        width: 100%;
+        border-radius: 25px;
+        margin-bottom: 8px;
+    }
+
+    .search-bar button {
+        border-left: none;
+    }
+}
+
+@media (min-width: 601px) and (max-width: 1080px) {
+    .menu {
+        width: 60%;
+        left: -60%;
+    }
+
+    .menu.active {
+        left: 0;
+    }
+
+    .logo img {
+        height: 120px;
+    }
+
+    .search-bar {
+        width: 85%;
+    }
+
+    .menu-btn img,
+    .msg-btn img {
+        width: 50px;
+        height: 50px;
+    }
+}
+/* 桌機顯示 (大於 1024px) 可不修改，保持原樣 */
