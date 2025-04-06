@@ -5,4 +5,4 @@ from .models import *
 admin.site.register(User)
 admin.site.register(Blacklist)
 admin.site.register(Payment)
-admin.site.register(Payment_Account)
+admin.site.register(PaymentAccount)
