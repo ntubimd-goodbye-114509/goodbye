@@ -5,15 +5,17 @@ from goodBuy_shop.models import Shop
 from goodBuy_web.models import User
 from goodBuy_tag.models import Tag
 
+# =============跳轉頁面版本===============
+
 def user_exists_required(view_func):
     @wraps(view_func)
     def _wrapped_view(request, user_id, *args, **kwargs):
         try:
             user = User.objects.get(id=user_id)
-        except:
+        except User.DoesNotExist:
             messages.error(request, "找不到使用者呢")
             return redirect('home')
-        return view_func(request, user_id=user.id, *args, **kwargs)
+        return view_func(request, user, *args, **kwargs)
     return _wrapped_view
 
 def shop_owner_required(view_func):
@@ -40,10 +42,10 @@ def shop_exists_required(view_func):
     def _wrapped_view(request, shop_id, *args, **kwargs):
         try:
             shop = Shop.objects.get(id=shop_id)
-        except Tag.DoesNotExist:
+        except Shop.DoesNotExist:
             messages.error(request, '找不到這個商店呢qwq')
             return redirect('home')
-        return view_func(request, shop_id, *args, **kwargs)
+        return view_func(request, shop, *args, **kwargs)
     return _wrapped_view
 
 def tag_exists_required(view_func):
@@ -54,5 +56,62 @@ def tag_exists_required(view_func):
         except Tag.DoesNotExist:
             messages.error(request, '找不到這個Tag呢qwq')
             return redirect('home')
-        return view_func(request, tag_id, *args, **kwargs)
+        return view_func(request, tag, *args, **kwargs)
     return _wrapped_view
+
+# =============json彈窗js版本===============
+# from django.http import JsonResponse
+
+# def login_required_json(view_func):
+#     @wraps(view_func)
+#     def _wrapped_view(request, *args, **kwargs):
+#         if not request.user.is_authenticated:
+#             return JsonResponse({'error': '請先登入'}, status=401)
+#         return view_func(request, *args, **kwargs)
+#     return _wrapped_view
+
+# def user_exists_required_json(view_func):
+#     @wraps(view_func)
+#     def _wrapped_view(request, user_id, *args, **kwargs):
+#         try:
+#             user = User.objects.get(id=user_id)
+#         except User.DoesNotExist:
+#             return JsonResponse({'error': '找不到使用者'}, status=404)
+#         return view_func(request, user=user, *args, **kwargs)
+#     return _wrapped_view
+
+# def shop_owner_required_json(view_func):
+#     @wraps(view_func)
+#     def wrapper(request, shop_id, *args, **kwargs):
+#         if not request.user.is_authenticated:
+#             return JsonResponse({'error': '請先登入'}, status=401)
+#         try:
+#             shop = Shop.objects.get(id=shop_id)
+#         except Shop.DoesNotExist:
+#             return JsonResponse({'error': '商店不存在'}, status=404)
+
+#         if shop.owner != request.user:
+#             return JsonResponse({'error': '您不是此商店的擁有者'}, status=403)
+
+#         return view_func(request, shop=shop, *args, **kwargs)
+#     return wrapper
+
+# def shop_exists_required_json(view_func):
+#     @wraps(view_func)
+#     def _wrapped_view(request, shop_id, *args, **kwargs):
+#         try:
+#             shop = Shop.objects.get(id=shop_id)
+#         except Shop.DoesNotExist:
+#             return JsonResponse({'error': '商店不存在'}, status=404)
+#         return view_func(request, shop_id=shop_id, shop=shop, *args, **kwargs)
+#     return _wrapped_view
+
+# def tag_exists_required_json(view_func):
+#     @wraps(view_func)
+#     def _wrapped_view(request, tag_id, *args, **kwargs):
+#         try:
+#             tag = Tag.objects.get(id=tag_id)
+#         except Tag.DoesNotExist:
+#             return JsonResponse({'error': '找不到這個標籤'}, status=404)
+#         return view_func(request, tag=tag, *args, **kwargs)
+#     return _wrapped_view

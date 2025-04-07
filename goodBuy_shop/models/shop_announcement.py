@@ -1,7 +1,8 @@
 from django.db import models
 from .shop import Shop
 
-class Shop_Announcement(models.Model):
+class ShopAnnouncement(models.Model):
     shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
+    title = models.CharField(max_length=255)
     announcement = models.TextField(blank=True, null=True)
     date = models.DateTimeField(auto_now_add=True)
