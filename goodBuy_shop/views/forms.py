@@ -7,7 +7,7 @@ from django import forms
 from goodBuy_shop.models import *
 from goodBuy_tag.models import *
 from goodBuy_web.models import *
-from .shop_f import *
+from .time_f import *
 
 class ShopForm(forms.ModelForm):
     payment_ids = forms.ModelMultipleChoiceField(
@@ -95,12 +95,15 @@ class ShopForm(forms.ModelForm):
 
         return shop
 
-
 class AnnouncementForm(forms.ModelForm):
     class Meta:
-        model = Shop_Announcement
-        fields = ['announcement']
+        model = ShopAnnouncement
+        fields = ['title', 'announcement']
         widgets = {
+            'title': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': '輸入公告標題'
+            }),
             'announcement': forms.Textarea(attrs={
                 'class': 'form-control',
                 'rows': 4,
@@ -108,5 +111,6 @@ class AnnouncementForm(forms.ModelForm):
             })
         }
         labels = {
+            'title': '公告標題',
             'announcement': '公告內容'
         }

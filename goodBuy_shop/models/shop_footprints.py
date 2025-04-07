@@ -6,3 +6,6 @@ class ShopFootprints(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ('user', 'shop')

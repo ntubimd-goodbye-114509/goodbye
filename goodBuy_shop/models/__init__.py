@@ -5,6 +5,6 @@ from .shop_payment import ShopPayment
 from .shop_state import ShopState
 from .shop_tag import ShopTag
 from .product import Product
-from .shop_announcement import Shop_Announcement
+from .shop_announcement import ShopAnnouncement
 from .shop_collect import ShopCollect
 from .shop_footprints import ShopFootprints
