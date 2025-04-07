@@ -12,9 +12,18 @@ from .forms import *
 
 # 商店公告
 @shop_exists_required
-def showShopAnnouncement(request, shop):
+def showShopAnnouncement_many(request, shop):
     announcements = shop.shopAnnouncement_set.all().order_by('-date')
     return render(request, '顯示公告頁面', locals())
+
+@shop_exists_required
+def showShopAnnouncement_one(request, shop, announcement_id):
+    try:
+        announcement = ShopAnnouncement.objects.get(id=announcement_id, shop=shop)
+    except ShopAnnouncement.DoesNotExist:
+        messages.error(request, '查無此公告')
+        return redirect('shop_detail', shop_id=shop.id)
+    return render(request, '顯示單一公告頁面', locals())
 
 @shop_owner_required
 def addAnnouncement(request, shop):
@@ -38,9 +47,13 @@ def addAnnouncement(request, shop):
 
 @shop_owner_required
 def deleteAnnouncement(request, shop, announcement_id):
-    announcement = get_object_or_404(ShopAnnouncement, id=announcement_id, shop=shop)
+    try:
+        announcement = ShopAnnouncement.objects.get(id=announcement_id, shop=shop)
+    except ShopAnnouncement.DoesNotExist:
+        messages.error(request, '查無此公告')
+        return redirect('shop_detail', shop_id=shop.id)
     announcement.delete()
-    messages.success(request, '刪除成功')
+    messages.success(request, '公告刪除成功')
     return redirect('刪除成功導向')
 
 @shop_owner_required
