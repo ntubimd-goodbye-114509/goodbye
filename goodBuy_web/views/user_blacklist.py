@@ -19,7 +19,7 @@ def add_to_blacklist(request):
         else:
             Blacklist.objects.create(user=request.user, blocked_user_id=blocked_user_id)
             messages.success(request, '成功加入黑名單')
-        return redirect('blacklist/view_blacklist.html')
+        return redirect('view_blacklist.html')
 
 @login_required
 def remove_from_blacklist(request):
@@ -27,4 +27,4 @@ def remove_from_blacklist(request):
         blocked_user_id = request.POST.get('blocked_user_id')
         Blacklist.objects.filter(user=request.user, blocked_user_id=blocked_user_id).delete()
         messages.success(request, '已從黑名單中移除')
-        return redirect('blacklist/view_blacklist.html')
+        return redirect('view_blacklist')

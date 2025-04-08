@@ -5,6 +5,7 @@ from django.contrib.auth.hashers import check_password
 import re
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db import models
 
 #登入
 def logins(request):
@@ -119,3 +120,55 @@ def edit_profile(request):
         request.user.profile.save()
         messages.success(request, '個人資料已成功更新')
         return redirect('profile')
+    
+@login_required
+def edit_profile(request):
+    if request.method == 'POST':
+        user = request.user
+        profile = user.profile
+
+        # 更新電子郵件
+        email = request.POST.get('email')
+        if email and email != user.email:
+            if User.objects.filter(email=email).exclude(id=user.id).exists():
+                messages.error(request, '此電子郵件已被使用')
+                return redirect('edit_profile')
+            user.email = email
+
+        # 更新用戶名
+        username = request.POST.get('username')
+        if username and username != user.username:
+            if User.objects.filter(username=username).exclude(id=user.id).exists():
+                messages.error(request, '此用戶名已被使用')
+                return redirect('edit_profile')
+            user.username = username
+
+        # 更新密碼
+        new_password = request.POST.get('new_password')
+        confirm_password = request.POST.get('confirm_password')
+        if new_password and confirm_password:
+            if new_password != confirm_password:
+                messages.error(request, '新密碼與確認密碼不一致')
+                return redirect('edit_profile')
+            user.set_password(new_password)
+
+        # 更新暱稱
+        nickname = request.POST.get('nickname')
+        if nickname:
+            profile.nickname = nickname
+
+        # 更新自介
+        bio = request.POST.get('bio')
+        if bio:
+            profile.bio = bio
+
+        # 更新頭像
+        if 'avatar' in request.FILES:
+            profile.avatar = request.FILES['avatar']
+
+        user.save()
+        profile.save()
+        messages.success(request, '個人資料已成功更新')
+        return redirect('edit_profile')
+
+    return render(request, 'common/edit_profile.html')

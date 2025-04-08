@@ -1,0 +1,29 @@
+<!-- goodBuy_web/templates/common/profile.html -->
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>個人檔案</title>
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+</head>
+<body>
+    <div class="profile-container">
+        <h1>個人檔案</h1>
+
+        <div class="avatar-box">
+            {% if request.user.profile.avatar %}
+                <img src="{{ request.user.profile.avatar.url }}" alt="頭像" width="150">
+            {% else %}
+                <img src="{% static 'default-avatar.png' %}" alt="預設頭像" width="150">
+            {% endif %}
+        </div>
+
+        <p><strong>使用者名稱：</strong> {{ request.user.username }}</p>
+        <p><strong>暱稱：</strong> {{ request.user.profile.nickname }}</p>
+        <p><strong>電子郵件：</strong> {{ request.user.email }}</p>
+        <p><strong>自我介紹：</strong> {{ request.user.profile.bio|linebreaks }}</p>
+
+        <a href="{% url 'edit_profile' %}"> 編輯個人資料</a>
+    </div>
+</body>
+</html>

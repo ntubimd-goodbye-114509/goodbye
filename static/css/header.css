@@ -19,7 +19,7 @@
     position: fixed;
     top: 146px;
     left: -550px; /* 初始位置在視窗外 */
-    width: 500px; /* 側邊欄寬度 */
+    width: 400px; /* 側邊欄寬度 */
     height: 100%; /* 側邊欄全屏高度 */
     background-color: rgba(219, 232, 242, 0.8); /* 使用半透明背景 */
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1); /* 添加陰影 */
@@ -119,6 +119,87 @@
     height: 32px;
 }
 
+.user-info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    padding: 30px 0;
+  }
+  
+  .defuser {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin-left: -70%;
+  }
+  
+  .user-text h3 {
+    font-size: 32px;
+    font-weight: bold;
+    margin: 0;
+    margin-right: -100px;
+  }
+  
+  /* 新增 user-actions 區塊：按鈕置中 */
+  .user-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-left: -30px;
+    margin-bottom: 140%;
+  }
+  
+  .Options {
+    display: block;
+    background-color: #b3dffc;
+    color: white;
+    text-align: center;
+    border-radius: 20px;
+    padding: 10px;
+    margin: 10px 0 0 0;
+    width: 220px;
+    font-size: 18px;
+    font-weight: bold;
+    text-decoration: none;
+    transition: background-color 0.3s;
+  }
+  
+  .Options:hover {
+    background-color: #96c9eb;
+  }
+  
+  .Options + p {
+    text-align: center;
+    font-size: 14px;
+    color: #0e3e5d;
+    margin-top: 4px;
+    margin-bottom: 10px;
+    font-weight: 600;
+    margin-bottom: 50px;
+  }
+  
+  .tellme {
+    text-align: center;
+    font-size: 14px;
+    color: #0e3e5d;
+    padding: 20px;
+  }
+  
+  .social-icons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 10px;
+  }
+  
+  .social-icons img {
+    width: 24px;
+    height: 24px;
+    transition: transform 0.3s;
+  }
+  
+/* RWD */
 /* 手機版 (max-width: 600px) */
 @media (max-width: 600px) {
     .menu {
