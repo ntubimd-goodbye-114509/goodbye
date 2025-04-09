@@ -8,3 +8,4 @@ from .product import Product
 from .shop_announcement import ShopAnnouncement
 from .shop_collect import ShopCollect
 from .shop_footprints import ShopFootprints
+from .shop_img import ShopImg

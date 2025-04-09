@@ -26,7 +26,7 @@ class ShopForm(forms.ModelForm):
     class Meta:
         model = Shop
         fields = [
-            'name', 'introduce', 'img', 'start_time', 'end_time',
+            'name', 'introduce', 'start_time', 'end_time',
             'shop_state', 'permission', 'purchase_priority'
         ]
 
@@ -94,6 +94,15 @@ class ShopForm(forms.ModelForm):
                 ShopTag.objects.get_or_create(shop=shop, tag=tag)
 
         return shop
+
+class ShopImgForm(forms.ModelForm):
+    class Meta:
+        model = ShopImg
+        fields = ['img', 'is_cover']
+        widgets = {
+            'img': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+        }
+
 
 class AnnouncementForm(forms.ModelForm):
     class Meta:
