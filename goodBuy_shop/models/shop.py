@@ -10,7 +10,6 @@ class Shop(models.Model):
     name = models.CharField(max_length=255)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     introduce = models.TextField(blank=True, null=True)
-    img = models.ImageField(upload_to='shop_img/', blank=True, null=True)
     start_time = models.TimeField()
     end_time = models.TimeField()
     shop_state = models.ForeignKey(ShopState, on_delete=models.CASCADE)
