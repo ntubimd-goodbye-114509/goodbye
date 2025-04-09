@@ -1,20 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
     const products = [
-        { name: "藝術夢一款", price: "$300 - $750", image: "image/537.jpg", sale: true, soldOut: false, type: "sell", tags: ["#烏薩其", "#吉伊卡哇"] },
-        { name: "藝術夢二款", price: "$320 - $760", image: "image/537.jpg", sale: false, soldOut: false, type: "receive", tags: ["#設計", "#夢幻"] },
-        { name: "藝術夢三款", price: "$350 - $780", image: "image/111.jpg", sale: true, soldOut: true, type: "sell", tags: ["#烏薩其", "#限量"] },
-        { name: "藝術夢四款", price: "$330 - $770", image: "image/222.jpg", sale: false, soldOut: false, type: "receive", tags: ["#設計"] },
-        { name: "藝術夢五款", price: "$310 - $755", image: "image/333.jpg", sale: true, soldOut: false, type: "sell", tags: ["#藝術", "#收藏" ,"#烏薩其", "#吉伊卡哇"] },
-        { name: "藝術夢一款", price: "$300 - $750", image: "image/111.jpg", sale: true, soldOut: false, type: "sell", tags: ["#烏薩其", "#吉伊卡哇"] },
-        { name: "藝術夢二款", price: "$320 - $760", image: "image/222.jpg", sale: false, soldOut: false, type: "receive", tags: ["#設計", "#夢幻"] },
-        { name: "藝術夢三款", price: "$350 - $780", image: "image/444.jpg", sale: true, soldOut: true, type: "sell", tags: ["#烏薩其", "#限量"] },
-        { name: "藝術夢四款", price: "$330 - $770", image: "image/555.jpg", sale: false, soldOut: false, type: "receive", tags: ["#設計"] },
-        { name: "藝術夢五款", price: "$310 - $755", image: "image/537.jpg", sale: true, soldOut: false, type: "sell", tags: ["#藝術", "#收藏" ,"#烏薩其", "#吉伊卡哇"] },
-        { name: "藝術夢一款", price: "$300 - $750", image: "image/666.jpg", sale: true, soldOut: false, type: "sell", tags: ["#烏薩其", "#吉伊卡哇"] },
-        { name: "藝術夢二款", price: "$320 - $760", image: "image/111.jpg", sale: false, soldOut: false, type: "receive", tags: ["#設計", "#夢幻"] },
-        { name: "藝術夢三款", price: "$350 - $780", image: "image/666.jpg", sale: true, soldOut: true, type: "sell", tags: ["#烏薩其", "#限量"] },
-        { name: "藝術夢四款", price: "$330 - $770", image: "image/555.jpg", sale: false, soldOut: false, type: "receive", tags: ["#設計"] },
-        { name: "藝術夢五款", price: "$310 - $755", image: "image/537.jpg", sale: true, soldOut: false, type: "sell", tags: ["#藝術", "#收藏" ,"#烏薩其", "#吉伊卡哇"] }
+
     ];
 
     const productList = document.getElementById("product-list");
