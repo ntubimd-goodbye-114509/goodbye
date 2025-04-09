@@ -7,6 +7,7 @@ from datetime import timezone
 from goodBuy_shop.models import *
 from goodBuy_web.models import *
 from .utils import *
+from shop_query import *
 
 @login_required(login_url='login')
 @shop_exists_required
@@ -25,18 +26,14 @@ def shop_collect_toggle(request, shop):
     return redirect('商店界面', shop_id=shop.id)
 
 @login_required(login_url='login')
-def my_collected_shops(request):
+def my_shops_collected(request):
     shop_ids = ShopCollect.objects.filter(user=request.user).values_list('shop_id', flat=True)
 
-    shops = (
-        Shop.objects
-        .filter(id__in=shop_ids)
-        .select_related('permission', 'shop_state', 'purchase_priority')
-        .prefetch_related(
-            Prefetch('shop_tag_set', queryset=ShopTag.objects.select_related('tag')),
-            Prefetch('shop_payment_set', queryset=ShopPayment.objects.select_related('payment_account')),
-        )
-        .order_by('-date')
-    )
-
+    shops = shopInformation_many(Shop.objects.filter(id__in=shop_ids).order_by('-date'))
     return render(request, '收藏瀏覽頁面', locals())
+
+@login_required(login_url='login')
+def my_shop_footprints(request):
+    shop_ids = ShopFootprints.objects.filter(user=request.user).values_list('shop_id', flat=True)
+    shops = shopInformation_many(Shop.objects.filter(id__in=shop_ids).order_by('-date'))
+    return render(request, '足跡頁面', locals())
