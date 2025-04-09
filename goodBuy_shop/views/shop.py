@@ -22,7 +22,6 @@ def add_or_edit_shop(request, shop_id=None):
         if form.is_valid():
             shop = form.save()
 
-            # 若為封面圖，先取消其他封面
             if images and 0 <= cover_index < len(images):
                 ShopImg.objects.filter(shop=shop, is_cover=True).update(is_cover=False)
 
@@ -33,10 +32,21 @@ def add_or_edit_shop(request, shop_id=None):
                     is_cover=(idx == cover_index)
                 )
 
+            images_qs = ShopImg.objects.filter(shop=shop)
+
+            if not images_qs.exists():
+                ShopImg.objects.create(
+                    shop=shop,
+                    img='默認商店圖片',
+                    is_cover=True
+                )
+            elif not images_qs.filter(is_cover=True).exists():
+                first_img = images_qs.first()
+                first_img.is_cover = True
+                first_img.save()
+
             messages.success(request, '商店儲存成功')
             return redirect('shop_detail', shop_id=shop.id)
-        else:
-            messages.error(request, '商店儲存失敗')
 
     else:
         form = ShopForm(user=request.user, instance=shop)

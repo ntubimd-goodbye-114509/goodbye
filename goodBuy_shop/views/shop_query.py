@@ -13,18 +13,21 @@ def shopAll_update(request):
     shops = Shop.objects.filter(permission__id=1).order_by('-date')
     return render(request, '主頁', locals())
 
-####################################################
-# user_id查詢
-@user_exists_required
-def shopByUserId_many(request, user):
-    shops = (
-        Shop.objects
+def shopInformation_many(shops):
+    return (
+        shops
         .select_related('permission', 'shop_state', 'purchase_priority')
         .prefetch_related(
             Prefetch('shop_payment_set', queryset=ShopPayment.objects.select_related('payment_account')),
             Prefetch('shop_tag_set', queryset=ShopTag.objects.select_related('tag')),
-        ).filter(owner=user)
+            Prefetch('images', queryset=ShopImg.objects.filter(is_cover=True)),
+        )
     )
+####################################################
+# user_id查詢
+@user_exists_required
+def shopByUserId_many(request, user):
+    shops = shopInformation_many(Shop.objects.filter(owner=user))
     # 看別人的只顯示公開
     if not request.user.is_authenticated or request.user != user:
         shops = shops.filter(permission__id=1)
@@ -33,14 +36,6 @@ def shopByUserId_many(request, user):
 
 @shop_exists_required
 def shopById_one(request, shop):
-    shop = (
-        shop.select_related('permission', 'shop_state', 'purchase_priority', 'owner')
-        .prefetch_related(
-            Prefetch('shop_payment_set', queryset=ShopPayment.objects.select_related('payment_account')),
-            Prefetch('shop_tag_set', queryset=ShopTag.objects.select_related('tag')),
-        )
-    )
-
     if request.user.is_authenticated and request.user.id == shop.owner.id:
         announcements = shop.shop_announcement_set.all().order_by('-date')
         return render(request, '自己賣場', locals())
@@ -69,10 +64,7 @@ def shopBySearch(request):
     # tag和name的
     shops = Shop.objects.filter(Q(name__icontains=kw) | (Q(id__in=shop_ids_by_tag) & Q(permission__id=1))).distinct()
 
-    shops = shops.select_related('permission', 'shop_state', 'purchase_priority').prefetch_related(
-        Prefetch('shop_payment_set', queryset=ShopPayment.objects.select_related('payment_account')),
-        Prefetch('shop_tag_set', queryset=ShopTag.objects.select_related('tag')),
-    )
+    shops = shopInformation_many(shops)
     return render(request, '搜尋結果界面', locals())
 
 @tag_exists_required
@@ -81,10 +73,7 @@ def shopByTag(request, tag):
 
     shops = Shop.objects.filter(id__in=shop_ids, permission__id=1)
 
-    shops = shops.select_related('permission', 'shop_state', 'purchase_priority').prefetch_related(
-        Prefetch('shop_payment_set', queryset=ShopPayment.objects.select_related('payment_account')),
-        Prefetch('shop_tag_set', queryset=ShopTag.objects.select_related('tag')),
-    )
+    shops = shopInformation_many(shops)
 
     return render(request, '搜尋結果界面', locals())
 
@@ -93,15 +82,6 @@ def shopByPermissionId(request, user, permission_id):
     if not Permission.objects.filter(id=permission_id).exists():
         messages.error(request, "權限參數無效")
         return redirect('home')
-    shops = (
-        Shop.objects
-        .select_related('permission', 'shop_state', 'purchase_priority')
-        .prefetch_related(
-            Prefetch('shop_payment_set', queryset=ShopPayment.objects.select_related('payment_account')),
-            Prefetch('shop_tag_set', queryset=ShopTag.objects.select_related('tag')),
-        ).filter(owner=user, permission__id=permission_id).order_by('-date')
-    )
+    shops = shopInformation_many(Shop.objects.filter(owner=user, permission__id=permission_id)).order_by('-date')
+
     return render(request, '查詢完成頁面', locals())
-
-
-

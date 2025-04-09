@@ -1,9 +1,14 @@
 from django.shortcuts import redirect, get_object_or_404
 from functools import wraps
 from django.contrib import messages
-from goodBuy_shop.models import Shop
-from goodBuy_web.models import User
-from goodBuy_tag.models import Tag
+from django.db.models import *
+from django.contrib import messages
+from django.shortcuts import *
+
+from goodBuy_shop.models import *
+from goodBuy_web.models import *
+from .utils import *
+from .forms import *
 
 # =============跳轉頁面版本===============
 
@@ -41,7 +46,16 @@ def shop_exists_required(view_func):
     @wraps(view_func)
     def _wrapped_view(request, shop_id, *args, **kwargs):
         try:
-            shop = Shop.objects.get(id=shop_id)
+            shop = (
+                Shop.objects
+                .select_related('permission', 'shop_state', 'purchase_priority', 'owner')
+                .prefetch_related(
+                    Prefetch('shop_payment_set', queryset=ShopPayment.objects.select_related('payment_account')),
+                    Prefetch('shop_tag_set', queryset=ShopTag.objects.select_related('tag')),
+                    Prefetch('images', queryset=ShopImg.objects.all().order_by('-is_cover', 'position', 'update')),
+                )
+                .get(id=shop_id)
+            )
         except Shop.DoesNotExist:
             messages.error(request, '找不到這個商店呢qwq')
             return redirect('home')
