@@ -56,6 +56,7 @@ def add_or_edit_shop(request, shop_id=None):
         'shop': shop
     })
 
+@login_required(login_url='login')
 @shop_owner_required
 def deleteShop(request, shop):
     shop.delete()
@@ -64,7 +65,7 @@ def deleteShop(request, shop):
 
 ####################################################
 # 圖片刪除
-@login_required
+@login_required(login_url='login')
 @shop_owner_required
 def delete_shop_image(request, shop, image_id):
     image = get_object_or_404(ShopImg, id=image_id, shop=shop)
@@ -73,7 +74,7 @@ def delete_shop_image(request, shop, image_id):
     return redirect('shop_edit', shop_id=shop.id)
 
 # 圖片設為封面
-@login_required
+@login_required(login_url='login')
 @shop_owner_required
 def set_cover_image(request, shop, image_id):
     ShopImg.objects.filter(shop=shop).update(is_cover=False)

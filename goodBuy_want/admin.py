@@ -5,3 +5,5 @@ from .models import *
 admin.site.register(Want)
 admin.site.register(WantBack)
 admin.site.register(WantFootprints)
+admin.site.register(wantImg)
+admin.site.register(WantTag)

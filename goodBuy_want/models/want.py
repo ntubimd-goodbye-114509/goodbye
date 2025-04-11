@@ -5,5 +5,4 @@ class Want(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.CharField(max_length=255)
     post_text = models.TextField()
-    img = models.ImageField(upload_to='want_img/', blank=True, null=True)
     update_time = models.DateTimeField(auto_now=True)
