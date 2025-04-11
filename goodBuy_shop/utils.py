@@ -1,27 +1,14 @@
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import redirect
 from functools import wraps
 from django.contrib import messages
 from django.db.models import *
 from django.contrib import messages
 from django.shortcuts import *
 
-from goodBuy_shop.models import *
+from .models import *
 from goodBuy_web.models import *
-from .utils import *
-from .forms import *
-
+from goodBuy_tag.models import *
 # =============跳轉頁面版本===============
-
-def user_exists_required(view_func):
-    @wraps(view_func)
-    def _wrapped_view(request, user_id, *args, **kwargs):
-        try:
-            user = User.objects.get(id=user_id)
-        except User.DoesNotExist:
-            messages.error(request, "找不到使用者呢")
-            return redirect('home')
-        return view_func(request, user, *args, **kwargs)
-    return _wrapped_view
 
 def shop_owner_required(view_func):
     @wraps(view_func)
@@ -60,17 +47,6 @@ def shop_exists_required(view_func):
             messages.error(request, '找不到這個商店呢qwq')
             return redirect('home')
         return view_func(request, shop, *args, **kwargs)
-    return _wrapped_view
-
-def tag_exists_required(view_func):
-    @wraps(view_func)
-    def _wrapped_view(request, tag_id, *args, **kwargs):
-        try:
-            tag = Tag.objects.get(id=tag_id)
-        except Tag.DoesNotExist:
-            messages.error(request, '找不到這個Tag呢qwq')
-            return redirect('home')
-        return view_func(request, tag, *args, **kwargs)
     return _wrapped_view
 
 # =============json彈窗js版本===============

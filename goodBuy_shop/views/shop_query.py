@@ -6,8 +6,12 @@ from datetime import timezone
 
 from goodBuy_shop.models import *
 from goodBuy_web.models import *
+
 from ..utils import *
-from ..forms import *
+from goodBuy_web.utils import *
+from goodBuy_tag.utils import *
+
+####################################################
 
 def shopAll_update(request):
     shops = Shop.objects.filter(permission__id=1).order_by('-date')
@@ -41,7 +45,7 @@ def shopById_one(request, shop):
         return render(request, '自己賣場', locals())
 
     if shop.permission.id != 1:
-        msg = '當前賣場不公開'
+        messages.error(request, '當前賣場不公開')
         return redirect('error')
 
     if request.user.is_authenticated:

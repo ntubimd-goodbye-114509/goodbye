@@ -5,6 +5,7 @@ from django.shortcuts import *
 from goodBuy_shop.models import *
 from goodBuy_web.models import *
 from ..utils import *
+from goodBuy_web.utils import *
 from ..forms import *
 
 ####################################################
