@@ -5,10 +5,13 @@ from .models import *
 admin.site.register(Permission)
 admin.site.register(ShopState)
 admin.site.register(PurchasePriority)
+
 admin.site.register(Shop)
-admin.site.register(ShopPayment)
-admin.site.register(ShopTag)
 admin.site.register(Product)
+admin.site.register(ShopAnnouncement)
+
+admin.site.register(ShopTag)
+admin.site.register(ShopPayment)
 
 admin.site.register(ShopCollect)
 admin.site.register(ShopFootprints)

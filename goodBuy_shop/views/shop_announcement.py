@@ -76,5 +76,4 @@ def editAnnouncement(request, shop, announcement_id):
 
     return render(request, 'announcement_form.html', locals())
 
-
 ####################################################

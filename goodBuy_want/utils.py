@@ -1,7 +1,12 @@
+from django.shortcuts import redirect, get_object_or_404
 from functools import wraps
-from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
-from .models import Want
+from django.db.models import *
+from django.contrib import messages
+from django.shortcuts import *
+
+from .models import *
+from .utils import *
 
 def want_owner_required(view_func):
     @wraps(view_func)
@@ -14,3 +19,21 @@ def want_owner_required(view_func):
 
         return view_func(request, want, *args, **kwargs)
     return _wrapped_view
+
+def want_exists_required(view_func):
+    @wraps(view_func)
+    def _wrapped_view(request, want_id, *args, **kwargs):
+        try:
+            want = (
+                Want.objects
+                .select_related('permission', 'want_state', 'purchase_priority', 'owner')
+                .prefetch_related(
+                    Prefetch('want_tag_set', queryset=WantTag.objects.select_related('tag')),
+                    Prefetch('images', queryset=WantImg.objects.all().order_by('-is_cover', 'position', 'update')),
+                )
+                .get(id=want_id)
+            )
+        except want.DoesNotExist:
+            messages.error(request, '找不到這個收物帖呢qwq')
+            return redirect('home')
+        return view_func(request, want, *args, **kwargs)
