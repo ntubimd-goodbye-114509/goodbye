@@ -1,6 +1,6 @@
 from django.shortcuts import *
 from goodBuy_web.models import *
-from django.contrib.auth import authenticate,login,logout
+from django.contrib.auth import  authenticate,login,logout
 from django.contrib.auth.hashers import check_password
 import re
 from django.contrib import messages
@@ -55,6 +55,7 @@ def register(request):
             
         u = User.objects.create_user(username=username, password=password, email=email)
         u.save()
+        Profile.objects.create(user=u)
         return redirect('/login/')
     return render(request,'common/register.html')
 
@@ -81,45 +82,6 @@ def change_pass(request):
             messages.success(request, '密碼修改成功')
             return redirect('/login/')
     return render(request, 'common/change_pass.html')
-
-@login_required
-def edit_profile(request):
-    if request.method == 'POST':
-        # 更新電子郵件
-        email = request.POST.get('email')
-        if email and email != request.user.email:
-            if User.objects.filter(email=email).exists():
-                messages.error(request, '此電子郵件已被使用')
-            else:
-                request.user.email = email
-
-        # 更新用戶名
-        username = request.POST.get('username')
-        if username and username != request.user.username:
-            if User.objects.filter(username=username).exists():
-                messages.error(request, '此用戶名已被使用')
-            else:
-                request.user.username = username
-
-        # 更新密碼
-        new_password = request.POST.get('new_password')
-        confirm_password = request.POST.get('confirm_password')
-        if new_password and confirm_password:
-            if new_password != confirm_password:
-                messages.error(request, '新密碼與確認密碼不一致')
-            else:
-                request.user.set_password(new_password)
-
-        # 更新個人介紹
-        bio = request.POST.get('introduce')
-        if bio:
-            request.user.profile.bio = bio
-
-        # 保存更改
-        request.user.save()
-        request.user.profile.save()
-        messages.success(request, '個人資料已成功更新')
-        return redirect('profile')
     
 @login_required
 def edit_profile(request):
