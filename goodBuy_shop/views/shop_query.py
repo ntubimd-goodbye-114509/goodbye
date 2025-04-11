@@ -6,8 +6,8 @@ from datetime import timezone
 
 from goodBuy_shop.models import *
 from goodBuy_web.models import *
-from .utils import *
-from .forms import *
+from ..utils import *
+from ..forms import *
 
 def shopAll_update(request):
     shops = Shop.objects.filter(permission__id=1).order_by('-date')

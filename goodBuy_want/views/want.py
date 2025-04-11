@@ -1,0 +1,90 @@
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from ..models import *
+from ..forms import *
+from ..utils import *
+
+@login_required(login_url='login')
+def add_want(request):
+    form = WantForm(request.POST or None, request.FILES or None)
+    if request.method == 'POST':
+        if form.is_valid():
+            want = form.save(user=request.user)
+            images = request.FILES.getlist('images')
+            cover_index = int(request.POST.get('cover_index', -1))
+            order_str = request.POST.get('image_order')
+
+            if order_str:
+                order_list = list(map(int, order_str.split(',')))
+                sorted_images = [images[i] for i in order_list]
+            else:
+                sorted_images = images
+            
+            for idx, img in enumerate(sorted_images):
+                WantImg.objects.create(want=want, img=img, is_cover=(idx == cover_index), position=idx)
+
+            messages.success(request, '收物帖新增成功')
+            return redirect('want_detail', want_id=want.id)
+        else:
+            messages.error(request, '表單資料有誤')
+    return render(request, 'want_form.html', locals())
+
+@login_required(login_url='login')
+@want_owner_required
+def edit_want(request, want):
+    form = WantForm(request.POST or None, request.FILES or None, instance=want)
+    if request.method == 'POST':
+        if form.is_valid():
+            want = form.save(user=request.user)
+            images = request.FILES.getlist('images')
+            cover_index = int(request.POST.get('cover_index', -1))
+            order_str = request.POST.get('image_order')
+
+            if order_str:
+                order_list = list(map(int, order_str.split(',')))
+                sorted_images = [images[i] for i in order_list]
+            else:
+                sorted_images = images
+
+            for idx, img in enumerate(sorted_images):
+                WantImg.objects.create(want=want, img=img, is_cover=(idx == cover_index), position=idx)
+
+            messages.success(request, '收物帖修改成功')
+            return redirect('want_detail', want_id=want.id)
+        else:
+            messages.error(request, '表單資料有誤')
+    return render(request, 'want_form.html', locals())
+
+@login_required(login_url='login')
+@want_owner_required
+def edit_want(request, want):
+    if request.method == 'POST':
+        form = WantForm(request.POST, request.FILES, instance=want)
+        if form.is_valid():
+            form.save()
+            return redirect('post_detail', post_id=want.id)
+        else:
+            error = '請確認表單資料是否完整'
+            return render(request, 'edit_post.html', locals())
+    else:
+        form = WantForm(instance=want)
+    return render(request, 'edit_post.html', locals())
+
+####################################################
+# 圖片刪除
+@login_required(login_url='login')
+@want_owner_required
+def delete_want_image(request, want, image_id):
+    image = get_object_or_404(WantImg, id=image_id, want=want)
+    image.delete()
+    messages.success(request, '圖片已刪除')
+    return redirect('want_edit', want_id=want.id)
+
+# 圖片設為封面
+@login_required(login_url='login')
+@want_owner_required
+def set_cover_image(request, want, image_id):
+    WantImg.objects.filter(want=want).update(is_cover=False)
+    WantImg.objects.filter(id=image_id, want=want).update(is_cover=True)
+    messages.success(request, '封面已更新')
+    return redirect('want_edit', want_id=want.id)

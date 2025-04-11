@@ -4,9 +4,7 @@ from django.views.decorators.http import require_GET
 
 from .models import *
 
-# Create your views here.
-def tag_search(request):
+def tag_search_api(request):
     q = request.GET.get('q', '')
-    tags = Tag.objects.filter(name__icontains=q)
-    results = [{'id': t.id, 'text': t.name} for t in tags]
-    return JsonResponse({'results': results})
+    tags = Tag.objects.filter(name__icontains=q).values('name')[:10]
+    return JsonResponse(list(tags), safe=False)

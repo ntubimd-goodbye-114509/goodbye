@@ -5,13 +5,14 @@ class WantForm(forms.ModelForm):
     tag_names = forms.CharField(required=False, widget=forms.HiddenInput())
     images = forms.FileField(required=False, widget=forms.ClearableFileInput(attrs={'multiple': True, 'class': 'form-control'}))
     cover_index = forms.IntegerField(required=False, widget=forms.HiddenInput())
+    image_order = forms.CharField(required=False, widget=forms.HiddenInput())
 
     class Meta:
         model = Want
         fields = ['title', 'post_text']
         widgets = {
-            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '輸入需求標題'}),
-            'post_text': forms.Textarea(attrs={'class': 'form-control', 'placeholder': '輸入需求內容'})
+            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '輸入收物帖標題'}),
+            'post_text': forms.Textarea(attrs={'class': 'form-control', 'placeholder': '輸入收物帖內容'})
         }
 
     def save(self, commit=True, user=None):
