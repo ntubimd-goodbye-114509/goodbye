@@ -5,56 +5,61 @@ from django.shortcuts import *
 
 from goodBuy_shop.models import *
 from goodBuy_web.models import *
-from .utils import *
-from .forms import *
+from ..utils import *
+from ..forms import *
 from .time_f import *
 
 # 商店
 @login_required(login_url='login')
-def add_or_edit_shop(request, shop_id=None):
-    shop = get_object_or_404(Shop, id=shop_id) if shop_id else None
-
+def add_shop(request):
+    form = ShopForm(request.POST or None, request.FILES or None, user=request.user)
     if request.method == 'POST':
-        form = ShopForm(request.POST, user=request.user, instance=shop)
-        images = request.FILES.getlist('images')
-        cover_index = int(request.POST.get('cover_index', -1))
-
         if form.is_valid():
             shop = form.save()
+            images = request.FILES.getlist('images')
+            cover_index = int(request.POST.get('cover_index', -1))
+            order_str = request.POST.get('image_order')
 
-            if images and 0 <= cover_index < len(images):
-                ShopImg.objects.filter(shop=shop, is_cover=True).update(is_cover=False)
+            if order_str:
+                order_list = list(map(int, order_str.split(',')))
+                sorted_images = [images[i] for i in order_list]
+            else:
+                sorted_images = images
 
-            for idx, image_file in enumerate(images):
-                ShopImg.objects.create(
-                    shop=shop,
-                    img=image_file,
-                    is_cover=(idx == cover_index)
-                )
+            for idx, img in enumerate(sorted_images):
+                ShopImg.objects.create(shop=shop, img=img, is_cover=(idx == cover_index), position=idx)
 
-            images_qs = ShopImg.objects.filter(shop=shop)
-
-            if not images_qs.exists():
-                ShopImg.objects.create(
-                    shop=shop,
-                    img='默認商店圖片',
-                    is_cover=True
-                )
-            elif not images_qs.filter(is_cover=True).exists():
-                first_img = images_qs.first()
-                first_img.is_cover = True
-                first_img.save()
-
-            messages.success(request, '商店儲存成功')
+            messages.success(request, '商店新增成功')
             return redirect('shop_detail', shop_id=shop.id)
+        else:
+            messages.error(request, '表單資料有誤')
+    return render(request, 'shop_form.html', {'form': form})
 
-    else:
-        form = ShopForm(user=request.user, instance=shop)
+@login_required(login_url='login')
+@shop_owner_required
+def edit_shop(request, shop):
+    form = ShopForm(request.POST or None, request.FILES or None, instance=shop, user=request.user)
+    if request.method == 'POST':
+        if form.is_valid():
+            shop = form.save()
+            images = request.FILES.getlist('images')
+            cover_index = int(request.POST.get('cover_index', -1))
+            order_str = request.POST.get('image_order')
 
-    return render(request, 'shop_form.html', {
-        'shop_form': form,
-        'shop': shop
-    })
+            if order_str:
+                order_list = list(map(int, order_str.split(',')))
+                sorted_images = [images[i] for i in order_list]
+            else:
+                sorted_images = images
+
+            for idx, img in enumerate(sorted_images):
+                ShopImg.objects.create(shop=shop, img=img, is_cover=(idx == cover_index), position=idx)
+
+            messages.success(request, '商店資訊修改成功')
+            return redirect('shop_detail', shop_id=shop.id)
+        else:
+            messages.error(request, '表單資料有誤')
+    return render(request, 'shop_form.html', {'form': form, 'shop': shop})
 
 @login_required(login_url='login')
 @shop_owner_required

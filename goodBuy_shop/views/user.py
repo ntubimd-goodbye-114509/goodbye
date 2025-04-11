@@ -6,7 +6,7 @@ from datetime import timezone
 
 from goodBuy_shop.models import *
 from goodBuy_web.models import *
-from .utils import *
+from ..utils import *
 from shop_query import *
 
 @login_required(login_url='login')

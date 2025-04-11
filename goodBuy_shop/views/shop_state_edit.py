@@ -4,8 +4,8 @@ from django.shortcuts import *
 
 from goodBuy_shop.models import *
 from goodBuy_web.models import *
-from .utils import *
-from .forms import *
+from ..utils import *
+from ..forms import *
 
 ####################################################
 # 單項狀態修改

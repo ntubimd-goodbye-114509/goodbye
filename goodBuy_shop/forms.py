@@ -7,22 +7,37 @@ from django import forms
 from goodBuy_shop.models import *
 from goodBuy_tag.models import *
 from goodBuy_web.models import *
-from .time_f import *
+from .views.time_f import *
 
 class ShopForm(forms.ModelForm):
     payment_ids = forms.ModelMultipleChoiceField(queryset=PaymentAccount.objects.none(), required=False, widget=forms.CheckboxSelectMultiple)
     tag_names = forms.CharField(required=False, widget=forms.HiddenInput())
     images = forms.FileField(required=False, widget=forms.ClearableFileInput(attrs={'multiple': True, 'class': 'form-control'}))
     cover_index = forms.IntegerField(required=False, widget=forms.HiddenInput())
-    start_time = forms.TimeField(input_formats=['%H:%M'], required=False)
-    end_time = forms.TimeField(input_formats=['%H:%M'], required=False)
+    image_order = forms.CharField(required=False, widget=forms.HiddenInput())
+    start_time = forms.DateTimeField(
+        input_formats=['%Y-%m-%d %H:%M'],
+        widget=forms.DateTimeInput(attrs={
+            'type': 'datetime-local',
+            'class': 'form-control'
+        }),
+        required=False
+    )
+    end_time = forms.DateTimeField(
+        input_formats=['%Y-%m-%d %H:%M'],
+        widget=forms.DateTimeInput(attrs={
+            'type': 'datetime-local',
+            'class': 'form-control'
+        }),
+        required=False
+    )
 
     class Meta:
         model = Shop
         fields = ['name', 'introduce', 'start_time', 'end_time', 'shop_state', 'permission', 'purchase_priority']
         widgets = {
-            'name': forms.TextInput(attrs={'class': 'form-control'}),
-            'introduce': forms.Textarea(attrs={'class': 'form-control'})
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '輸入商店名稱'}),
+            'introduce': forms.Textarea(attrs={'class': 'form-control', 'placeholder': '輸入商店介紹'})
         }
 
     def __init__(self, *args, **kwargs):
@@ -37,7 +52,7 @@ class ShopForm(forms.ModelForm):
             self.fields['payment_ids'].queryset = PaymentAccount.objects.filter(id__in=[acc.id for acc in sorted_accounts])
 
         if self.instance and self.instance.pk:
-            self.fields['payment_ids'].initial = self.instance.paymentaccount_set.values_list('id', flat=True)
+            self.fields['payment_ids'].initial = self.instance.payment_account_set.values_list('id', flat=True)
 
     def save(self, commit=True):
         shop = super().save(commit=False)
