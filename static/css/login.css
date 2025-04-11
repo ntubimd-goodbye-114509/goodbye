@@ -1,161 +1,161 @@
 .head {
-    margin: 0;
-    padding: 0;
-    font-family: 'Noto Sans TC', sans-serif;
+  margin: 0;
+  padding: 0;
+  font-family: 'Noto Sans TC', sans-serif;
 }
 
 .header {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background-color: #A3C6E0;
-    position: relative;
-    width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #A3C6E0;
+  position: relative;
+  width: 100%;
 }
 
 /* 側邊欄 */
 .menu {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 70%;
-    max-width: 280px;
-    height: 100%;
-    background-color: rgba(219, 232, 242, 0.95);
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-    transform: translateX(-100%); /* 預設藏起來 */
-    transition: transform 0.3s ease;
-    z-index: 100;
-    padding: 5%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 70%;
+  max-width: 280px;
+  height: 100%;
+  background-color: rgba(219, 232, 242, 0.95);
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  transform: translateX(-100%); /* 預設藏起來 */
+  transition: transform 0.3s ease;
+  z-index: 100;
+  padding: 5%;
 }
 
 .menu.active {
-    transform: translateX(0); /* 滑出 */
+  transform: translateX(0); /* 滑出 */
 }
 
 .menu ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
 .menu ul li {
-    margin-bottom: 5%;
+  margin-bottom: 5%;
 }
 
 .menu ul li a {
-    text-decoration: none;
-    color: #5476a7;
-    font-size: 1.1em;
+  text-decoration: none;
+  color: #5476a7;
+  font-size: 1.1em;
 }
 
 .menu-btn {
-    position: absolute;
-    top: 2%;
-    left: 3%;
-    background: none;
-    border: none;
-    cursor: pointer;
+  position: absolute;
+  top: 2%;
+  left: 3%;
+  background: none;
+  border: none;
+  cursor: pointer;
 }
 
 .menu-btn img {
-    width: 8vw;
-    max-width: 60px;
-    height: auto;
+  width: 8vw;
+  max-width: 60px;
+  height: auto;
 }
 
 .logo {
-    margin: 1% 0;
+  margin: 1% 0;
 }
 
 .logo img {
-    height: 15vh;
-    max-height: 150px;
-    object-fit: contain;
+  height: 15vh;
+  max-height: 150px;
+  object-fit: contain;
 }
 
 .search-bar {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 80%;
-    max-width: 90%;
-    margin: -3% 0 3% 0;
-    flex-wrap: wrap;
-    position: relative;
-    z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80%;
+  max-width: 90%;
+  margin: -3% 0 3% 0;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 10;
 }
 
 .search-bar input {
-    flex: 1;
-    padding: 2% 3%;
-    border: none;
-    border-radius: 25px 0 0 25px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-    outline: none;
-    min-width: 50%;
+  flex: 1;
+  padding: 2% 3%;
+  border: none;
+  border-radius: 25px 0 0 25px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  outline: none;
+  min-width: 50%;
 }
 
 .search-bar button {
-    padding: 2% 3%;
-    border: none;
-    background-color: white;
-    border-left: 1px solid #ccc;
-    border-radius: 0 25px 25px 0;
-    cursor: pointer;
-    color: #270303;
+  padding: 2% 3%;
+  border: none;
+  background-color: white;
+  border-left: 1px solid #ccc;
+  border-radius: 0 25px 25px 0;
+  cursor: pointer;
+  color: #270303;
 }
 
 .msg-btn {
-    position: absolute;
-    top: 2%;
-    right: 3%;
-    background: none;
-    border: none;
-    cursor: pointer;
+  position: absolute;
+  top: 2%;
+  right: 3%;
+  background: none;
+  border: none;
+  cursor: pointer;
 }
 
 .msg-btn img {
-    width: 6vw;
-    max-width: 32px;
-    height: auto;
+  width: 6vw;
+  max-width: 32px;
+  height: auto;
 }
 
 /* 手機 RWD */
 @media (max-width: 600px) {
-    .menu {
-        width: 70%;
-        left: -70%;
-        top: 12%;
-    }
+  .menu {
+      width: 70%;
+      left: -70%;
+      top: 12%;
+  }
 
-    .menu ul li a {
-        font-size: 1em;
-    }
+  .menu ul li a {
+      font-size: 1em;
+  }
 
-    .menu-btn img,
-    .msg-btn img {
-        width: 10vw;
-    }
+  .menu-btn img,
+  .msg-btn img {
+      width: 10vw;
+  }
 
-    .logo img {
-        height: 12vh;
-    }
+  .logo img {
+      height: 12vh;
+  }
 
-    .search-bar {
-        flex-direction: column;
-        width: 90%;
-        margin-top: 2%;
-    }
+  .search-bar {
+      flex-direction: column;
+      width: 90%;
+      margin-top: 2%;
+  }
 
-    .search-bar input,
-    .search-bar button {
-        width: 100%;
-        border-radius: 25px;
-        margin-bottom: 3%;
-    }
+  .search-bar input,
+  .search-bar button {
+      width: 100%;
+      border-radius: 25px;
+      margin-bottom: 3%;
+  }
 
-    .search-bar button {
-        border-left: none;
-    }
+  .search-bar button {
+      border-left: none;
+  }
 }
