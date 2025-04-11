@@ -6,6 +6,8 @@ from django.contrib import messages
 from django.shortcuts import *
 
 from .models import *
+from goodBuy_shop import Shop
+
 from .utils import *
 
 def want_owner_required(view_func):
@@ -37,3 +39,19 @@ def want_exists_required(view_func):
             messages.error(request, '找不到這個收物帖呢qwq')
             return redirect('home')
         return view_func(request, want, *args, **kwargs)
+    
+def want_and_shop_exists_required(view_func):
+    @wraps(view_func)
+    def _wrapped_view(request, want_id, shop_id, *args, **kwargs):
+        try:
+            want = Want.objects.prefetch_related(...).get(id=want_id)
+            shop = Shop.objects.prefetch_related(...).get(id=shop_id)
+        except Want.DoesNotExist:
+            messages.error(request, '找不到這個收物帖')
+            return redirect('home')
+        except Shop.DoesNotExist:
+            messages.error(request, '找不到這個商店')
+            return redirect('home')
+
+        return view_func(request, want, shop, *args, **kwargs)
+    return _wrapped_view
