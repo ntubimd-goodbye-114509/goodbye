@@ -8,3 +8,11 @@ class Comment(models.Model):
     rank = models.IntegerField()
     comment = models.TextField()
     update = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'order'], name='unique_user_order_comment')
+        ]
+    
+    def __str__(self):
+        return f'{self.rank}{self.comment}'
