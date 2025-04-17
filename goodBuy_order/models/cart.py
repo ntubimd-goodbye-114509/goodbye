@@ -7,3 +7,11 @@ class Cart(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     amount = models.IntegerField()
     update = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'product'], name='unique_user_cart')
+        ]
+    
+    def __str__(self):
+        return f'{self.product}*{self.amount}'

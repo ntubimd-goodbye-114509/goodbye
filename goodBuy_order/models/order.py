@@ -14,3 +14,6 @@ class Order(models.Model):
     order_state = models.ForeignKey(OrderState, on_delete=models.CASCADE)
     second_supplement = models.IntegerField(blank=True, null=True)
     pay = models.IntegerField(blank=True, null=True)
+
+    def __str__(self):
+        return f'{self.shop}{self.date}花費{self.total}'

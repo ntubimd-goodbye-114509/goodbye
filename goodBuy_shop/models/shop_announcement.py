@@ -6,3 +6,6 @@ class ShopAnnouncement(models.Model):
     title = models.CharField(max_length=255)
     announcement = models.TextField(blank=True, null=True)
     date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title

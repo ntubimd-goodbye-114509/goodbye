@@ -6,6 +6,11 @@ class ShopFootprints(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True)
-    
+
     class Meta:
-        unique_together = ('user', 'shop')
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'shop'], name='unique_user_shop_footprints')
+        ]
+    
+    def __str__(self):
+        return self.shop

@@ -16,5 +16,6 @@ class Shop(models.Model):
     permission = models.ForeignKey(Permission, on_delete=models.CASCADE)
     purchase_priority = models.ForeignKey(PurchasePriority, on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True)
+    
     def __str__(self):
         return self.name

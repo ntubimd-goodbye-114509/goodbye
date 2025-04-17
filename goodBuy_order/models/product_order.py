@@ -9,3 +9,11 @@ class ProductOrder(models.Model):
     product_name = models.CharField(max_length=255, null=True, blank=True)
     product_price = models.IntegerField(null=True, blank=True)
     product_img = models.CharField(max_length=100, null=True, blank=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['order', 'product'], name='unique_order_product')
+        ]
+    
+    def __str__(self):
+        return self.product

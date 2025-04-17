@@ -8,3 +8,6 @@ class Want(models.Model):
     post_text = models.TextField()
     permission = models.ForeignKey(Permission, on_delete=models.CASCADE)
     update_time = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.title
