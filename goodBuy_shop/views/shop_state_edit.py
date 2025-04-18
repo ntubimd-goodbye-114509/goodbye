@@ -6,7 +6,7 @@ from goodBuy_shop.models import *
 from goodBuy_web.models import *
 from ..utils import *
 from goodBuy_web.utils import *
-from ..forms import *
+from ..shop_forms import *
 
 ####################################################
 # 單項狀態修改

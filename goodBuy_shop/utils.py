@@ -19,7 +19,7 @@ def shop_owner_required(view_func):
         try:
             shop = Shop.objects.get(id=shop_id)
         except Shop.DoesNotExist:
-            messages.error(request, '商店不存在或被消失了呢')
+            messages.error(request, '找不到這個商店呢qwq')
             return redirect('home')
 
         if shop.owner.id != request.user.id:
@@ -45,6 +45,36 @@ def shop_exists_required(view_func):
             )
         except Shop.DoesNotExist:
             messages.error(request, '找不到這個商店呢qwq')
+            return redirect('home')
+        return view_func(request, shop, *args, **kwargs)
+    return _wrapped_view
+
+def product_owner_required(view_func):
+    @wraps(view_func)
+    def _wrapped_view(request, product_id, *args, **kwargs):
+        if not request.user.is_authenticated:
+            messages.error(request, '需要登入才可操作')
+            return redirect('home')
+        try:
+            product = Product.objects.get(id=product_id)
+        except Product.DoesNotExist:
+            messages.error(request, '找不到這個商品呢qwq')
+            return redirect('home')
+
+        if product.shop.owner.id != request.user.id:
+            messages.error(request, '這不是您的商品哦')
+            return redirect('home')
+
+        return view_func(request, shop, *args, **kwargs)
+    return _wrapped_view
+
+def product_exists_required(view_func):
+    @wraps(view_func)
+    def _wrapped_view(request, product_id, *args, **kwargs):
+        try:
+            product = Product.objects.get(id=product_id)
+        except Shop.DoesNotExist:
+            messages.error(request, '找不到這個商品呢qwq')
             return redirect('home')
         return view_func(request, shop, *args, **kwargs)
     return _wrapped_view
