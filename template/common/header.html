@@ -31,36 +31,35 @@
         <nav class="menu" id="menu">
             {% if request.user.is_authenticated %}
               <!-- 登入後 -->
-              <div class="user-info">
-                <img src="{{ request.user.profile.avatar.url|default:'default_avatar.png' }}" class="avatar" />
-                <h3>{{ request.user.username }}</h3>
-                <a href="">點擊編輯個人資料 ></a>
-                <div class="btn-group">
-                  <button>收藏</button>
-                  <button>發布收物帖</button>
-                  <button>我的賣場</button>
-                  <button>團務管理</button>
-                  <button>去記帳 $</button>
-                </div>
+              <div class="social">
+              <img src="{{ request.user.profile.avatar.url|default:'default_avatar.png' }}" class="avatar" />
+              <a href="">點擊編輯個人資料 </a>
+              </div>
 
-                <hr>
+              <div class="user-info">
+                <h3>{{ request.user.username }}</h3>
+                <div class="btn-group">
+                  <a href="#" class="Options">收藏</a>
+                  <a href="#" class="Options">發布收物帖</a>
+                  <a href="#" class="Options">我的賣場</a>
+                  <a href="#" class="Options">團務管理</a>
+                  <a href="#" class="Options">去記帳 $</a>
+                  <a href="{% url 'logout' %}">登出</a>
+                </div>
+              </div>
+
+                <hr />
+                
                 <div class="tellme">
-                  <p>問題回饋  GoodBuy114509@gmail.com</p>
-                  <p>追蹤我們：</p>
+                  <p>問題回饋 GoodBuy114509@gmail.com</p>
+                  <p>追蹤我們：
                   <div class="social-icons">
-                      <a href="#" target="_blank" aria-label="Facebook">
-                          <img src="/static/img/facebook.png" alt="Facebook" width="24" height="24">
-                      </a>
-                      <a href="#" target="_blank" aria-label="Instagram">
-                          <img src="/static/img/instagram.png" alt="Instagram" width="24" height="24">
-                      </a>
-                      <a href="#" target="_blank" aria-label="LINE">
-                          <img src="/static/img/line.png" alt="LINE" width="24" height="24">
-                      </a>
+                    <a href="#"><img src="/static/img/facebook.png" alt="Facebook" /></a>
+                    <a href="#"><img src="/static/img/instagram.png" alt="Instagram" /></a>
+                    <a href="#"><img src="/static/img/line.png" alt="LINE" /></a>
                   </div>
                 </div>
-                <a href="{% url 'logout' %}">登出</a>
-              </div>
+  
             {% else %}
               <!-- 未登入 -->
               <div class="user-info">
