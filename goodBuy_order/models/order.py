@@ -16,8 +16,6 @@ class Order(models.Model):
     date = models.DateTimeField(auto_now_add=True)
 
     payment_method = models.CharField(max_length=100)  # 使用者選擇的付款方式
-    payment = models.ForeignKey(PaymentAccount, on_delete=models.SET_NULL, null=True, blank=True)
-
     pay_state = models.ForeignKey(PayState, on_delete=models.CASCADE)
     order_state = models.ForeignKey(OrderState, on_delete=models.CASCADE)
 

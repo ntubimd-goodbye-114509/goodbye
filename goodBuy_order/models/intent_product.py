@@ -9,3 +9,14 @@ class IntentProduct(models.Model):
 
     class Meta:
         unique_together = ('intent', 'product')
+
+    def add_or_update_product(self, product, quantity):
+        intent_product, created = IntentProduct.objects.get_or_create(
+            intent=self,
+            product=product,
+            defaults={'quantity': quantity}
+        )
+        if not created:
+            intent_product.quantity += quantity
+            intent_product.save()
+        return intent_product, created

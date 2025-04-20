@@ -9,20 +9,24 @@ from goodBuy_shop.models import *
 from goodBuy_web.models import *
 from ..models import *
 from ..order_forms import *
+from ..utils import *
 
 # -------------------------
 # 單一商品購買（若為搶購則記錄 IntentProduct）
 # -------------------------
 @login_required(login_url='login')
-def purchase_single_product(request, product_id):
-    product = get_object_or_404(Product, id=product_id)
+@product_exists_and_not_own_shop_required
+def purchase_single_product(request, product):
     shop = product.shop
     quantity = int(request.POST.get('quantity', 1))
 
     if shop.purchase_priority_id != 1:
         intent, _ = PurchaseIntent.objects.get_or_create(user=request.user, shop=shop)
-        intent.add_or_update_product(product, quantity)
-        messages.success(request, '商品已加入搶購登記')
+        intent_product, created = intent.add_or_update_product(product, quantity)
+        if created:
+            messages.success(request, f'{product.name} 已加入多帶列表')
+        else:
+            messages.info(request, f'{product.name} 數量已累加至 {intent_product.quantity} 件')
         return redirect('product_detail', product_id=product.id)
 
     if request.method == 'POST':
@@ -44,6 +48,10 @@ def purchase_single_product(request, product_id):
                 locked_product.save()
 
                 payment_method_obj = get_object_or_404(Payment, id=payment_method_id)
+                if payment_method_id != 1:
+                        payment_method = f"匯款 - {payment_method_obj.name}"
+                else:
+                    payment_method = payment_method_obj.name
 
                 total_price = product.price * quantity
 
@@ -52,9 +60,8 @@ def purchase_single_product(request, product_id):
                     shop=shop,
                     shop_name=shop.name,
                     total=total_price,
-                    payment_method=payment_method_obj.name,
-                    payment=PaymentAccount.objects.get(id=payment_id) if payment_method_obj.name == '匯款' and payment_id else None,
-                    pay_state_id=1 if payment_method_obj.name == '貨到付款' else 2,
+                    payment_method=payment_method,
+                    pay_state_id=1 if payment_method_id == 1 else 2,
                     order_state_id=2 if shop.purchase_priority_id in [2, 3] else 1,
                     second_supplement=0,
                     pay=None
@@ -69,12 +76,13 @@ def purchase_single_product(request, product_id):
                     product_img=product.img.name if product.img else ''
                 )
 
-                # 判斷是否為定金制
-                if shop.deposit:
-                    OrderPayment.objects.create(order=order, amount=total_price // 2, is_deposit=True)
-                else:
+                if payment_method_id == 1:
                     OrderPayment.objects.create(order=order, amount=total_price, is_deposit=True)
-
+                else:
+                    if shop.deposit:
+                        OrderPayment.objects.create(order=order, amount=total_price*0.3 , is_deposit=True)
+                    else:
+                        OrderPayment.objects.create(order=order, amount=total_price, is_deposit=True)
                 messages.success(request, '下單成功')
                 return redirect('order_detail', order_id=order.id)
 
@@ -93,7 +101,6 @@ def purchase_from_cart(request):
         form = OrderCreateForm(request.POST)
         product_ids = request.POST.getlist('product_ids')
         payment_method_id = request.POST.get('payment_method')
-        payment_id = request.POST.get('payment')
 
         if form.is_valid() and product_ids:
             products = Product.objects.filter(id__in=product_ids)
@@ -119,10 +126,12 @@ def purchase_from_cart(request):
                 order.second_supplement = 0
 
                 payment_method_obj = get_object_or_404(Payment, id=payment_method_id)
-                if payment_method_obj.name == '匯款' and payment_id:
-                    order.payment = get_object_or_404(PaymentAccount, id=payment_id)
-                order.payment_method = payment_method_obj.name
-                order.pay_state_id = 1 if payment_method_obj.name == '貨到付款' else 2
+                if payment_method_id != 1:
+                    order.payment_method = f"匯款 - {payment_method_obj.name}"
+                else:
+                    order.payment_method = payment_method_obj.name
+
+                order.pay_state_id = 1 if payment_method_id == 1 else 2
                 order.order_state_id = 2 if shop.purchase_priority_id in [2, 3] else 1
 
                 order.save()
@@ -143,10 +152,13 @@ def purchase_from_cart(request):
                 order.total = total_price
                 order.save()
 
-                if shop.deposit:
-                    OrderPayment.objects.create(order=order, amount=total_price // 2, is_deposit=True)
-                else:
+                if payment_method_id == 1:
                     OrderPayment.objects.create(order=order, amount=total_price, is_deposit=True)
+                else:
+                    if shop.deposit:
+                        OrderPayment.objects.create(order=order, amount=total_price*0.3 , is_deposit=True)
+                    else:
+                        OrderPayment.objects.create(order=order, amount=total_price, is_deposit=True)
 
             messages.success(request, '訂單建立成功 / 搶購申請已送出')
             return redirect('order_list')
