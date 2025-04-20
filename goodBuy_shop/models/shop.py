@@ -16,6 +16,7 @@ class Shop(models.Model):
     permission = models.ForeignKey(Permission, on_delete=models.CASCADE)
     purchase_priority = models.ForeignKey(PurchasePriority, on_delete=models.CASCADE)
     deposit = models.BooleanField(default=False)
+    deposit_ratio = models.PositiveIntegerField(default=50)
     date = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):

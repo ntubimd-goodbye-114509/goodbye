@@ -23,6 +23,7 @@ def purchase_single_product(request, product):
     if shop.purchase_priority_id != 1:
         intent, _ = PurchaseIntent.objects.get_or_create(user=request.user, shop=shop)
         intent_product, created = intent.add_or_update_product(product, quantity)
+
         if created:
             messages.success(request, f'{product.name} 已加入多帶列表')
         else:
@@ -80,7 +81,9 @@ def purchase_single_product(request, product):
                     OrderPayment.objects.create(order=order, amount=total_price, is_deposit=True)
                 else:
                     if shop.deposit:
-                        OrderPayment.objects.create(order=order, amount=total_price*0.3 , is_deposit=True)
+                        ratio = shop.deposit_ratio or 50
+                        deposit_amount = total_price * ratio // 100
+                        OrderPayment.objects.create(order=order, amount=deposit_amount, is_deposit=True)
                     else:
                         OrderPayment.objects.create(order=order, amount=total_price, is_deposit=True)
                 messages.success(request, '下單成功')
@@ -90,7 +93,6 @@ def purchase_single_product(request, product):
             messages.error(request, f'下單失敗：{e}')
 
     return render(request, 'quick_purchase.html', locals())
-
 
 # -------------------------
 # 多商品購買（依商店群組，若為搶購則記錄 IntentProduct）
@@ -156,11 +158,13 @@ def purchase_from_cart(request):
                     OrderPayment.objects.create(order=order, amount=total_price, is_deposit=True)
                 else:
                     if shop.deposit:
-                        OrderPayment.objects.create(order=order, amount=total_price*0.3 , is_deposit=True)
+                        ratio = shop.deposit_ratio or 50
+                        deposit_amount = total_price * ratio // 100
+                        OrderPayment.objects.create(order=order, amount=deposit_amount, is_deposit=True)
                     else:
                         OrderPayment.objects.create(order=order, amount=total_price, is_deposit=True)
 
-            messages.success(request, '訂單建立成功 / 搶購申請已送出')
+            messages.success(request, '下單成功 / 多帶喊單已送出')
             return redirect('order_list')
 
     else:
