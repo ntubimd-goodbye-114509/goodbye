@@ -34,10 +34,11 @@ class ShopForm(forms.ModelForm):
 
     class Meta:
         model = Shop
-        fields = ['name', 'introduce', 'start_time', 'end_time', 'shop_state', 'permission', 'purchase_priority']
+        fields = ['name', 'introduce', 'start_time', 'end_time', 'shop_state', 'permission', 'purchase_priority', 'deposit']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '輸入商店名稱'}),
-            'introduce': forms.Textarea(attrs={'class': 'form-control', 'placeholder': '輸入商店介紹'})
+            'introduce': forms.Textarea(attrs={'class': 'form-control', 'placeholder': '輸入商店介紹'}),
+            'deposit': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 
     def __init__(self, *args, **kwargs):
