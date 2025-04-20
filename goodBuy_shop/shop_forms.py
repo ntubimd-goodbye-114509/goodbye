@@ -2,42 +2,52 @@ from django import forms
 from goodBuy_shop.models import *
 from goodBuy_tag.models import *
 from goodBuy_web.models import *
-
-from django import forms
-from goodBuy_shop.models import *
-from goodBuy_tag.models import *
-from goodBuy_web.models import *
 from .views.time_f import *
 
+from django import forms
+from goodBuy_shop.models import Shop, ShopImg, ShopPayment, ShopTag, PaymentAccount, Tag
+from .views.time_f import timeFormatChange_now, timeFormatChange_longtime
+
+
 class ShopForm(forms.ModelForm):
-    payment_ids = forms.ModelMultipleChoiceField(queryset=PaymentAccount.objects.none(), required=False, widget=forms.CheckboxSelectMultiple)
     tag_names = forms.CharField(required=False, widget=forms.HiddenInput())
-    images = forms.FileField(required=False, widget=forms.ClearableFileInput(attrs={'multiple': True, 'class': 'form-control'}))
+    
+    images = forms.FileField(
+        required=False,
+        widget=forms.ClearableFileInput(attrs={'multiple': True, 'class': 'form-control'})
+    )
     cover_index = forms.IntegerField(required=False, widget=forms.HiddenInput())
     image_order = forms.CharField(required=False, widget=forms.HiddenInput())
+    payment_ids = forms.ModelMultipleChoiceField(
+        queryset=PaymentAccount.objects.none(),
+        required=False,
+        widget=forms.CheckboxSelectMultiple
+    )
+
     start_time = forms.DateTimeField(
         input_formats=['%Y-%m-%d %H:%M'],
-        widget=forms.DateTimeInput(attrs={
-            'type': 'datetime-local',
-            'class': 'form-control'
-        }),
+        widget=forms.DateTimeInput(attrs={'type': 'datetime-local', 'class': 'form-control'}),
         required=False
     )
+
     end_time = forms.DateTimeField(
         input_formats=['%Y-%m-%d %H:%M'],
-        widget=forms.DateTimeInput(attrs={
-            'type': 'datetime-local',
-            'class': 'form-control'
-        }),
+        widget=forms.DateTimeInput(attrs={'type': 'datetime-local', 'class': 'form-control'}),
         required=False
     )
 
     class Meta:
         model = Shop
-        fields = ['name', 'introduce', 'start_time', 'end_time', 'shop_state', 'permission', 'purchase_priority']
+        fields = [
+            'name', 'introduce', 'start_time', 'end_time',
+            'shop_state', 'permission', 'purchase_priority',
+            'deposit', 'deposit_ratio'
+        ]
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '輸入商店名稱'}),
-            'introduce': forms.Textarea(attrs={'class': 'form-control', 'placeholder': '輸入商店介紹'})
+            'introduce': forms.Textarea(attrs={'class': 'form-control', 'placeholder': '輸入商店介紹'}),
+            'deposit': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'deposit_ratio': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': '例如 50 表示 50%'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -61,6 +71,7 @@ class ShopForm(forms.ModelForm):
             shop.start_time = timeFormatChange_now()
         if shop.end_time is None:
             shop.end_time = timeFormatChange_longtime()
+
         if self.user:
             shop.owner = self.user
 

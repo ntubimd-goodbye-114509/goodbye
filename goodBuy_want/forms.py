@@ -30,9 +30,10 @@ class WantForm(forms.ModelForm):
             new_tags = [Tag.objects.create(name=name) for name in new_names]
             all_tags = list(existing_tags) + new_tags
 
-            WantTag.objects.filter(want=want).exclude(tag__name__in=tag_names).delete()
-            for tag in all_tags:
-                WantTag.objects.get_or_create(want=want, tag=tag)
+            if self.is_edit:
+                WantTag.objects.filter(want=want).exclude(tag__name__in=tag_names).delete()
+                for tag in all_tags:
+                    WantTag.objects.get_or_create(want=want, tag=tag)
 
         return want
 

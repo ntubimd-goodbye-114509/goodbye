@@ -6,6 +6,7 @@ from datetime import timezone
 
 from goodBuy_shop.models import *
 from goodBuy_web.models import *
+from goodBuy_order.models import IntentProduct
 
 from ..utils import *
 from goodBuy_web.utils import *
@@ -18,14 +19,15 @@ def shopAll_update(request):
     return render(request, '主頁', locals())
 
 def shopInformation_many(shops):
-    return (
-        shops
+        return (
+        shops.annotate(total_stock=Sum(Case(When(product__stock__gt=0, then='product__stock'),default=0,output_field=IntegerField())))
         .select_related('permission', 'shop_state', 'purchase_priority')
         .prefetch_related(
             Prefetch('shop_payment_set', queryset=ShopPayment.objects.select_related('payment_account')),
             Prefetch('shop_tag_set', queryset=ShopTag.objects.select_related('tag')),
             Prefetch('images', queryset=ShopImg.objects.filter(is_cover=True)),
         )
+        .order_by('-total_stock', '-date')
     )
 ####################################################
 # user_id查詢
@@ -40,14 +42,43 @@ def shopByUserId_many(request, user):
 
 @shop_exists_required
 def shopById_one(request, shop):
+    is_rush_buy = shop.purchase_priority_id in [2, 3]
+
+    products = list(Product.objects.filter(shop=shop))
+
+    # 如果是搶購制且登入者存在，計算使用者剩餘可搶購量
+    if is_rush_buy and request.user.is_authenticated:
+        for product in products:
+            user_claimed = IntentProduct.objects.filter(
+                product=product,
+                intent__user=request.user,
+                intent__shop=shop
+            ).aggregate(total=Sum('quantity'))['total'] or 0
+
+            remaining_quantity = max(product.stock - user_claimed, 0)
+            product.remaining_quantity = remaining_quantity
+            product.claimed_quantity = user_claimed
+            product.is_out_of_stock = 1 if remaining_quantity <= 0 else 0
+
+    else:
+        # 一般模式，直接看是否缺貨
+        for product in products:
+            product.is_out_of_stock = 1 if product.stock <= 0 else 0
+
+    # 根據 is_out_of_stock + id 排序：缺貨移後面
+    products.sort(key=lambda p: (p.is_out_of_stock, p.id))
+
+    # 自己的賣場
     if request.user.is_authenticated and request.user.id == shop.owner.id:
         announcements = shop.shop_announcement_set.all().order_by('-date')
         return render(request, '自己賣場', locals())
 
+    # 別人的賣場但不公開
     if shop.permission.id != 1:
         messages.error(request, '當前賣場不公開')
         return redirect('error')
 
+    # 留下足跡
     if request.user.is_authenticated:
         ShopFootprints.objects.update_or_create(
             user=request.user,
