@@ -8,7 +8,7 @@ from django.db.models import F, Sum
 from goodBuy_shop.models import *
 from goodBuy_web.models import *
 from ..models import *
-from ..order_forms import *
+from ..forms import *
 from ..utils import *
 
 # -------------------------
