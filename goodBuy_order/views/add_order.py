@@ -10,6 +10,21 @@ from goodBuy_web.models import *
 from ..models import *
 from ..forms import *
 from ..utils import *
+# -------------------------
+# ORDER創建
+def orderCreate(request, shop, total_price, payment_method, payment_method_id):
+
+    return Order.objects.create(
+                    user=request.user,
+                    shop=shop,
+                    shop_name=shop.name,
+                    total=total_price,
+                    payment_method=payment_method_text,
+                    payment_mode=payment_mode,
+                    pay_state_id=1 if payment_method_id == '1' else 2,
+                    order_state_id=2 if shop.purchase_priority_id in [2, 3] else 1,
+                    second_supplement=0
+                )
 
 # -------------------------
 # 單一商品購買（若為搶購則記錄 IntentProduct）
@@ -33,6 +48,7 @@ def purchase_single_product(request, product):
     if request.method == 'POST':
         payment_method_id = request.POST.get('payment_method')
         payment_id = request.POST.get('payment')
+        payment_mode = request.POST.get('payment_mode', 'full')
 
         if quantity > product.stock:
             messages.error(request, '庫存不足')
@@ -40,32 +56,29 @@ def purchase_single_product(request, product):
 
         try:
             with transaction.atomic():
-                locked_product = Product.objects.select_for_update().get(id=product.id)
-                if locked_product.stock < quantity:
+                product.refresh_from_db()
+                if product.stock < quantity:
                     messages.error(request, '庫存不足')
                     return redirect('product_detail', product_id=product.id)
 
-                locked_product.stock = F('stock') - quantity
-                locked_product.save()
+                product.stock -= quantity
+                product.save()
 
                 payment_method_obj = get_object_or_404(Payment, id=payment_method_id)
-                if payment_method_id != 1:
-                        payment_method = f"匯款 - {payment_method_obj.name}"
-                else:
-                    payment_method = payment_method_obj.name
-
                 total_price = product.price * quantity
+
+                payment_method_text = f"匯款 - {payment_method_obj.name}" if payment_method_id != '1' else payment_method_obj.name
 
                 order = Order.objects.create(
                     user=request.user,
                     shop=shop,
                     shop_name=shop.name,
                     total=total_price,
-                    payment_method=payment_method,
-                    pay_state_id=1 if payment_method_id == 1 else 2,
+                    payment_method=payment_method_text,
+                    payment_mode=payment_mode,
+                    pay_state_id=1 if payment_method_id == '1' else 2,
                     order_state_id=2 if shop.purchase_priority_id in [2, 3] else 1,
-                    second_supplement=0,
-                    pay=None
+                    second_supplement=0
                 )
 
                 ProductOrder.objects.create(
@@ -77,15 +90,13 @@ def purchase_single_product(request, product):
                     product_img=product.img.name if product.img else ''
                 )
 
-                if payment_method_id == 1:
-                    OrderPayment.objects.create(order=order, amount=total_price, is_deposit=True)
+                if payment_mode == 'deposit':
+                    deposit_amount = total_price * (shop.deposit_ratio or 50) // 100
                 else:
-                    if shop.deposit:
-                        ratio = shop.deposit_ratio or 50
-                        deposit_amount = total_price * ratio // 100
-                        OrderPayment.objects.create(order=order, amount=deposit_amount, is_deposit=True)
-                    else:
-                        OrderPayment.objects.create(order=order, amount=total_price, is_deposit=True)
+                    deposit_amount = total_price
+
+                OrderPayment.objects.create(order=order, amount=deposit_amount, is_deposit=True)
+
                 messages.success(request, '下單成功')
                 return redirect('order_detail', order_id=order.id)
 

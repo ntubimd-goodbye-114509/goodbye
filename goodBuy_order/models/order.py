@@ -1,17 +1,18 @@
 from django.db import models
 from goodBuy_web.models import *
-from goodBuy_shop.models import Shop
+from goodBuy_shop.models import *
 from .pay_state import *
 from .order_state import *
 
 class Order(models.Model):
+
     PAYMENT_MODE_CHOICES = [
         ('full', '一次付款'),
         ('split', '定金＋尾款'),
     ]
 
-    
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    address = models.ForeignKey(UserAddress, on_delete=models.SET_NULL, null=True, blank=True)
     shop = models.ForeignKey(Shop, on_delete=models.SET_NULL, null=True, blank=True)
     shop_name = models.CharField(max_length=255, blank=True, null=True)  # 備份商店名稱
 
@@ -21,7 +22,8 @@ class Order(models.Model):
 
     date = models.DateTimeField(auto_now_add=True)
 
-    payment_method = models.CharField(max_length=100)  # 使用者選擇的付款方式
+    payment_method = models.ForeignKey(ShopPayment, on_delete=models.SET_NULL, null=True, blank=True)
+    payment_method_text = models.CharField(max_length=100)
     payment_mode = models.CharField(max_length=10,choices=PAYMENT_MODE_CHOICES,default='full')
     pay_state = models.ForeignKey(PayState, on_delete=models.CASCADE)
     order_state = models.ForeignKey(OrderState, on_delete=models.CASCADE)
