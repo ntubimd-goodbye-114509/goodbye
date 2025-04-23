@@ -20,7 +20,7 @@ def shopAll_update(request):
 
 def shopInformation_many(shops):
         return (
-        shops.annotate(total_stock=Sum(Case(When(product__stock__gt=0, then='product__stock'),default=0,output_field=IntegerField())))
+        shops.exclude(permission__id=3).annotate(total_stock=Sum(Case(When(product__stock__gt=0, then='product__stock'),default=0,output_field=IntegerField())))
         .select_related('permission', 'shop_state', 'purchase_priority')
         .prefetch_related(
             Prefetch('shop_payment_set', queryset=ShopPayment.objects.select_related('payment_account')),

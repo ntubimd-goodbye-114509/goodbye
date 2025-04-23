@@ -64,8 +64,9 @@ def edit_shop(request, shop):
 @login_required(login_url='login')
 @shop_owner_required
 def deleteShop(request, shop):
-    shop.delete()
-    messages.success(request, '刪除成功！')
+    shop.permission = Permission.objects.get(id=3)
+    shop.save()
+    messages.success(request, '賣場已刪除')
     return redirect('刪除成功導向')
 
 ####################################################
