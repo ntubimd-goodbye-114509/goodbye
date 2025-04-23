@@ -44,7 +44,7 @@ def shopByUserId_many(request, user):
 def shopById_one(request, shop):
     is_rush_buy = shop.purchase_priority_id in [2, 3]
 
-    products = list(Product.objects.filter(shop=shop))
+    products = list(Product.objects.filter(Q(shop=shop)&Q(is_delete=False)))
 
     # 如果是搶購制且登入者存在，計算使用者剩餘可搶購量
     if is_rush_buy and request.user.is_authenticated:
