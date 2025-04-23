@@ -20,7 +20,7 @@ def shopAll_update(request):
 
 def shopInformation_many(shops):
         return (
-        shops.exclude(permission__id=3).annotate(total_stock=Sum(Case(When(product__stock__gt=0, then='product__stock'),default=0,output_field=IntegerField())))
+        shops.annotate(total_stock=Sum(Case(When(product__stock__gt=0, then='product__stock'),default=0,output_field=IntegerField())))
         .select_related('permission', 'shop_state', 'purchase_priority')
         .prefetch_related(
             Prefetch('shop_payment_set', queryset=ShopPayment.objects.select_related('payment_account')),
@@ -44,7 +44,7 @@ def shopByUserId_many(request, user):
 def shopById_one(request, shop):
     is_rush_buy = shop.purchase_priority_id in [2, 3]
 
-    products = list(Product.objects.filter(Q(shop=shop)&Q(is_delete=False)))
+    products = list(Product.objects.filter(shop=shop))
 
     # 如果是搶購制且登入者存在，計算使用者剩餘可搶購量
     if is_rush_buy and request.user.is_authenticated:

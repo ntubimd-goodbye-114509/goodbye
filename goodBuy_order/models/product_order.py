@@ -4,11 +4,8 @@ from .order import Order
 
 class ProductOrder(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
-    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, blank=True)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
     amount = models.IntegerField()
-    product_name = models.CharField(max_length=255, null=True, blank=True)
-    product_price = models.IntegerField(null=True, blank=True)
-    product_img = models.CharField(max_length=100, null=True, blank=True)
 
     class Meta:
         constraints = [

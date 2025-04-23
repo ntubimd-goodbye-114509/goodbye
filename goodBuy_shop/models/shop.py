@@ -4,11 +4,13 @@ from .permission import Permission
 from .shop_state import ShopState
 from .purchase_priority import PurchasePriority
 
-
+class ActiveShopManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(permission__id__in=[1, 2])  # 排除 permission_id=3（已刪除）
 
 class Shop(models.Model):
     name = models.CharField(max_length=255)
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    owner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     introduce = models.TextField(blank=True, null=True)
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
@@ -18,6 +20,8 @@ class Shop(models.Model):
     deposit = models.BooleanField(default=False)
     deposit_ratio = models.PositiveIntegerField(default=50)
     date = models.DateTimeField(auto_now_add=True)
+    
+    objects = ActiveShopManager()
     
     def __str__(self):
         return self.name
