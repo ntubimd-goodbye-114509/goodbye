@@ -11,10 +11,9 @@ class Order(models.Model):
         ('split', '定金＋尾款'),
     ]
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     address = models.ForeignKey(UserAddress, on_delete=models.SET_NULL, null=True, blank=True)
-    shop = models.ForeignKey(Shop, on_delete=models.SET_NULL, null=True, blank=True)
-    shop_name = models.CharField(max_length=255, blank=True, null=True)  # 備份商店名稱
+    shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
 
     total = models.IntegerField()  # 總金額
     pay = models.IntegerField(blank=True, null=True)  # 已付款金額（自動計算）
@@ -22,8 +21,6 @@ class Order(models.Model):
 
     date = models.DateTimeField(auto_now_add=True)
 
-    payment_method = models.ForeignKey(ShopPayment, on_delete=models.SET_NULL, null=True, blank=True)
-    display_payment_method = models.CharField(max_length=100)
     payment_mode = models.CharField(max_length=10,choices=PAYMENT_MODE_CHOICES,default='full')
     pay_state = models.ForeignKey(PayState, on_delete=models.CASCADE)
     order_state = models.ForeignKey(OrderState, on_delete=models.CASCADE)

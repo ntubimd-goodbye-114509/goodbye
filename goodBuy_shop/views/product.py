@@ -42,6 +42,7 @@ def edit_product(request, product):
 @product_owner_required
 def delete_product(request, product):
     shop_id = product.shop.id
-    product.delete()
+    product.is_delete = True
+    product.save()
     messages.success(request, '商品已刪除')
     return redirect('商店頁面', shop_id=shop_id)
