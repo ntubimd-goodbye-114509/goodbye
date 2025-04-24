@@ -6,9 +6,13 @@ import re
 def validate_tw_mobile(value):
     if not re.match(r'^09\d{8}$', value):
         raise ValidationError('請輸入有效的台灣手機號碼（格式為09xxxxxxxx）')
+
+class ActiveAddressManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(is_delete=False)
     
 class UserAddress(models.Model):
-    PAYMENT_MODE_CHOICES = [
+    ADDRESS_MODE_CHOICES = [
         ('Keelung City', '基隆市'),
         ('New Taipei City', '新北市'),
         ('Taipei City', '台北市'),
@@ -36,5 +40,20 @@ class UserAddress(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
     phone = models.CharField(max_length=10,validators=[validate_tw_mobile],verbose_name='手機號碼')
-    city = models.CharField(max_length=100,choices=PAYMENT_MODE_CHOICES,default='')
+    city = models.CharField(max_length=100,choices=ADDRESS_MODE_CHOICES,default='')
     address = models.CharField(max_length=255)
+    is_delete = models.BooleanField(default=False)
+
+    class Meta:
+            constraints = [
+                models.UniqueConstraint(
+                    fields=['user', 'phone', 'city', 'address'],
+                    name='unique_address_account'
+                )
+            ]
+
+    objects = models.Manager()
+    active = ActiveAddressManager()
+
+    def __str__(self):
+        return f'{self.name}-{self.phone}   {self.city}{self.address}'
