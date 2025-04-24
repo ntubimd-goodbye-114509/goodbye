@@ -10,6 +10,10 @@ class Order(models.Model):
         ('full', '一次付款'),
         ('split', '定金＋尾款'),
     ]
+    PAYMENT_METHOD_CHOICES = [
+    ('cash_on_delivery', '取貨付款'),
+    ('remittance', '匯款'),
+    ]
 
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     address = models.ForeignKey(UserAddress, on_delete=models.SET_NULL, null=True, blank=True)
@@ -20,7 +24,7 @@ class Order(models.Model):
     second_supplement = models.IntegerField(blank=True, null=True)  # 尚需補款
 
     date = models.DateTimeField(auto_now_add=True)
-
+    payment_category = models.CharField(max_length=20,choices=PAYMENT_METHOD_CHOICES,default='cash_on_delivery')
     payment_mode = models.CharField(max_length=10,choices=PAYMENT_MODE_CHOICES,default='full')
     pay_state = models.ForeignKey(PayState, on_delete=models.CASCADE)
     order_state = models.ForeignKey(OrderState, on_delete=models.CASCADE)

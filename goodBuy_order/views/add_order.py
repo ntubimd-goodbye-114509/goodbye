@@ -1,4 +1,3 @@
-# 購買邏輯 view：處理三種下單方式
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -34,7 +33,7 @@ def purchase_single_product(request, product):
             quantity = max(available_qty - intent_product.quantity, 0)
 
         if quantity <= 0:
-            messages.warning(request, f'{product.name} 的剩餘可購買數量不足')
+            messages.warning(request, f'{product.name} 以無庫存')
         else:
             intent_product.quantity += quantity
             intent_product.save()
@@ -52,16 +51,6 @@ def purchase_single_product(request, product):
             address = form.cleaned_data['address']
             payment_method_choice = form.cleaned_data['payment_method']
             payment_mode = form.cleaned_data.get('payment_mode')
-            payment_account = form.cleaned_data.get('payment_account')
-
-            # 付款防呆：匯款但沒選帳號
-            if str(payment_method_choice) != '1' and not payment_account:
-                messages.error(request, '請選擇匯款帳戶')
-                return redirect('商店界面', shop_id=shop.id)
-
-            if quantity > product.stock:
-                messages.error(request, '庫存不足')
-                return redirect('商店界面', shop_id=shop.id)
 
             try:
                 with transaction.atomic():
@@ -78,29 +67,23 @@ def purchase_single_product(request, product):
 
                     # 設定支付方式與狀態文字
                     if str(payment_method_choice) == '1':
-                        payment_method_text = '取貨付款'
                         pay_state = 1
                         payment_mode = 'full'
-                        payment_account = None
                     else:
-                        payment_obj = Payment.objects.get(id=payment_method_choice)
-                        payment_method_text = f'匯款 - {payment_obj.name}'
                         if payment_mode == 'deposit':
-                            pay_state = 2  # 待支付定金
+                            pay_state = 2
                         else:
-                            pay_state = 8  # 全額匯款
+                            pay_state = 8
 
                     # 建立訂單
                     order = Order.objects.create(
                         user=request.user,
                         shop=shop,
-                        shop_name=shop.name,
                         total=total_price,
                         address=address,
-                        payment=payment_account,
-                        payment_method=payment_method_text,
+                        payment_category=payment_method_choice,
                         payment_mode=payment_mode,
-                        pay_state_id=pay_state,
+                        pay_state_id=PayState.objects.get(id=pay_state),
                         order_state_id=1,
                         second_supplement=0,
                         pay=None
@@ -111,9 +94,6 @@ def purchase_single_product(request, product):
                         order=order,
                         product=locked_product,
                         amount=quantity,
-                        product_name=locked_product.name,
-                        product_price=locked_product.price,
-                        product_img=locked_product.img.name if locked_product.img else ''
                     )
 
                     messages.success(request, '下單成功')
@@ -130,123 +110,109 @@ def purchase_single_product(request, product):
 # 多商品購買（依商店群組，若為搶購則記錄 IntentProduct）
 # -------------------------
 @login_required(login_url='login')
-def purchase_from_cart(request):
-    if request.method == 'POST':
-        form = OrderForm(request.POST, user=request.user)
-        product_ids = request.POST.getlist('product_ids')  # 多個商品
-        if not product_ids:
-            messages.warning(request, '請選擇至少一項商品')
-            return redirect('cart')
+def handle_cart_order_creation(request, form, cart_items):
+    shop_ids = request.POST.getlist('shop_ids')
 
-        products = Product.objects.filter(id__in=product_ids).select_related('shop')
-        shop_groups = {}
-        for p in products:
-            shop_groups.setdefault(p.shop.id, []).append(p)
+    for shop_id in shop_ids:
+        try:
+            shop = Shop.objects.get(id=shop_id)
+        except Shop.DoesNotExist:
+            messages.error(request, f'商店 {shop_id} 不存在')
+            continue
 
-        for shop_id, shop_products in shop_groups.items():
-            shop = shop_products[0].shop
-            form = OrderForm(request.POST, user=request.user, shop=shop)
+        # 該商店的購物車商品
+        shop_cart_items = [item for item in cart_items if item.product.shop.id == shop.id]
+        if not shop_cart_items:
+            messages.warning(request, f'{shop.name} 無商品可購買')
+            continue
 
-            if form.is_valid():
-                address = form.cleaned_data['address']
-                payment_method_choice = form.cleaned_data['payment_method']
-                payment_mode = form.cleaned_data.get('payment_mode')
-                payment_account = form.cleaned_data.get('payment_account')
+        shop_form = OrderForm(request.POST, user=request.user, shop=shop)
 
-                # 多帶先加入多帶表，不創建訂單
-                if shop.purchase_priority_id != 1:
-                    intent, _ = PurchaseIntent.objects.get_or_create(user=request.user, shop=shop)
-                    for p in shop_products:
-                        qty = int(request.POST.get(f'quantity_{p.id}', 1))
-                        intent_product, _ = IntentProduct.objects.get_or_create(intent=intent, product=p)
+        if not shop_form.is_valid():
+            messages.error(request, f'{shop.name} 表單無效')
+            continue
 
-                        # 計算其他人已搶購的總數
-                        current_total = IntentProduct.objects.filter(product=p).exclude(intent=intent).aggregate(
-                            total=Sum('quantity')
-                        )['total'] or 0
+        if not shop_form.is_valid():
+            messages.error(request, f'{shop.name} 表單無效')
+            continue
 
-                        available_qty = max(p.stock - current_total, 0)
-                        old_qty = intent_product.quantity
+        address = shop_form.cleaned_data['address']
+        payment_method_choice = shop_form.cleaned_data['payment_method']
+        payment_mode = shop_form.cleaned_data.get('payment_mode')
 
-                        # 本次允許的增加量
-                        allow_add = min(qty, available_qty - old_qty)
-                        if allow_add <= 0:
-                            messages.warning(request, f"{p.name} 多帶數量已達上限，無法再增加")
-                            continue
+        if shop.purchase_priority_id != 1:
+            intent, _ = PurchaseIntent.objects.get_or_create(user=request.user, shop=shop)
+            for item in shop_cart_items:
+                product = item.product
+                quantity = item.amount
+                intent_product, created = IntentProduct.objects.get_or_create(intent=intent, product=product)
 
-                        intent_product.quantity = old_qty + allow_add
-                        intent_product.save()
+                # 計算目前其他人已搶購數量
+                current_total = IntentProduct.objects.filter(product=product).exclude(id=intent_product.id).aggregate(
+                    total=Sum('quantity')
+                )['total'] or 0
+                available_qty = max(product.stock - current_total, 0)
 
-                        Cart.objects.filter(user=request.user, product__in=shop_products).delete()
-                        
-                        if allow_add < qty:
-                            messages.info(request, f"{p.name} 只成功加入 {allow_add} 件（已達上限）")
-                        else:
-                            messages.success(request, f"{p.name} 數量已累加至 {intent_product.quantity} 件")
-                    continue
+                if created:
+                    intent_product.quantity = min(quantity, available_qty)
+                else:
+                    intent_product.quantity = min(intent_product.quantity + quantity, available_qty)
+                intent_product.save()
 
+                if quantity > available_qty:
+                    messages.warning(request, f'{product.name} 庫存不足，已調整為 {available_qty} 件')
+
+            Cart.objects.filter(id__in=[c.id for c in shop_cart_items]).delete()
+            messages.success(request, f'{shop.name} 的搶購申請已登記')
+            continue
+
+        try:
+            with transaction.atomic():
                 total_price = 0
-                try:
-                    with transaction.atomic():
-                        for p in shop_products:
-                            qty = int(request.POST.get(f'quantity_{p.id}', 1))
-                            product = Product.objects.select_for_update().get(id=p.id)
-                            if product.stock < qty:
-                                messages.error(request, f'{product.name} 庫存不足')
-                                return redirect('cart')
+                locked_products = []
 
-                            product.stock = F('stock') - qty
-                            product.save()
-                            total_price += product.price * qty
+                for item in shop_cart_items:
+                    product = Product.objects.select_for_update().get(id=item.product.id)
+                    quantity = item.amount
+                    if product.stock < quantity:
+                        messages.error(request, f'{product.name} 庫存不足')
+                        raise Exception(f'{product.name} 庫存不足') 
 
-                        if payment_method_choice == '1':  # 取貨付款
-                            payment_method_text = '取貨付款'
-                            pay_state = 1
-                            payment_mode = 'full'
-                            payment_account = None
-                        else:  # 匯款
-                            payment_method_text = f'匯款 - {payment_account.payment.name}'
-                            if payment_mode == 'deposit':
-                                pay_state = 2  # 待支付定金
-                            else:
-                                pay_state = 8  # 全額匯款
+                    product.stock = F('stock') - quantity
+                    product.save()
+                    locked_products.append((product, quantity))
+                    total_price += product.price * quantity
 
-                        order = Order.objects.create(
-                            user=request.user,
-                            shop=shop,
-                            shop_name=shop.name,
-                            total=total_price,
-                            address=address,
-                            payment=payment_account,
-                            payment_method=payment_method_text,
-                            payment_mode=payment_mode,
-                            pay_state_id=pay_state,
-                            order_state_id=1,
-                            second_supplement=0,
-                            pay=None
-                        )
+                if str(payment_method_choice) == '1':
+                    pay_state = 1
+                    payment_mode = 'full'
+                else:
+                    if payment_mode == 'deposit':
+                        pay_state = 2
+                    else:
+                        pay_state = 8
 
-                        # 建立商品明細
-                        for p in shop_products:
-                            qty = int(request.POST.get(f'quantity_{p.id}', 1))
-                            ProductOrder.objects.create(
-                                order=order,
-                                product=p,
-                                amount=qty,
-                                product_name=p.name,
-                                product_price=p.price,
-                                product_img=p.img.name if p.img else '',
-                            )
+                order = Order.objects.create(
+                    user=request.user,
+                    shop=shop,
+                    total=total_price,
+                    address=address,
+                    payment_category=payment_method_choice,
+                    payment_mode=payment_mode,
+                    pay_state_id=PayState.objects.get(id=pay_state),
+                    order_state_id=1,
+                    second_supplement=0,
+                    pay=None
+                )
+                for product, qty in locked_products:
+                    ProductOrder.objects.create(
+                        order=order,
+                        product=product,
+                        amount=qty,
+                    )
 
-                        Cart.objects.filter(user=request.user, product__in=products).delete()
-                        messages.success(request, f'{shop.name} 訂單建立成功')
+                Cart.objects.filter(id__in=[c.id for c in shop_cart_items]).delete()
+                messages.success(request, f'{shop.name} 訂單建立成功')
 
-                except Exception as e:
-                    messages.error(request, f'{shop.name} 下單失敗：{e}')
-
-        return redirect('order_list')
-
-    else:
-        form = OrderForm(user=request.user)
-
-    return render(request, 'order_form.html', {'form': form})
+        except Exception as e:
+            messages.error(request, f'{shop.name} 下單失敗：{str(e)}')
