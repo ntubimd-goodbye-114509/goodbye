@@ -11,6 +11,8 @@ from ..forms import *
 from ..utils import *
 
 # -------------------------
+# 單商品下單
+# -------------------------
 @login_required(login_url='login')
 @product_exists_and_not_own_shop_required
 def purchase_single_product(request, product):

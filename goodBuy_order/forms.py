@@ -8,6 +8,9 @@ from goodBuy_order.models import Order, UserAddress, Payment, PaymentAccount
 from django import forms
 from goodBuy_order.models import Order, UserAddress, Payment, PaymentAccount
 
+# -------------------------
+# 訂單新增 地址、付款方式選擇
+# -------------------------
 class OrderForm(forms.ModelForm):
     PAYMENT_METHOD_CHOICES = [
         ('cash_on_delivery', '取貨付款'),
@@ -71,3 +74,7 @@ class OrderForm(forms.ModelForm):
         if shop and not shop.deposit:
             self.fields['payment_mode'].widget = forms.HiddenInput()
             self.fields['payment_mode'].required = False
+
+# -------------------------
+# 分次付款
+# -------------------------

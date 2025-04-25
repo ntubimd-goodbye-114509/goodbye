@@ -4,6 +4,9 @@ from goodBuy_shop.models import *
 from .pay_state import *
 from .order_state import *
 
+# -------------------------
+# 訂單
+# -------------------------
 class Order(models.Model):
 
     PAYMENT_MODE_CHOICES = [

@@ -63,7 +63,7 @@ def view_cart(request):
 
     return render(request, 'cart.html', {'grouped_cart': grouped_cart})
 # -------------------------
-# 多商品購買（依商店群組，若為多帶create或update IntentProduct）
+# 購物車多商品下單
 # -------------------------
 @login_required(login_url='login')
 def handle_cart_order_creation(request, form, cart_items):

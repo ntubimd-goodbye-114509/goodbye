@@ -2,6 +2,9 @@ from datetime import timezone
 from django.db import models
 from .order import Order,ShopPayment
 
+# -------------------------
+# 訂單支付資料
+# -------------------------
 class OrderPayment(models.Model):
     SELLER_CHOICES = [
         ('wait confirmed','待確認'),

@@ -3,7 +3,9 @@ from .purchase_intent import *
 from goodBuy_shop.models import Product
 from django.db.models import Sum
 
-
+# -------------------------
+# 多帶表product
+# -------------------------
 class IntentProduct(models.Model):
     intent = models.ForeignKey(PurchaseIntent, on_delete=models.CASCADE, related_name='intent_products')
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
@@ -12,6 +14,9 @@ class IntentProduct(models.Model):
     class Meta:
         unique_together = ('intent', 'product')
 
+    # -------------------------
+    # 商品已在多帶清單則修改數量
+    # -------------------------
     def add_or_update_product(self, product, quantity):
         obj, created = IntentProduct.objects.get_or_create(intent=self, product=product)
 

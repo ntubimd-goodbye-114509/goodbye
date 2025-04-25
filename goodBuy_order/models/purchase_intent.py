@@ -2,6 +2,9 @@ from django.db import models
 from goodBuy_web.models import User
 from goodBuy_shop.models import Shop
 
+# -------------------------
+# 多帶表
+# -------------------------
 class PurchaseIntent(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
