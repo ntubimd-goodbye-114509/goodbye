@@ -2,6 +2,9 @@ from django.db import models
 from goodBuy_web.models import User
 from .shop import Shop
 
+# -------------------------
+# 商店收藏
+# -------------------------
 class ShopCollect(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     shop = models.ForeignKey(Shop, on_delete=models.CASCADE)

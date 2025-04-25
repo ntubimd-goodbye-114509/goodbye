@@ -8,8 +8,9 @@ from django.shortcuts import *
 from .models import *
 from goodBuy_web.models import *
 from goodBuy_tag.models import *
-# =============跳轉頁面版本===============
-
+# -------------------------
+# 商店擁有者驗證
+# -------------------------
 def shop_owner_required(view_func):
     @wraps(view_func)
     def wrapper(request, shop_id, *args, **kwargs):
@@ -28,7 +29,9 @@ def shop_owner_required(view_func):
 
         return view_func(request, shop, *args, **kwargs)
     return wrapper
-
+# -------------------------
+# 商店存在驗證
+# -------------------------
 def shop_exists_required(view_func):
     @wraps(view_func)
     def _wrapped_view(request, shop_id, *args, **kwargs):
@@ -48,7 +51,9 @@ def shop_exists_required(view_func):
             return redirect('home')
         return view_func(request, shop, *args, **kwargs)
     return _wrapped_view
-
+# -------------------------
+# 商品擁有者驗證
+# -------------------------
 def product_owner_required(view_func):
     @wraps(view_func)
     def _wrapped_view(request, product_id, *args, **kwargs):
@@ -67,7 +72,9 @@ def product_owner_required(view_func):
 
         return view_func(request, shop, *args, **kwargs)
     return _wrapped_view
-
+# -------------------------
+# 商品存在驗證
+# -------------------------
 def product_exists_required(view_func):
     @wraps(view_func)
     def _wrapped_view(request, product_id, *args, **kwargs):

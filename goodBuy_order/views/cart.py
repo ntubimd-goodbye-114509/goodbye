@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.db import transaction
 from django.db.models import F, Sum,Prefetch
 from collections import defaultdict
+from django.utils import timezone
 
 from goodBuy_shop.models import *
 from goodBuy_web.models import *
@@ -206,7 +207,6 @@ def update_cart_quantity(request, cart_item):
         messages.error(request, "數量必須大於 0")
         return redirect('購物車界面')
 
-    # 確認庫存（扣除其他人購物車的數量）
     other_cart_qty = (
         Cart.objects.filter(product=cart_item.product)
         .exclude(id=cart_item.id)
@@ -220,6 +220,7 @@ def update_cart_quantity(request, cart_item):
     else:
         cart_item.amount = new_qty
 
+    cart_item.update = timezone.now()
     cart_item.save()
     messages.success(request, f'{cart_item.product.name} 數量已更新為 {cart_item.amount}')
     return redirect('購物車界面')

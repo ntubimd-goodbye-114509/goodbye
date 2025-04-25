@@ -2,11 +2,11 @@ from django import forms
 from goodBuy_shop.models import *
 from goodBuy_tag.models import *
 from goodBuy_web.models import *
-from .views.time_f import *
+from ..views.time_f import *
 
 from django import forms
 from goodBuy_shop.models import Shop, ShopImg, ShopPayment, ShopTag, PaymentAccount, Tag
-from .views.time_f import timeFormatChange_now, timeFormatChange_longtime
+from ..views.time_f import timeFormatChange_now, timeFormatChange_longtime
 
 
 class ShopForm(forms.ModelForm):

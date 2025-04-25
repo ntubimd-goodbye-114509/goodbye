@@ -4,6 +4,9 @@ from .permission import Permission
 from .shop_state import ShopState
 from .purchase_priority import PurchasePriority
 
+# -------------------------
+# 商店
+# -------------------------
 class ActiveShopManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset().filter(permission__id__in=[1, 2])  # 排除 permission_id=3（已刪除）

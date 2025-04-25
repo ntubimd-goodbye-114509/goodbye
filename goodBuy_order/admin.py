@@ -7,4 +7,7 @@ admin.site.register(Order)
 admin.site.register(ProductOrder)
 admin.site.register(Cart)
 admin.site.register(Comment)
+admin.site.register(OrderPayment)
+admin.site.register(PurchaseIntent)
+admin.site.register(IntentProduct)
 

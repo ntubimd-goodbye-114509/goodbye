@@ -6,10 +6,12 @@ from django.shortcuts import *
 from goodBuy_shop.models import *
 from goodBuy_web.models import *
 from ..utils import *
-from ..shop_forms import *
+from ..form.shop_forms import *
 from .time_f import *
 
-# 商店
+# -------------------------
+# 新增商店
+# -------------------------
 @login_required(login_url='login')
 def add_shop(request):
     form = ShopForm(request.POST or None, request.FILES or None, user=request.user)
@@ -34,7 +36,9 @@ def add_shop(request):
         else:
             messages.error(request, '表單資料有誤')
     return render(request, 'shop_form.html', {'form': form})
-
+# -------------------------
+# 修改商店資訊（多個）
+# -------------------------
 @login_required(login_url='login')
 @shop_owner_required
 def edit_shop(request, shop):
@@ -60,7 +64,9 @@ def edit_shop(request, shop):
         else:
             messages.error(request, '表單資料有誤')
     return render(request, 'shop_form.html', {'form': form, 'shop': shop})
-
+# -------------------------
+# 刪除商店（軟刪除）
+# -------------------------
 @login_required(login_url='login')
 @shop_owner_required
 def deleteShop(request, shop):
@@ -68,9 +74,9 @@ def deleteShop(request, shop):
     shop.save()
     messages.success(request, '賣場已刪除')
     return redirect('刪除成功導向')
-
-####################################################
-# 圖片刪除
+# -------------------------
+# 商店刪除圖片
+# -------------------------
 @login_required(login_url='login')
 @shop_owner_required
 def delete_shop_image(request, shop, image_id):
@@ -78,8 +84,9 @@ def delete_shop_image(request, shop, image_id):
     image.delete()
     messages.success(request, '圖片已刪除')
     return redirect('shop_edit', shop_id=shop.id)
-
-# 圖片設為封面
+# -------------------------
+# 重新設定封面
+# -------------------------
 @login_required(login_url='login')
 @shop_owner_required
 def set_cover_image(request, shop, image_id):
