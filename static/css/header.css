@@ -11,7 +11,7 @@
     background-color: #A3C6E0;
     position: relative;  /* ✅ 這是 z-index 有效的前提 */
     width: 100%;
-    z-index: 100;         /* ✅ 比 menu 的 99 高 */
+    z-index: 1000;         /* ✅ 比 menu 的 99 高 */
 }
 
 /* 隱藏的側邊欄 */
@@ -204,8 +204,7 @@
 @media (max-width: 600px) {
     .menu {
         width: 80%;         /* 手機上側欄變窄一點 */
-        left: -80%;
-        top:206px
+        left: 100%;
     }
 
     .menu.active {
@@ -252,7 +251,7 @@
 @media (max-width: 600px) {
     .menu {
         width: 70%;           /* 更小一點，不會蓋住整個畫面 */
-        left: -70%;
+        left: 100%;
         top: 60px;
         max-width: 300px;     /* 限制最大寬度 */
     }
@@ -302,7 +301,7 @@
 
 @media (min-width: 601px) and (max-width: 1080px) {
     .menu {
-        width: 60%;
+        left: 100%;
         left: -60%;
     }
 
