@@ -8,8 +8,11 @@ from datetime import datetime, timezone
 from goodBuy_shop.models import *
 from goodBuy_web.models import *
 from ..utils import *
-from ..product_form import *
+from ..form.product_form import *
 
+# -------------------------
+# 新增product
+# -------------------------
 @login_required
 @shop_owner_required
 def add_product(request, shop):
@@ -24,7 +27,9 @@ def add_product(request, shop):
     else:
         form = ProductForm()
     return render(request, '商品form', locals())
-
+# -------------------------
+# 修改product
+# -------------------------
 @login_required
 @product_owner_required
 def edit_product(request, product):
@@ -37,7 +42,9 @@ def edit_product(request, product):
     else:
         form = ProductForm(instance=product)
     return render(request, '商品form', locals())
-
+# -------------------------
+# 刪除product（軟刪除）
+# -------------------------
 @login_required
 @product_owner_required
 def delete_product(request, product):

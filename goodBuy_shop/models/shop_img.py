@@ -3,6 +3,9 @@ from django.db import models
 from goodBuy_web.models import User
 from .shop import Shop
 
+# -------------------------
+# 商店圖片
+# -------------------------
 class ShopImg(models.Model):
     shop = models.ForeignKey(Shop, on_delete=models.CASCADE, related_name='images')
     img = models.ImageField(upload_to='shop_img/', blank=True, null=True)
@@ -15,6 +18,9 @@ class ShopImg(models.Model):
             os.remove(self.img.path)
         super().delete(*args, **kwargs)
 
+    # -------------------------
+    # 更換圖片後刪除原圖片
+    # -------------------------
     def save(self, *args, **kwargs):
         try:
             this = ShopImg.objects.get(id=self.id)

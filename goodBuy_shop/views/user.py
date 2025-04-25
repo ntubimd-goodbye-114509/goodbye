@@ -9,6 +9,9 @@ from goodBuy_web.models import *
 from ..utils import *
 from shop_query import *
 
+# -------------------------
+# 收藏商店
+# -------------------------
 @login_required(login_url='login')
 @shop_exists_required
 def shop_collect_toggle(request, shop):
@@ -24,14 +27,18 @@ def shop_collect_toggle(request, shop):
             messages.success(request, '收藏成功')
 
     return redirect('商店界面', shop_id=shop.id)
-
+# -------------------------
+# 查看收藏的商店
+# -------------------------
 @login_required(login_url='login')
 def my_shops_collected(request):
     shop_ids = ShopCollect.objects.filter(user=request.user).values_list('shop_id', flat=True)
 
     shops = shopInformation_many(Shop.objects.filter(id__in=shop_ids).order_by('-date'))
     return render(request, '收藏瀏覽頁面', locals())
-
+# -------------------------
+# 商店足跡
+# -------------------------
 @login_required(login_url='login')
 def my_shop_footprints(request):
     shop_ids = ShopFootprints.objects.filter(user=request.user).values_list('shop_id', flat=True)

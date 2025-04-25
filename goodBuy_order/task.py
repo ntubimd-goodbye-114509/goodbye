@@ -4,6 +4,9 @@ from django.utils import timezone
 from .models import Shop
 from .utils import allocate_rush_orders
 
+# -------------------------
+# 到達截止時間自動將多帶成功的商品創建訂單
+# -------------------------
 @shared_task
 def process_rush_shop_orders(shop_id):
     from .models import Shop

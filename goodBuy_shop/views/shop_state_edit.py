@@ -6,10 +6,11 @@ from goodBuy_shop.models import *
 from goodBuy_web.models import *
 from ..utils import *
 from goodBuy_web.utils import *
-from ..shop_forms import *
+from ..form.shop_forms import *
 
-####################################################
-# 單項狀態修改
+# -------------------------
+# 修改商店狀態
+# -------------------------
 @shop_owner_required
 def change_shop_state(request, shop, shop_state_id):
     try:
@@ -19,7 +20,9 @@ def change_shop_state(request, shop, shop_state_id):
     except ShopState.DoesNotExist:
         messages.error(request, '無效的狀態 ID')
     return redirect('商店界面', shop_id=shop.id)
-
+# -------------------------
+# 修改商店隱私
+# -------------------------
 @shop_owner_required
 def change_permission(request, shop, permission_id):
     try:
@@ -29,7 +32,9 @@ def change_permission(request, shop, permission_id):
     except Permission.DoesNotExist:
         messages.error(request, '無效的權限 ID')
     return redirect('商店界面', shop_id=shop.id)
-
+# -------------------------
+# 修改商店開始售賣時間
+# -------------------------
 @shop_owner_required
 def change_start_time(request, shop):
     start = timeFormatChange_now(request.GET.get('start_time'))
@@ -40,7 +45,9 @@ def change_start_time(request, shop):
     else:
         messages.error(request, '時間格式錯誤')
     return redirect('商店界面', shop_id=shop.id)
-
+# -------------------------
+# 修改商店截止時間
+# -------------------------
 @shop_owner_required
 def change_end_time(request, shop):
     end = timeFormatChange_longtime(request.GET.get('end_time'))
@@ -51,6 +58,3 @@ def change_end_time(request, shop):
     else:
         messages.error(request, '時間格式錯誤')
     return redirect('商店界面', shop_id=shop.id)
-
-
-####################################################

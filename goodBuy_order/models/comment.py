@@ -2,6 +2,9 @@ from django.db import models
 from goodBuy_web.models import User
 from .order import Order
 
+# -------------------------
+# 訂單評價&留言
+# -------------------------
 class Comment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     order = models.ForeignKey(Order, on_delete=models.CASCADE) 

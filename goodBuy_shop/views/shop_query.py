@@ -12,12 +12,15 @@ from ..utils import *
 from goodBuy_web.utils import *
 from goodBuy_tag.utils import *
 
-####################################################
-
+# -------------------------
+# 主頁商店推送（待加入演算法）
+# -------------------------
 def shopAll_update(request):
     shops = Shop.objects.filter(permission__id=1).order_by('-date')
     return render(request, '主頁', locals())
-
+# -------------------------
+# shop回傳fk串接
+# -------------------------
 def shopInformation_many(shops):
         return (
         shops.annotate(total_stock=Sum(Case(When(product__stock__gt=0, then='product__stock'),default=0,output_field=IntegerField())))
@@ -29,8 +32,9 @@ def shopInformation_many(shops):
         )
         .order_by('-total_stock', '-date')
     )
-####################################################
-# user_id查詢
+# -------------------------
+# 商店查詢 - user-id
+# -------------------------
 @user_exists_required
 def shopByUserId_many(request, user):
     shops = shopInformation_many(Shop.objects.filter(owner=user))
@@ -39,7 +43,9 @@ def shopByUserId_many(request, user):
         shops = shops.filter(permission__id=1)
         return render(request, '別人主頁賣場', locals())
     return render(request, '自己主頁賣場', locals())
-
+# -------------------------
+# 商店查詢 - shop-id - 單一店鋪界面
+# -------------------------
 @shop_exists_required
 def shopById_one(request, shop):
     is_rush_buy = shop.purchase_priority_id in [2, 3]
@@ -88,7 +94,9 @@ def shopById_one(request, shop):
 
     announcements = ShopAnnouncement.objects.filter(shop=shop).order_by('-date')
     return render(request, '別人賣場', locals())
-
+# -------------------------
+# 商店查詢 - search
+# -------------------------
 def shopBySearch(request):
     kw = request.GET.get('keyWord')
     if not kw:
@@ -101,7 +109,9 @@ def shopBySearch(request):
 
     shops = shopInformation_many(shops)
     return render(request, '搜尋結果界面', locals())
-
+# -------------------------
+# 商店查詢 - tag
+# -------------------------
 @tag_exists_required
 def shopByTag(request, tag):
     shop_ids = ShopTag.objects.filter(tag=tag).values_list('shop_id', flat=True)
@@ -111,7 +121,9 @@ def shopByTag(request, tag):
     shops = shopInformation_many(shops)
 
     return render(request, '搜尋結果界面', locals())
-
+# -------------------------
+# 商店查詢 - 隱私狀況（ex.查詢自己私人的商店
+# -------------------------
 @user_exists_required
 def shopByPermissionId(request, user, permission_id):
     if not Permission.objects.filter(id=permission_id).exists():

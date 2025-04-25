@@ -8,9 +8,11 @@ from datetime import datetime, timezone
 from goodBuy_shop.models import *
 from goodBuy_web.models import *
 from ..utils import *
-from ..shop_forms import *
+from ..form.shop_forms import *
 
-# 商店公告
+# -------------------------
+# 顯示商店公告
+# -------------------------
 @shop_exists_required
 def showShopAnnouncement_many(request, shop):
     announcements = shop.shopAnnouncement_set.all().order_by('-date')
@@ -24,7 +26,9 @@ def showShopAnnouncement_one(request, shop, announcement_id):
         messages.error(request, '查無此公告')
         return redirect('shop_detail', shop_id=shop.id)
     return render(request, '顯示單一公告頁面', locals())
-
+# -------------------------
+# 新增商店公告
+# -------------------------
 @shop_owner_required
 def addAnnouncement(request, shop):
     if request.method == 'POST':
@@ -44,7 +48,9 @@ def addAnnouncement(request, shop):
         form = AnnouncementForm()
 
     return render(request, 'announcement_form.html', locals())
-
+# -------------------------
+# 刪除商店公告
+# -------------------------
 @shop_owner_required
 def deleteAnnouncement(request, shop, announcement_id):
     try:
@@ -55,7 +61,9 @@ def deleteAnnouncement(request, shop, announcement_id):
     announcement.delete()
     messages.success(request, '公告刪除成功')
     return redirect('刪除成功導向')
-
+# -------------------------
+# 修改商店公告
+# -------------------------
 @shop_owner_required
 def editAnnouncement(request, shop, announcement_id):
     announcement = get_object_or_404(ShopAnnouncement, id=announcement_id, shop=shop)
@@ -64,7 +72,9 @@ def editAnnouncement(request, shop, announcement_id):
         form = AnnouncementForm(request.POST, instance=announcement)
         if form.is_valid():
             try:
-                form.save()
+                announcement = form.save(commit=False)
+                announcement.update = timezone.now()
+                announcement.save()
                 messages.success(request, '公告修改成功')
                 return redirect('shop_detail', shop_id=shop.id)
             except Exception as e:
@@ -75,5 +85,3 @@ def editAnnouncement(request, shop, announcement_id):
         form = AnnouncementForm(instance=announcement)
 
     return render(request, 'announcement_form.html', locals())
-
-####################################################
