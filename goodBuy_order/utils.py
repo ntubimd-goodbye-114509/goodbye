@@ -92,3 +92,16 @@ def allocate_rush_orders(shop_id):
             allocated_users.append(user_id)
 
     return allocated_users
+
+def cart_exists_required(view_func):
+    @wraps(view_func)
+    def _wrapped_view(request, cart_id, *args, **kwargs):
+        cart_item = get_object_or_404(Cart, id=cart_id)
+
+        if cart_item.user != request.user:
+            messages.error(request, "這不是你的購物車項目喔")
+            return redirect('view_cart')
+
+        return view_func(request, cart_item, *args, **kwargs)
+    
+    return _wrapped_view
