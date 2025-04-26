@@ -2,15 +2,21 @@ from django.db import models
 from ..models import *
 from django.core.exceptions import ValidationError
 import re
-
+# -------------------------
+# 台灣手機號檢查
+# -------------------------
 def validate_tw_mobile(value):
     if not re.match(r'^09\d{8}$', value):
         raise ValidationError('請輸入有效的台灣手機號碼（格式為09xxxxxxxx）')
-
+# -------------------------
+# 使用者收貨地址存在檢查
+# -------------------------
 class ActiveAddressManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset().filter(is_delete=False)
-    
+# -------------------------
+# 使用者地址
+# -------------------------
 class UserAddress(models.Model):
     ADDRESS_MODE_CHOICES = [
         ('Keelung City', '基隆市'),
