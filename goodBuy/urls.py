@@ -18,12 +18,16 @@ from django.contrib import admin
 from django.urls import path
 from goodBuy_web.views.user_login_register import *  # Replace 'your_app' with the actual app name
 from goodBuy_web.views.homePage import *
+from django.conf import settings
+from django.conf.urls.static import static
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('login/', logins, name='login'),   #登入
     path('register/', register, name='register'), #註冊
     path('logout/', logouts, name='logout'),    #登出
+    path('editprofile/', editprofile, name='editprofile'), #編輯個人資料
 
     path('', homePage, name='home'),    #主頁
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
