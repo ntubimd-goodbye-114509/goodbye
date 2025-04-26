@@ -108,3 +108,10 @@ def purchase_single_product(request, product):
         form = OrderForm(user=request.user, shop=shop)
 
     return render(request, 'quick_purchase.html', locals())
+# -------------------------
+# 上傳付款記錄
+# -------------------------
+
+# -------------------------
+# 確認收貨
+# -------------------------

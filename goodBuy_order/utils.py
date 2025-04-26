@@ -95,7 +95,11 @@ def allocate_rush_orders(shop_id):
 def cart_exists_required(view_func):
     @wraps(view_func)
     def _wrapped_view(request, cart_id, *args, **kwargs):
-        cart_item = get_object_or_404(Cart, id=cart_id)
+        try:
+            cart_item = Cart.objects.get(id=cart_id)
+        except:
+            messages.error(request, '購物車沒有這個商品呢')
+            return redirect('home')
 
         if cart_item.user != request.user:
             messages.error(request, "這不是你的購物車項目喔")
@@ -103,4 +107,45 @@ def cart_exists_required(view_func):
 
         return view_func(request, cart_item, *args, **kwargs)
     
+    return _wrapped_view
+# -------------------------
+# 訂單存在檢查
+# -------------------------
+def order_exists_required(view_func):
+    @wraps(view_func)
+    def _wrapped_view(request, order_id, *args, **kwargs):
+        try:
+            order = Order.objects.get(id=order_id)
+        except:
+            messages.error(request, "訂單不存在")
+            return redirect('訂單頁面')
+        return view_func(request, order, *args, **kwargs)
+    return _wrapped_view
+# -------------------------
+# 訂單存在+商店主人檢查
+# -------------------------
+def order_exists_shop_and_owner_required(view_func):
+    @wraps(view_func)
+    def _wrapped_view(request,shop_id, order_id, *args, **kwargs):
+        try:
+            shop = Shop.objects.get(id=shop_id)
+        except Shop.DoesNotExist:
+            messages.error(request, "商店不存在")
+            return redirect('home')
+        
+        try:
+            order = Order.objects.get(id=order_id)
+        except Order.DoesNotExist:
+            messages.error(request, "訂單不存在")
+            return redirect('訂單列表頁', shop_id=shop.id)
+        
+        if order.shop != shop:
+            messages.error(request, '訂單不屬於此商店')
+            return redirect('訂單列表頁', shop_id=shop.id)
+        
+        if order.shop.owner != request.user:
+            messages.error(request, "您無權操控訂單")
+            return redirect('home')
+        
+        return view_func(request,shop, order, *args, **kwargs)
     return _wrapped_view
