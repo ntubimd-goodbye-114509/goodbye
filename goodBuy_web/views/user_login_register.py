@@ -84,10 +84,10 @@ def change_pass(request):
     return render(request, 'common/change_pass.html')
     
 @login_required
-def edit_profile(request):
+def editprofile(request):
     if request.method == 'POST':
         user = request.user
-        profile = user.profile
+        profile, created = Profile.objects.get_or_create(user=user) 
 
         # 更新電子郵件
         email = request.POST.get('email')
@@ -131,6 +131,6 @@ def edit_profile(request):
         user.save()
         profile.save()
         messages.success(request, '個人資料已成功更新')
-        return redirect('edit_profile')
+        return redirect('editprofile')
 
     return render(request, 'common/edit_profile.html')

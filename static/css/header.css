@@ -179,12 +179,22 @@
     margin-bottom: 50px;
   }
   
-  .tellme {
+.page-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* 讓整頁至少撐滿螢幕高度 */
+}
+
+.main-content {
+    flex: 1; /* 中間的內容自動撐開 */
+}
+
+.tellme {
     text-align: center;
     font-size: 14px;
     color: #0e3e5d;
     padding: 20px;
-  }
+}
   
   .social-icons {
     display: flex;
@@ -199,12 +209,19 @@
     transition: transform 0.3s;
   }
   
+  .avatar {
+    width: 80px;
+    height: 80px;
+    object-fit: cover; 
+    border-radius: 50%; 
+}
+
 /* RWD */
 /* 手機版 (max-width: 600px) */
 @media (max-width: 600px) {
     .menu {
         width: 80%;         /* 手機上側欄變窄一點 */
-        left: 100%;
+        left: -600px;;
     }
 
     .menu.active {
@@ -251,15 +268,9 @@
 @media (max-width: 600px) {
     .menu {
         width: 70%;           /* 更小一點，不會蓋住整個畫面 */
-        left: 100%;
+        left: -600px;
         top: 60px;
         max-width: 300px;     /* 限制最大寬度 */
-    }
-
-    .menu {
-        width: 80%;
-        left: -80%;
-        top: 60px; /* 下移避免擋到 header */
     }
 
     .menu.active {
@@ -301,8 +312,7 @@
 
 @media (min-width: 601px) and (max-width: 1080px) {
     .menu {
-        left: 100%;
-        left: -60%;
+        left: -600px;
     }
 
     .menu.active {
@@ -325,29 +335,33 @@
 }
 
 /* 登入後樣式 */
-.user-info1{
-    margin-bottom: 120%;
-}
 .menu .user-info1 {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
+    display: flex;
+    flex-direction: row; /* 外層橫排 */
+    align-items: center; /* 垂直置中 */
+    gap: 10px; /* 頭像跟文字之間距離 */
+    margin-bottom: 10px;
+    margin-left: 5%;
+    margin-top: 8%;
 }
 
 .menu .user-info1 img.avatar {
-    width: 80px;
-    height: 80px;
+    width: 90px;
+    height: 90px;
     border-radius: 50%;
     object-fit: cover;
-    margin-bottom: 10px;
 }
 
-/* 使用者名稱 */
-.menu .user-info1 h3 {
-    margin: 0;
-    font-size: 24px;
-    font-weight: bold;
-    color: #0e3e5d;
+
+.menu .social {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.menu .social a {
+    color: black;
+    font-size: 50px;
+    text-decoration: none;
 }
 
 /* 個人資料連結 */
@@ -382,4 +396,29 @@
 
 .menu .btn-group button:hover {
     background-color: #B2D6F1;
+}
+
+.menu .user-info1 .name-edit {
+    display: flex;
+    flex-direction: column; /* ⭐ 內層直排 */
+    justify-content: center;
+}
+
+.menu .user-info1 .name-edit h3 {
+    margin: 0;
+    font-size: 35px;
+    font-weight: bold;
+    color: #000000;
+    text-align: left; /* 名字靠左 */
+    margin-left: 20%;
+}
+
+.menu .user-info1 .name-edit a {
+    margin-top: 5px;
+    font-size: 15px;
+    color: black;
+    text-decoration: none;
+    text-align: left; /* 編輯資料也靠左 */
+    margin-left: 20%;
+    white-space: nowrap;
 }
