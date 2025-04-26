@@ -6,7 +6,9 @@ from django.contrib import messages
 from django.shortcuts import *
 
 from .models import *
-
+# -------------------------
+# 標籤存在檢查
+# -------------------------
 def tag_exists_required(view_func):
     @wraps(view_func)
     def _wrapped_view(request, tag_id, *args, **kwargs):

@@ -8,7 +8,9 @@ from ..models import *
 from goodBuy_web.models import *
 from ..utils import *
 from goodBuy_shop.views.shop_query import *
-
+# -------------------------
+# 標籤收藏
+# -------------------------
 @login_required(login_url='login')
 @tag_exists_required
 def tag_collect_toggle(request, tag):
@@ -21,7 +23,9 @@ def tag_collect_toggle(request, tag):
         messages.success(request, '收藏成功')
 
     return redirect('單tag界面', tag_id=tag.id)
-
+# -------------------------
+# 標籤收藏查看
+# -------------------------
 @login_required(login_url='login')
 def my_tags_collected(request):
     tag_ids = TagCollect.objects.filter(user=request.user).values_list('tag_id', flat=True)
