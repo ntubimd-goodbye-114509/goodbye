@@ -9,12 +9,15 @@ from ..utils import *
 from goodBuy_web.utils import *
 from goodBuy_tag.utils import *
 
-####################################################
-
+# -------------------------
+# 收物帖主頁推送
+# -------------------------
 def wantAll_update(request):
     wants = want.objects.filter(permission__id=1).order_by('-date')
     return render(request, '主頁', locals())
-
+# -------------------------
+# 收物貼fk串接
+# -------------------------
 def wantInformation_many(wants):
     return (
         wants
@@ -24,26 +27,31 @@ def wantInformation_many(wants):
             Prefetch('images', queryset=WantImg.objects.filter(is_cover=True)),
         )
     )
-
-####################################################
-
-# user_id查詢
+# -------------------------
+# 收物帖查詢 - user_id
+# -------------------------
 @user_exists_required
 def wantByUserId_many(request, user):
-    wants = wantInformation_many(want.objects.filter(owner=user))
+    wants = wantInformation_many(Want.objects.filter(owner=user))
     # 看別人的只顯示公開
     if not request.user.is_authenticated or request.user != user:
         wants = wants.filter(permission__id=1)
         return render(request, '別人收物帖', locals())
     return render(request, '自己收物帖', locals())
-
+# -------------------------
+# 收物帖查詢 - want_id
+# -------------------------
 @want_exists_required
 def wantById_one(request, want):
     if request.user.is_authenticated and request.user.id == want.owner.id:
+        backs = ( WantBack.objects.filter(want=want).select_related('user', 'shop').order_by('-date'))
         return render(request, '自己收物帖', locals())
 
-    if want.permission.id != 1:
+    if want.permission.id == 2:
         messages.error(request, '當前收物帖不公開')
+        return redirect('home')
+    if want.permission.id == 3:
+        messages.error(request, '當前收物帖不存在')
         return redirect('home')
 
     if request.user.is_authenticated:
@@ -53,7 +61,9 @@ def wantById_one(request, want):
             defaults={'date': timezone.now()}
         )
     return render(request, '別人收物帖', locals())
-
+# -------------------------
+# 收物帖查詢 - search
+# -------------------------
 def wantBySearch(request):
     kw = request.GET.get('keyWord')
     if not kw:
@@ -66,7 +76,9 @@ def wantBySearch(request):
 
     wants = wantInformation_many(wants)
     return render(request, '搜尋結果界面', locals())
-
+# -------------------------
+# 收物帖查詢 - tag_id
+# -------------------------
 @tag_exists_required
 def wantByTag(request, tag):
     want_ids = WantTag.objects.filter(tag=tag).values_list('want_id', flat=True)
@@ -76,7 +88,9 @@ def wantByTag(request, tag):
     wants = wantInformation_many(wants)
 
     return render(request, '搜尋結果界面', locals())
-
+# -------------------------
+# 收物帖查詢 - permission_id
+# -------------------------
 @user_exists_required
 def wantByPermissionId(request, user, permission_id):
     if not Permission.objects.filter(id=permission_id).exists():

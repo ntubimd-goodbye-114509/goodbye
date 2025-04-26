@@ -11,13 +11,17 @@ from goodBuy_shop.utils import shop_exists_required
 
 from want_query import *
 from goodBuy_shop.views.shop_query import shopInformation_many
-
+# -------------------------
+# 收物帖足跡
+# -------------------------
 @login_required(login_url='login')
 def my_want_footprints(request):
     want_ids = WantFootprints.objects.filter(user=request.user).values_list('want_id', flat=True)
     wants = wantInformation_many(want.objects.filter(id__in=want_ids).order_by('-date'))
     return render(request, '足跡頁面', locals())
-
+# -------------------------
+# 選擇商店回復收物帖
+# -------------------------
 @login_required(login_url='login')
 @want_exists_required
 def choose_shop_to_reply(request, want):
@@ -27,7 +31,9 @@ def choose_shop_to_reply(request, want):
     replied_shop_ids = WantBack.objects.filter(user=request.user, want=want).values_list('shop_id', flat=True)
 
     return render(request, '收物帖界面+id', locals())
-
+# -------------------------
+# 收物帖回復
+# -------------------------
 @login_required(login_url='login')
 @want_and_shop_exists_required
 def reply_want(request, want, shop):

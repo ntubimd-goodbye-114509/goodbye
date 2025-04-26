@@ -1,6 +1,8 @@
 from django import forms
 from .models import Want, wantImg, Tag, WantTag
-
+# -------------------------
+# 收物帖創建修改
+# -------------------------
 class WantForm(forms.ModelForm):
     tag_names = forms.CharField(required=False, widget=forms.HiddenInput())
     images = forms.FileField(required=False, widget=forms.ClearableFileInput(attrs={'multiple': True, 'class': 'form-control'}))
@@ -36,8 +38,9 @@ class WantForm(forms.ModelForm):
                     WantTag.objects.get_or_create(want=want, tag=tag)
 
         return want
-
-
+# -------------------------
+# 收物帖圖片上傳修改
+# -------------------------
 class WantImgForm(forms.ModelForm):
     class Meta:
         model = wantImg

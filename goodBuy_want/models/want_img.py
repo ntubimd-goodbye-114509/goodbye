@@ -1,7 +1,9 @@
 import os
 from django.db import models
 from .want import Want
-
+# -------------------------
+# 收物帖圖片
+# -------------------------
 class WantImg(models.Model):
     want = models.ForeignKey(Want, on_delete=models.CASCADE, related_name='images')
     img = models.ImageField(upload_to='want_img/', blank=True, null=True)
@@ -14,6 +16,9 @@ class WantImg(models.Model):
             os.remove(self.img.path)
         super().delete(*args, **kwargs)
 
+    # -------------------------
+    # 圖片修改則刪除原圖片
+    # -------------------------
     def save(self, *args, **kwargs):
         try:
             this = WantImg.objects.get(id=self.id)

@@ -1,7 +1,9 @@
 from django.db import models
 from goodBuy_web.models import User
 from .want import Want
-
+# -------------------------
+# 收物帖足跡
+# -------------------------
 class WantFootprints(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     want = models.ForeignKey(Want, on_delete=models.CASCADE)

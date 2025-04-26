@@ -9,7 +9,9 @@ from .models import *
 from goodBuy_shop import Shop
 
 from .utils import *
-
+# -------------------------
+# 收物帖擁有者檢查
+# -------------------------
 def want_owner_required(view_func):
     @wraps(view_func)
     def _wrapped_view(request, post_id, *args, **kwargs):
@@ -21,7 +23,9 @@ def want_owner_required(view_func):
 
         return view_func(request, want, *args, **kwargs)
     return _wrapped_view
-
+# -------------------------
+# 收物帖存在檢查
+# -------------------------
 def want_exists_required(view_func):
     @wraps(view_func)
     def _wrapped_view(request, want_id, *args, **kwargs):
@@ -39,7 +43,10 @@ def want_exists_required(view_func):
             messages.error(request, '找不到這個收物帖呢qwq')
             return redirect('home')
         return view_func(request, want, *args, **kwargs)
-    
+    return _wrapped_view
+# -------------------------
+# 收物帖存在檢查
+# -------------------------
 def want_and_shop_exists_required(view_func):
     @wraps(view_func)
     def _wrapped_view(request, want_id, shop_id, *args, **kwargs):
