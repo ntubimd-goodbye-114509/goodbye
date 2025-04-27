@@ -6,13 +6,13 @@ from django.contrib.auth.decorators import login_required
 
 from goodBuy_order.models import Order, OrderPayment, PayState, ShopPayment
 from goodBuy_shop.models import Shop
-from ..utils import order_exists_shop_and_owner_required
+from ..utils import order_exists_and_shop_owner_required
 
 # -------------------------
 # 確認接收訂單
 # -------------------------
 @login_required(login_url='login')
-@order_exists_shop_and_owner_required
+@order_exists_and_shop_owner_required
 def seller_confirm_order(request, shop, order):
     if order.order_state_id != 2:
         messages.error(request, "此訂單無法確認")
@@ -48,7 +48,7 @@ def seller_confirm_order(request, shop, order):
 # -------------------------
 # 取消訂單
 # -------------------------
-    
+
 # -------------------------
 # 付款同意&不同意
 # -------------------------

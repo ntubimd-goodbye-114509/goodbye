@@ -10,6 +10,7 @@ class OrderPayment(models.Model):
         ('wait confirmed','待確認'),
         ('confirmed','已收到'),
         ('returned','已退回'),
+        ('none', '取貨付款')
     ]
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='payments')
     shop_payment = models.ForeignKey(ShopPayment, on_delete=models.SET_NULL, null=True, blank=True)
