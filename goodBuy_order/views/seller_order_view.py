@@ -47,7 +47,3 @@ def seller_shop_order_list(request, shop):
     title = OrderState.objects.get(id=state).name if state else '全部' 
 
     return render(request, '商店訂單界面', locals())
-
-# -------------------------
-# 訂單顯示 - 賣家 - 單商店 - 表格式統整
-# -------------------------

@@ -13,15 +13,8 @@ from ..utils import *
 # 多帶商店顯示所有人多帶情況 - 流水表
 # -------------------------
 @shop_exists_required
+@shop_exists_and_is_rush_required
 def rush_status(request, shop):
-    if shop.purchase_priority_id not in [2, 3]:
-        messages.error(request, "此商店不是搶購模式")
-        return redirect('商店', shop_id=shop.id)
-
-    if timezone.now() > shop.end_time and request.user != shop.owner:
-        messages.info(request, '多帶已結算')
-        return redirect('商店', shop_id=shop.id)
-
     all_products = Product.objects.filter(shop=shop, is_delete=False)
 
     intents = PurchaseIntent.objects.filter(shop=shop).prefetch_related('intent_products', 'user')
@@ -71,15 +64,8 @@ def rush_status(request, shop):
 # 多帶商店顯示所有人多帶情況 - 交叉表
 # -------------------------
 @shop_exists_required
+@shop_exists_and_is_rush_required
 def rush_cross_table(request, shop):
-    if shop.purchase_priority_id not in [2, 3]:
-        messages.error(request, "此商店非搶購模式")
-        return redirect('home')
-
-    if timezone.now() > shop.end_time and request.user != shop.owner:
-        messages.info(request, '多帶已結算')
-        return redirect('商店', shop_id=shop.id)
-    
     intents = PurchaseIntent.objects.filter(shop=shop).prefetch_related('user', 'intent_products__product')
 
     user_summary = defaultdict(lambda: {
