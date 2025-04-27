@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import *
 from django.core.files.storage import FileSystemStorage
-from datetime import datetime, timezone
+from django.db import transaction
 
 from goodBuy_shop.models import *
 from goodBuy_web.models import *
@@ -34,14 +34,31 @@ def add_product(request, shop):
 @product_owner_required
 def edit_product(request, product):
     if request.method == 'POST':
-        form = ProductForm(request.POST, request.FILES, instance=product)
+        form = ProductForm(request.POST, request.FILES)
+
         if form.is_valid():
-            form.save()
-            messages.success(request, '商品修改成功')
-            return redirect('商品form', locals())
+            try:
+                with transaction.atomic():
+                    product.is_delete = True
+                    product.save()
+
+                    # 2. 建立新商品
+                    new_product = form.save(commit=False)
+                    new_product.shop = product.shop
+
+                    if not request.FILES.get('img'):
+                        new_product.img = product.img
+
+                    new_product.save()
+
+                    messages.success(request, '修改成功')
+                    return redirect('shop_detail', shop_id=new_product.shop.id)
+            except Exception as e:
+                messages.error(request, f'商品修改失敗：{e}')
     else:
         form = ProductForm(instance=product)
-    return render(request, '商品form', locals())
+
+    return render(request, '商品form.html', locals())
 # -------------------------
 # 刪除product（軟刪除）
 # -------------------------
