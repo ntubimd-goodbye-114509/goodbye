@@ -17,6 +17,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from goodBuy_web.views.user_login_register import *  # Replace 'your_app' with the actual app name
+from goodBuy_shop.views import *
+from goodBuy_order.views import *
+from goodBuy_tag.views import *
+from goodBuy_want.views import *
 from goodBuy_web.views.homePage import *
 from django.conf import settings
 from django.conf.urls.static import static
