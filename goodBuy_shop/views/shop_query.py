@@ -9,6 +9,8 @@ from goodBuy_web.models import *
 from goodBuy_order.models import IntentProduct
 
 from ..utils import *
+from ..shop_utils import *
+from ..time_utils import *
 from goodBuy_web.utils import *
 from goodBuy_tag.utils import *
 
@@ -18,20 +20,6 @@ from goodBuy_tag.utils import *
 def shopAll_update(request):
     shops = Shop.objects.filter(permission__id=1).order_by('-date')
     return render(request, '主頁', locals())
-# -------------------------
-# shop回傳fk串接
-# -------------------------
-def shopInformation_many(shops):
-        return (
-        shops.annotate(total_stock=Sum(Case(When(product__stock__gt=0, then='product__stock'),default=0,output_field=IntegerField())))
-        .select_related('permission', 'shop_state', 'purchase_priority')
-        .prefetch_related(
-            Prefetch('shop_payment_set', queryset=ShopPayment.objects.select_related('payment_account')),
-            Prefetch('shop_tag_set', queryset=ShopTag.objects.select_related('tag')),
-            Prefetch('images', queryset=ShopImg.objects.filter(is_cover=True)),
-        )
-        .order_by('-total_stock', '-date')
-    )
 # -------------------------
 # 商店查詢 - user-id
 # -------------------------

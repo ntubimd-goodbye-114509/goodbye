@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from datetime import timezone
 
 from ..models import *
-from goodBuy_shop import Permission
+from goodBuy_shop.models import Permission
 
 from ..utils import *
 from goodBuy_web.utils import *

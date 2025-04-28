@@ -2,7 +2,6 @@ from django.db.models import *
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import *
-from django.core.files.storage import FileSystemStorage
 from django.db import transaction
 
 from goodBuy_shop.models import *

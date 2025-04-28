@@ -1,31 +1,13 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
 from django.contrib import messages
 from collections import defaultdict
-from django.utils import timezone
-from datetime import timedelta
-
 
 from goodBuy_shop.models import *
 from goodBuy_shop.utils import shop_exists_required
 from goodBuy_web.models import *
 from ..models import *
 from ..utils import *
-# -------------------------
-# 防尾刀，上限30分鐘
-# -------------------------
-def maybe_extend_rush(shop):
-    now = timezone.now()
-    remaining = (shop.end_time - now).total_seconds()
-
-    if remaining <= 300:
-        max_end_time = shop.start_time + timedelta(minutes=30)
-
-        if shop.end_time + timedelta(minutes=5) <= max_end_time:
-            shop.end_time += timedelta(minutes=5)
-            shop.save()
-        
-    return shop
+from ..rush_utils import *
 # -------------------------
 # 多帶商店顯示所有人多帶情況 - 流水表
 # -------------------------
@@ -33,30 +15,11 @@ def maybe_extend_rush(shop):
 @shop_exists_and_is_rush_required
 def rush_status(request, shop):
     all_products = Product.objects.filter(shop=shop, is_delete=False)
-
-    intents = PurchaseIntent.objects.filter(shop=shop).prefetch_related('intent_products', 'user')
-
-    intent_summaries = []
-    for intent in intents:
-        products = list(intent.intent_products.all())
-        total_price = sum(ip.product.price * ip.quantity for ip in products)
-        total_quantity = sum(ip.quantity for ip in products)
-
-        intent_summaries.append({
-            'user': intent.user,
-            'products': products,
-            'total_price': total_price,
-            'total_quantity': total_quantity,
-            'intent_time': getattr(intent, 'created_at', timezone.now()),
-        })
-
-    if shop.purchase_priority_id == 2:
-        intent_summaries.sort(key=lambda x: (-x['total_price'], x['intent_time']))
-    else:
-        intent_summaries.sort(key=lambda x: (-x['total_quantity'], x['intent_time']))
+    intent_summaries = get_rush_summaries(shop)
 
     product_claimed = defaultdict(int)
     allocation_rows = []
+
     while True:
         row = {}
         all_empty = True
@@ -75,7 +38,7 @@ def rush_status(request, shop):
         if all_empty:
             break
         allocation_rows.append(row)
-            
+
     return render(request, 'user_rush_status.html', locals())
 # -------------------------
 # 多帶商店顯示所有人多帶情況 - 交叉表

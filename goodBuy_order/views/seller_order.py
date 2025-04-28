@@ -1,10 +1,10 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.utils import timezone
 from django.db import transaction
 from django.contrib.auth.decorators import login_required
 
-from goodBuy_order.models import Order, OrderPayment, PayState, ShopPayment
+from goodBuy_order.models import Order, OrderPayment
 from goodBuy_shop.models import Shop
 from ..utils import order_exists_and_shop_owner_required
 
