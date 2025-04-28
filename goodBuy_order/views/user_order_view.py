@@ -10,6 +10,7 @@ from goodBuy_shop.views import shopInformation_many
 from goodBuy_web.models import *
 from ..models import *
 from ..utils import *
+from ..rush_utils import *
 # -------------------------
 # 訂單顯示 - 使用者 - 全部 - 分類+all
 # -------------------------
@@ -91,28 +92,23 @@ def my_rush_shops(request):
 def my_rush_status_in_intent(request, shop, intent):
     now = timezone.now()
     remaining_seconds = (shop.end_time - now).total_seconds()
-    
-    products = intent.intent_products.select_related('product')
 
-    product_list = []
-    for ip in products:
-        total_claimed = IntentProduct.objects.filter(
-            product=ip.product
-        ).exclude(intent__user=request.user).aggregate(total=Sum('quantity'))['total'] or 0
+    intent_summaries = get_rush_summaries(shop, user=request.user)
 
-        available = max(ip.product.stock - total_claimed, 0)
+    target_summary = None
+    for summary in intent_summaries:
+        if summary['user'] == request.user:
+            target_summary = summary
+            break
 
-        product_list.append({
-            'product': ip.product,
-            'quantity': ip.quantity,
-            'price': ip.product.price,
-            'total_price': ip.quantity * ip.product.price,
-            'is_successful': ip.quantity <= available,
-        })
+    if not target_summary:
+        return redirect('some_error_page')
+
+    product_list = target_summary['products']
+    total_quantity = target_summary['total_quantity']
+    total_price = target_summary['total_price']
 
     product_list.sort(key=lambda x: (not x['is_successful'], x['product'].id))
 
-    total_quantity = sum(item['quantity'] for item in product_list)
-    total_price = sum(item['total_price'] for item in product_list)
-
     return render(request, 'my_rush_status_in_shop.html', locals())
+

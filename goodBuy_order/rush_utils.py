@@ -1,9 +1,11 @@
+from django.db.models import Sum
 from django.utils import timezone
 from datetime import timedelta
 
 from goodBuy_shop.models import *
 from goodBuy_web.models import *
 from .models import *
+
 # -------------------------
 # 帶多邏輯判斷
 # -------------------------
