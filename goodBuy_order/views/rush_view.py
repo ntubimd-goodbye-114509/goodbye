@@ -3,12 +3,29 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from collections import defaultdict
 from django.utils import timezone
+from datetime import timedelta
+
 
 from goodBuy_shop.models import *
 from goodBuy_shop.utils import shop_exists_required
 from goodBuy_web.models import *
 from ..models import *
 from ..utils import *
+# -------------------------
+# 防尾刀，上限30分鐘
+# -------------------------
+def maybe_extend_rush(shop):
+    now = timezone.now()
+    remaining = (shop.end_time - now).total_seconds()
+
+    if remaining <= 300:
+        max_end_time = shop.start_time + timedelta(minutes=30)
+
+        if shop.end_time + timedelta(minutes=5) <= max_end_time:
+            shop.end_time += timedelta(minutes=5)
+            shop.save()
+        
+    return shop
 # -------------------------
 # 多帶商店顯示所有人多帶情況 - 流水表
 # -------------------------
