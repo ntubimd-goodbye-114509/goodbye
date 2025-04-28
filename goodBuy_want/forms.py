@@ -1,11 +1,21 @@
 from django import forms
-from .models import Want, wantImg, Tag, WantTag
+from django.forms.widgets import ClearableFileInput
+
+from .models import Want, WantImg, WantTag
+from goodBuy_tag.models import Tag
+
+class MultipleClearableFileInput(ClearableFileInput):
+    allow_multiple_selected = True
+
 # -------------------------
-# 收物帖創建修改
+# 收物帖創建/修改表單
 # -------------------------
 class WantForm(forms.ModelForm):
     tag_names = forms.CharField(required=False, widget=forms.HiddenInput())
-    images = forms.FileField(required=False, widget=forms.ClearableFileInput(attrs={'multiple': True, 'class': 'form-control'}))
+    images = forms.FileField(
+        required=False,
+        widget=MultipleClearableFileInput(attrs={'multiple': True, 'class': 'form-control'})
+    )
     cover_index = forms.IntegerField(required=False, widget=forms.HiddenInput())
     image_order = forms.CharField(required=False, widget=forms.HiddenInput())
 
@@ -14,17 +24,24 @@ class WantForm(forms.ModelForm):
         fields = ['title', 'post_text']
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '輸入收物帖標題'}),
-            'post_text': forms.Textarea(attrs={'class': 'form-control', 'placeholder': '輸入收物帖內容'})
+            'post_text': forms.Textarea(attrs={'class': 'form-control', 'placeholder': '輸入收物帖內容'}),
         }
 
-    def save(self, commit=True, user=None):
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        self.is_edit = kwargs.get('instance') is not None
+        super().__init__(*args, **kwargs)
+
+    def save(self, commit=True):
         want = super().save(commit=False)
-        if user:
-            want.user = user
+
+        if self.user:
+            want.user = self.user
+
         if commit:
             want.save()
 
-            # 標籤處理
+            # 更新標籤
             tag_names = self.data.getlist('tag_names')
             existing_tags = Tag.objects.filter(name__in=tag_names)
             existing_names = set(existing_tags.values_list('name', flat=True))
@@ -34,17 +51,19 @@ class WantForm(forms.ModelForm):
 
             if self.is_edit:
                 WantTag.objects.filter(want=want).exclude(tag__name__in=tag_names).delete()
-                for tag in all_tags:
-                    WantTag.objects.get_or_create(want=want, tag=tag)
+
+            for tag in all_tags:
+                WantTag.objects.get_or_create(want=want, tag=tag)
 
         return want
+
 # -------------------------
-# 收物帖圖片上傳修改
+# 收物帖圖片表單
 # -------------------------
 class WantImgForm(forms.ModelForm):
     class Meta:
-        model = wantImg
+        model = WantImg
         fields = ['img', 'is_cover']
         widgets = {
-            'img': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+            'img': ClearableFileInput(attrs={'class': 'form-control'}),
         }

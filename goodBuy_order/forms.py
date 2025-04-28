@@ -1,12 +1,9 @@
 from django import forms
 from .models import Order
+from goodBuy_web.models import UserAddress, Payment, PaymentAccount
 
 from django import forms
-from goodBuy_order.models import Order, UserAddress, Payment, PaymentAccount
-
-# forms.py
-from django import forms
-from goodBuy_order.models import Order, UserAddress, Payment, PaymentAccount
+from goodBuy_order.models import Order
 
 # -------------------------
 # 訂單新增 地址、付款方式選擇

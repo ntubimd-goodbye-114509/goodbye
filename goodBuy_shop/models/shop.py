@@ -24,6 +24,7 @@ class Shop(models.Model):
     deposit_ratio = models.PositiveIntegerField(default=50)
     date = models.DateTimeField(auto_now_add=True)
     
+    is_rush_settled = models.BooleanField(default=False)
     objects = ActiveShopManager()
     
     def __str__(self):

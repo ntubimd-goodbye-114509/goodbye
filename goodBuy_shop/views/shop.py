@@ -7,7 +7,6 @@ from goodBuy_shop.models import *
 from goodBuy_web.models import *
 from ..utils import *
 from ..form.shop_forms import *
-from .time_f import *
 
 # -------------------------
 # 新增商店

@@ -6,6 +6,7 @@ from django.db.models import F, Sum
 
 from goodBuy_shop.models import *
 from goodBuy_web.models import *
+from .rush_view import maybe_extend_rush
 from ..models import *
 from ..forms import *
 from ..utils import *
@@ -23,6 +24,7 @@ def purchase_single_product(request, product):
     # 搶購處理：僅建立 Intent
     # --------------------------
     if shop.purchase_priority_id != 1:
+        shop = maybe_extend_rush(shop)
         intent, _ = PurchaseIntent.objects.get_or_create(user=request.user, shop=shop)
         intent_product, created = IntentProduct.objects.get_or_create(intent=intent, product=product)
 
