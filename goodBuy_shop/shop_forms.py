@@ -1,7 +1,7 @@
 from django import forms
 from django.forms.widgets import ClearableFileInput
 
-from goodBuy_shop.models import Shop, ShopImg, ShopPayment, ShopTag
+from goodBuy_shop.models import Shop, ShopImg, ShopPayment, ShopTag, ShopAnnouncement
 from goodBuy_tag.models import Tag
 from goodBuy_web.models import PaymentAccount
 from .time_utils import timeFormatChange_now, timeFormatChange_longtime
@@ -113,4 +113,14 @@ class ShopImgForm(forms.ModelForm):
         fields = ['img', 'is_cover']
         widgets = {
             'img': ClearableFileInput(attrs={'class': 'form-control'}),
+        }
+
+class AnnouncementForm(forms.ModelForm):
+    class Meta:
+        model = ShopAnnouncement
+        fields = ['title', 'announcement']
+
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '輸入公告標題'}),
+            'announcement': forms.Textarea(attrs={'class': 'form-control', 'placeholder': '輸入公告內容', 'rows': 5}),
         }

@@ -36,7 +36,7 @@ def addAnnouncement(request, shop):
         if form.is_valid():
             try:
                 announcement = form.save(commit=False)
-                announcement.shop = shop  # 綁定店家
+                announcement.shop = shop
                 announcement.save()
                 messages.success(request, '公告新增成功')
                 return redirect('shop_list', shop_id=shop.id)
@@ -73,7 +73,7 @@ def editAnnouncement(request, shop, announcement_id):
         if form.is_valid():
             try:
                 announcement = form.save(commit=False)
-                announcement.update = timezone.now()
+                announcement.date = timezone.now()
                 announcement.save()
                 messages.success(request, '公告修改成功')
                 return redirect('shop_detail', shop_id=shop.id)
