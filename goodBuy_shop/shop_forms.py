@@ -4,7 +4,7 @@ from django.forms.widgets import ClearableFileInput
 from goodBuy_shop.models import Shop, ShopImg, ShopPayment, ShopTag
 from goodBuy_tag.models import Tag
 from goodBuy_web.models import PaymentAccount
-from ..time_utils import timeFormatChange_now, timeFormatChange_longtime
+from .time_utils import timeFormatChange_now, timeFormatChange_longtime
 
 class MultipleClearableFileInput(ClearableFileInput):
     allow_multiple_selected = True

@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 from goodBuy_shop.models import *
 from goodBuy_web.models import *
 from ..utils import *
-from ..form.shop_forms import *
+from ..shop_forms import *
 
 # -------------------------
 # 顯示商店公告
