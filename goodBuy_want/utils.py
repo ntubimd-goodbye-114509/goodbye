@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.shortcuts import *
 
 from .models import *
-from goodBuy_shop import Shop
+from goodBuy_shop.models import Shop
 
 from .utils import *
 # -------------------------

@@ -1,2 +1,2 @@
-from tag_query import *
-from user import *
+from .tag_query import *
+from .user import *

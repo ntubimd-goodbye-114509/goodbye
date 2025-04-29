@@ -1,12 +1,13 @@
 from django import forms
-from goodBuy_shop.models import *
-from goodBuy_tag.models import *
-from goodBuy_web.models import *
-from ..views.time_f import *
+from django.forms.widgets import ClearableFileInput
 
-from django import forms
-from goodBuy_shop.models import Shop, ShopImg, ShopPayment, ShopTag, PaymentAccount, Tag
-from ..views.time_f import timeFormatChange_now, timeFormatChange_longtime
+from goodBuy_shop.models import Shop, ShopImg, ShopPayment, ShopTag
+from goodBuy_tag.models import Tag
+from goodBuy_web.models import PaymentAccount
+from ..time_utils import timeFormatChange_now, timeFormatChange_longtime
+
+class MultipleClearableFileInput(ClearableFileInput):
+    allow_multiple_selected = True
 
 
 class ShopForm(forms.ModelForm):
@@ -14,10 +15,11 @@ class ShopForm(forms.ModelForm):
     
     images = forms.FileField(
         required=False,
-        widget=forms.ClearableFileInput(attrs={'multiple': True, 'class': 'form-control'})
+        widget=MultipleClearableFileInput(attrs={'multiple': True, 'class': 'form-control'})
     )
     cover_index = forms.IntegerField(required=False, widget=forms.HiddenInput())
     image_order = forms.CharField(required=False, widget=forms.HiddenInput())
+
     payment_ids = forms.ModelMultipleChoiceField(
         queryset=PaymentAccount.objects.none(),
         required=False,
@@ -29,7 +31,6 @@ class ShopForm(forms.ModelForm):
         widget=forms.DateTimeInput(attrs={'type': 'datetime-local', 'class': 'form-control'}),
         required=False
     )
-
     end_time = forms.DateTimeField(
         input_formats=['%Y-%m-%d %H:%M'],
         widget=forms.DateTimeInput(attrs={'type': 'datetime-local', 'class': 'form-control'}),
@@ -78,7 +79,7 @@ class ShopForm(forms.ModelForm):
         if commit:
             shop.save()
 
-            # 處理付款
+            # 更新付款帳號
             payment_ids = set(self.cleaned_data.get('payment_ids').values_list('id', flat=True))
             old_payment_ids = set(ShopPayment.objects.filter(shop=shop).values_list('payment_account_id', flat=True))
             if self.is_edit:
@@ -89,7 +90,7 @@ class ShopForm(forms.ModelForm):
                 for pid in payment_ids:
                     ShopPayment.objects.create(shop=shop, payment_account_id=pid)
 
-            # 處理標籤
+            # 更新標籤
             tag_names = self.data.getlist('tag_names')
             existing_tags = Tag.objects.filter(name__in=tag_names)
             existing_names = set(existing_tags.values_list('name', flat=True))
@@ -99,6 +100,7 @@ class ShopForm(forms.ModelForm):
 
             if self.is_edit:
                 ShopTag.objects.filter(shop=shop).exclude(tag__name__in=tag_names).delete()
+
             for tag in all_tags:
                 ShopTag.objects.get_or_create(shop=shop, tag=tag)
 
@@ -110,25 +112,5 @@ class ShopImgForm(forms.ModelForm):
         model = ShopImg
         fields = ['img', 'is_cover']
         widgets = {
-            'img': forms.ClearableFileInput(attrs={'class': 'form-control'}),
-        }
-
-class AnnouncementForm(forms.ModelForm):
-    class Meta:
-        model = ShopAnnouncement
-        fields = ['title', 'announcement']
-        widgets = {
-            'title': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': '輸入公告標題'
-            }),
-            'announcement': forms.Textarea(attrs={
-                'class': 'form-control',
-                'rows': 4,
-                'placeholder': '輸入公告內容...'
-            })
-        }
-        labels = {
-            'title': '公告標題',
-            'announcement': '公告內容'
+            'img': ClearableFileInput(attrs={'class': 'form-control'}),
         }

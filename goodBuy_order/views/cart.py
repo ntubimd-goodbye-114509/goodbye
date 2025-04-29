@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -9,6 +9,7 @@ from django.utils import timezone
 
 from goodBuy_shop.models import *
 from goodBuy_web.models import *
+from .rush_view import maybe_extend_rush
 from ..models import *
 from ..forms import *
 from ..utils import *
@@ -98,13 +99,13 @@ def handle_cart_order_creation(request, form, cart_items):
         payment_mode = shop_form.cleaned_data.get('payment_mode')
 
         if shop.purchase_priority_id != 1:
+            shop = maybe_extend_rush(shop)
             intent, _ = PurchaseIntent.objects.get_or_create(user=request.user, shop=shop)
             for item in shop_cart_items:
                 product = item.product
                 quantity = item.amount
                 intent_product, created = IntentProduct.objects.get_or_create(intent=intent, product=product)
 
-                # 計算目前其他人已搶購數量
                 current_total = IntentProduct.objects.filter(product=product).exclude(id=intent_product.id).aggregate(
                     total=Sum('quantity')
                 )['total'] or 0
