@@ -131,14 +131,17 @@
     width: 80px;
     height: 80px;
     border-radius: 50%;
-    margin-left: -70%;
+    margin-left: -50%;
   }
-  
+    .user-text{
+    margin-left: 3%;
+    }
+
   .user-text h3 {
     font-size: 32px;
     font-weight: bold;
     margin: 0;
-    margin-right: -100px;
+    margin-right: -150px;
   }
   
   /* 新增 user-actions 區塊：按鈕置中 */
@@ -147,7 +150,6 @@
     flex-direction: column;
     align-items: center;
     margin-left: -30px;
-    margin-bottom: 130%;
   }
   
   .Options {
@@ -189,25 +191,38 @@
     flex: 1; /* 中間的內容自動撐開 */
 }
 
+.page-container2 {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* 讓高度至少跟螢幕一樣高 */
+    position: relative;
+}
+
+.content {
+    flex: 1; /* 撐開剩下的空間 */
+    padding-bottom: 100px; /* 預留底下告訴系統不要被遮住 */
+}
+
 .tellme {
     text-align: center;
     font-size: 14px;
     color: #0e3e5d;
     padding: 20px;
+    margin-top: 140%;
 }
   
-  .social-icons {
+.social-icons {
     display: flex;
     justify-content: center;
     gap: 15px;
     margin-top: 10px;
-  }
+}
   
-  .social-icons img {
+.social-icons img {
     width: 24px;
     height: 24px;
     transition: transform 0.3s;
-  }
+}
   
   .avatar {
     width: 80px;
@@ -379,6 +394,7 @@
     gap: 10px;
     margin-bottom: 30px;
     text-decoration: none;
+    margin-left: -5%;
 }
 
 .menu .btn-group button {
@@ -400,7 +416,7 @@
 
 .menu .user-info1 .name-edit {
     display: flex;
-    flex-direction: column; /* ⭐ 內層直排 */
+    flex-direction: column; /* 內層直排 */
     justify-content: center;
 }
 
@@ -410,7 +426,7 @@
     font-weight: bold;
     color: #000000;
     text-align: left; /* 名字靠左 */
-    margin-left: 20%;
+    margin-left: 25%;
 }
 
 .menu .user-info1 .name-edit a {
@@ -421,4 +437,20 @@
     text-align: left; /* 編輯資料也靠左 */
     margin-left: 20%;
     white-space: nowrap;
+}
+
+.tellme1{
+    text-align: center;
+    font-size: 14px;
+    color: #0e3e5d;
+    padding: 20px;
+    margin-top: 100%;
+}
+
+.user-target{
+    font-style: semi-bold;
+    font-weight: 700;
+    font-size: large;
+    margin-top: 5%;
+    margin-left: 5%;
 }

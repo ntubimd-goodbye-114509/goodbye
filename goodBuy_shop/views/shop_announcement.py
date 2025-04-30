@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 from goodBuy_shop.models import *
 from goodBuy_web.models import *
 from ..utils import *
-from ..shop_forms import *
+from ..form.shop_forms import *
 
 # -------------------------
 # 顯示商店公告
@@ -36,7 +36,7 @@ def addAnnouncement(request, shop):
         if form.is_valid():
             try:
                 announcement = form.save(commit=False)
-                announcement.shop = shop
+                announcement.shop = shop  # 綁定店家
                 announcement.save()
                 messages.success(request, '公告新增成功')
                 return redirect('shop_list', shop_id=shop.id)
@@ -73,7 +73,7 @@ def editAnnouncement(request, shop, announcement_id):
         if form.is_valid():
             try:
                 announcement = form.save(commit=False)
-                announcement.date = timezone.now()
+                announcement.update = timezone.now()
                 announcement.save()
                 messages.success(request, '公告修改成功')
                 return redirect('shop_detail', shop_id=shop.id)

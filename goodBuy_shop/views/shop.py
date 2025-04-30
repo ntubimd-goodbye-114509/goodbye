@@ -6,7 +6,7 @@ from django.shortcuts import *
 from goodBuy_shop.models import *
 from goodBuy_web.models import *
 from ..utils import *
-from ..shop_forms import *
+from ..form.shop_forms import *
 
 # -------------------------
 # 新增商店
