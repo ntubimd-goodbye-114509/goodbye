@@ -1,5 +1,5 @@
 from django import forms
-from ..models import Product
+from .models import Product
 
 # -------------------------
 # 商品新增form

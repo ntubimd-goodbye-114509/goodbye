@@ -5,17 +5,17 @@ from django.shortcuts import *
 from django.core.files.storage import FileSystemStorage
 from datetime import datetime, timezone
 
-from goodBuy_shop.models import *
+from ..models import *
 from goodBuy_web.models import *
 from ..utils import *
-from ..form.shop_forms import *
+from ..shop_forms import *
 
 # -------------------------
 # 顯示商店公告
 # -------------------------
 @shop_exists_required
 def showShopAnnouncement_many(request, shop):
-    announcements = shop.shopAnnouncement_set.all().order_by('-date')
+    announcements = shop.shopAnnouncement_set.all().order_by('-update')
     return render(request, '顯示公告頁面', locals())
 
 @shop_exists_required
