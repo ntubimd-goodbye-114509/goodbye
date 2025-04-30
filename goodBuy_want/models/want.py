@@ -15,7 +15,7 @@ class Want(models.Model):
     title = models.CharField(max_length=255)
     post_text = models.TextField()
     permission = models.ForeignKey(Permission, on_delete=models.CASCADE)
-    update_time = models.DateTimeField(auto_now=True)
+    update = models.DateTimeField(auto_now=True)
 
     objects = ActiveWantManager()
 
