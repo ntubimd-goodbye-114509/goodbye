@@ -1,5 +1,6 @@
 from django import forms
 from django.forms.widgets import ClearableFileInput
+from django.http import QueryDict
 
 from goodBuy_shop.models import Shop, ShopImg, ShopPayment, ShopTag, ShopAnnouncement
 from goodBuy_tag.models import Tag
@@ -53,7 +54,8 @@ class ShopForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
-        self.is_edit = kwargs.get('instance') is not None
+        self.is_edit = kwargs.get('instance') is not None and kwargs.get('instance').pk is not None
+
         super().__init__(*args, **kwargs)
 
         if self.user:
@@ -77,9 +79,11 @@ class ShopForm(forms.ModelForm):
             shop.owner = self.user
 
         if commit:
-            shop.save()
+            try:
+                shop.save()
+            except Exception as e:
+                raise forms.ValidationError(f'商店儲存失敗：{e}')
 
-            # 更新付款帳號
             payment_ids = set(self.cleaned_data.get('payment_ids').values_list('id', flat=True))
             old_payment_ids = set(ShopPayment.objects.filter(shop=shop).values_list('payment_account_id', flat=True))
             if self.is_edit:
@@ -91,7 +95,7 @@ class ShopForm(forms.ModelForm):
                     ShopPayment.objects.create(shop=shop, payment_account_id=pid)
 
             # 更新標籤
-            tag_names = self.data.getlist('tag_names')
+            tag_names = self.data.getlist('tag_names') if isinstance(self.data, (dict, QueryDict)) else []
             existing_tags = Tag.objects.filter(name__in=tag_names)
             existing_names = set(existing_tags.values_list('name', flat=True))
             new_names = set(tag_names) - existing_names

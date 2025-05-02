@@ -37,6 +37,7 @@ def addAnnouncement(request, shop):
             try:
                 announcement = form.save(commit=False)
                 announcement.shop = shop  # 綁定店家
+                announcement.update = timezone.now()
                 announcement.save()
                 messages.success(request, '公告新增成功')
                 return redirect('shop_list', shop_id=shop.id)

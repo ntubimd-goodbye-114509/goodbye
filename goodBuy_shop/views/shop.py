@@ -2,6 +2,7 @@ from django.db.models import *
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import *
+from datetime import datetime, timezone
 
 from goodBuy_shop.models import *
 from goodBuy_web.models import *
@@ -42,27 +43,40 @@ def add_shop(request):
 @shop_owner_required
 def edit_shop(request, shop):
     form = ShopForm(request.POST or None, request.FILES or None, instance=shop, user=request.user)
+    
     if request.method == 'POST':
         if form.is_valid():
-            shop = form.save()
+            shop = form.save(commit=False)
+            shop.update = timezone.now()
+            shop.save()
+
+            shop.shopimg_set.all().delete()
+
             images = request.FILES.getlist('images')
             cover_index = int(request.POST.get('cover_index', -1))
             order_str = request.POST.get('image_order')
 
-            if order_str:
+            if order_str and images:
                 order_list = list(map(int, order_str.split(',')))
-                sorted_images = [images[i] for i in order_list]
+                sorted_images = [images[i] for i in order_list if i < len(images)]
             else:
                 sorted_images = images
 
             for idx, img in enumerate(sorted_images):
-                ShopImg.objects.create(shop=shop, img=img, is_cover=(idx == cover_index), position=idx)
+                ShopImg.objects.create(
+                    shop=shop,
+                    img=img,
+                    is_cover=(cover_index != -1 and idx == cover_index),
+                    position=idx
+                )
 
             messages.success(request, '商店資訊修改成功')
             return redirect('shop_detail', shop_id=shop.id)
         else:
             messages.error(request, '表單資料有誤')
-    return render(request, 'shop_form.html', {'form': form, 'shop': shop})
+
+    return render(request, 'shop_form.html', locals())
+
 # -------------------------
 # 刪除商店（軟刪除）
 # -------------------------
