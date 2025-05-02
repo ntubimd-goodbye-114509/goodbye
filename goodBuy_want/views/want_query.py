@@ -53,13 +53,26 @@ def wantById_one(request, want):
 # -------------------------
 def wantBySearch(request):
     kw = request.GET.get('keyWord')
+    sort = request.GET.get('sort', 'new')
+
     if not kw:
         messages.warning(request, "請輸入關鍵字")
         return redirect('home') 
-    # tag相似搜索
+
     want_ids_by_tag = WantTag.objects.filter(tag__name__icontains=kw).values_list('want_id', flat=True)
-    # tag和name的
-    wants = want.objects.filter(Q(name__icontains=kw) | (Q(id__in=want_ids_by_tag) & Q(permission__id=1))).distinct()
+
+    wants = Want.objects.filter(
+        Q(title__icontains=kw) | (Q(id__in=want_ids_by_tag) & Q(permission__id=1))
+    ).distinct()
+
+    # 排序方式處理
+    if sort == 'new':
+        wants = wants.order_by('-update')
+    elif sort == 'old':
+        wants = wants.order_by('update')
+    else:
+        messages.warning(request, "不支援的排序方式，已使用預設排序")
+        wants = wants.order_by('-update')
 
     wants = wantInformation_many(wants)
     return render(request, '搜尋結果界面', locals())

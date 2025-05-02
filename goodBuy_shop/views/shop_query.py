@@ -38,7 +38,6 @@ def shopById_one(request, shop):
 
     products = list(Product.objects.filter(shop=shop))
 
-    # 如果是搶購制且登入者存在，計算使用者剩餘可搶購量
     if is_rush_buy and request.user.is_authenticated:
         for product in products:
             user_claimed = IntentProduct.objects.filter(
@@ -53,24 +52,19 @@ def shopById_one(request, shop):
             product.is_out_of_stock = 1 if remaining_quantity <= 0 else 0
 
     else:
-        # 一般模式，直接看是否缺貨
         for product in products:
             product.is_out_of_stock = 1 if product.stock <= 0 else 0
 
-    # 根據 is_out_of_stock + id 排序：缺貨移後面
     products.sort(key=lambda p: (p.is_out_of_stock, p.id))
 
-    # 自己的賣場
     if request.user.is_authenticated and request.user.id == shop.owner.id:
         announcements = shop.shop_announcement_set.all().order_by('-date')
         return render(request, '自己賣場', locals())
 
-    # 別人的賣場但不公開
     if shop.permission.id != 1:
         messages.error(request, '當前賣場不公開')
         return redirect('error')
 
-    # 留下足跡
     if request.user.is_authenticated:
         ShopFootprints.objects.update_or_create(
             user=request.user,
@@ -85,16 +79,33 @@ def shopById_one(request, shop):
 # -------------------------
 def shopBySearch(request):
     kw = request.GET.get('keyWord')
+    sort = request.GET.get('sort', 'new')
+
     if not kw:
         messages.warning(request, "請輸入關鍵字")
         return redirect('home') 
-    # tag相似搜索
+
+    # tag 相似搜尋
     shop_ids_by_tag = ShopTag.objects.filter(tag__name__icontains=kw).values_list('shop_id', flat=True)
-    # tag和name的
-    shops = Shop.objects.filter(Q(name__icontains=kw) | (Q(id__in=shop_ids_by_tag) & Q(permission__id=1))).distinct()
+
+    # 名稱包含關鍵字或有符合 tag，且 permission = 1（公開）
+    shops = Shop.objects.filter(
+        Q(name__icontains=kw) | (Q(id__in=shop_ids_by_tag) & Q(permission__id=1))
+    ).distinct()
+
+    # 排序條件處理
+    if sort == 'new':
+        shops = shops.order_by('-update')
+    elif sort == 'old':
+        shops = shops.order_by('update')
+    else:
+        messages.warning(request, "不支援的排序方式，已使用預設排序")
+        shops = shops.order_by('-update')
 
     shops = shopInformation_many(shops)
+
     return render(request, '搜尋結果界面', locals())
+
 # -------------------------
 # 商店查詢 - tag
 # -------------------------

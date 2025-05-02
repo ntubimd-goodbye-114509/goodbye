@@ -10,26 +10,25 @@ class Cart(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.IntegerField()
-    update = models.DateTimeField(auto_now_add=True)
+    update = models.DateTimeField(auto_now=True)
 
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=['user', 'product'], name='unique_user_cart')
         ]
 
-    # -------------------------
-    # 商品已存在則修改數量
-    # -------------------------
     def add_or_update_product(self, product, quantity):
+        if product.stock < 1:
+            raise ValueError('此商品已售完，無法加入購物車')
+
         try:
             obj = Cart.objects.get(user=self.user, product=product)
-            obj.amount = min(obj.amount + quantity, product.stock)
+            obj.quantity = min(obj.quantity + quantity, product.stock)
         except Cart.DoesNotExist:
-            obj = Cart(user=self.user, product=product, amount=min(quantity, product.stock))
+            obj = Cart(user=self.user, product=product, quantity=min(quantity, product.stock))
 
         obj.save()
         return obj
 
-    
     def __str__(self):
-        return f'{self.product}*{self.amount}'
+        return f'{self.product} * {self.quantity}'

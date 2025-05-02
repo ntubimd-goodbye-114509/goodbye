@@ -175,6 +175,26 @@ def handle_cart_order_creation(request, form, cart_items):
         except Exception as e:
             messages.error(request, f'{shop.name} 下單失敗：{str(e)}')
 # -------------------------
+# 加入購物車
+# -------------------------
+@login_required(login_url='login')
+@product_exists_and_not_own_shop_required
+def add_to_cart(request, product):
+    try:
+        quantity = int(request.POST.get('quantity', 1))
+        if quantity < 1:
+            raise ValueError("數量必須大於0")
+
+        cart = Cart(user=request.user)
+        cart.add_or_update_product(product, quantity)
+        messages.success(request, f'成功將 {product.name} 加入購物車')
+
+    except ValueError as e:
+        messages.error(request, str(e))
+        return redirect('product_detail', product_id=product.id)
+
+    return redirect('view_cart')
+# -------------------------
 # 移除購物車
 # -------------------------
 @login_required(login_url='login')
@@ -195,7 +215,6 @@ def delete_multiple_cart_items(request):
 # 修改數量
 # -------------------------
 @login_required(login_url='login')
-@require_POST
 @cart_exists_required
 def update_cart_quantity(request, cart_item):
     try:
