@@ -1,9 +1,7 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from collections import defaultdict
 from django.utils import timezone
-from django.db.models import F, Sum,Prefetch
 
 from goodBuy_shop.models import *
 from goodBuy_shop.views import shopInformation_many
@@ -11,6 +9,7 @@ from goodBuy_web.models import *
 from ..models import *
 from ..utils import *
 from ..rush_utils import *
+from utils import *
 # -------------------------
 # 訂單顯示 - 使用者 - 全部 - 分類+all
 # -------------------------
@@ -33,7 +32,7 @@ def buyer_order_list(request):
 # 訂單顯示 - 使用者 - 單一
 # -------------------------
 @login_required(login_url='login')
-@order_exists_required
+@object_exists_required(model=Order, arg_name='order_id', context_name='order', not_found_msg='找不到這筆訂單')
 def order_detail(request, order):
     if order.user != request.user and order.shop.owner != request.user:
         messages.error(request, "無權查看此訂單")
