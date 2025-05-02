@@ -11,12 +11,12 @@ from ..shop_forms import *
 # -------------------------
 # 顯示商店公告
 # -------------------------
-@shop_exists_and_not_blacklisted
+@shop_exists_and_not_blacklisted()
 def showShopAnnouncement_many(request, shop):
     announcements = shop.shopAnnouncement_set.all().order_by('-update')
     return render(request, '顯示公告頁面', locals())
 
-@announcement_exists_and_shop_visible
+@announcement_exists_and_shop_visible()
 def showShopAnnouncement_one(request, shop, announcement_id):
     try:
         announcement = ShopAnnouncement.objects.get(id=announcement_id, shop=shop)

@@ -32,7 +32,7 @@ def shopByUserId_many(request, user):
 # -------------------------
 # 商店查詢 - shop-id - 單一店鋪界面
 # -------------------------
-@shop_exists_and_not_blacklisted
+@shop_exists_and_not_blacklisted()
 def shopById_one(request, shop):
     is_rush_buy = shop.purchase_priority_id in [2, 3]
 
