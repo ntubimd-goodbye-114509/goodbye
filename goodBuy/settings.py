@@ -17,6 +17,11 @@ from celery.schedules import crontab
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+USE_CELERY = os.environ.get('USE_CELERY', '1') == '1'
+# 不測試自動新增訂單不啟動
+# 使用： set USE_CELERY=1
+
+
 MEDIA_URL = '/upload/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'upload')
 
@@ -150,18 +155,17 @@ MEDIA_ROOT = BASE_DIR / 'upload'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # --- Celery 設定 ---
-CELERY_BROKER_URL = 'redis://localhost:6379/0'
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_TIMEZONE = 'Asia/Taipei'
+if USE_CELERY:
+    CELERY_BROKER_URL = 'redis://localhost:6379/0'
+    CELERY_ACCEPT_CONTENT = ['json']
+    CELERY_TASK_SERIALIZER = 'json'
+    CELERY_TIMEZONE = 'Asia/Taipei'
+    CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 
-# --- Celery Beat 排程任務 ---
-from celery.schedules import crontab
-
-CELERY_BEAT_SCHEDULE = {
-    'auto-settle-rush-every-minute': {
-        'task': 'goodBuy_order.tasks.auto_settle_rush_orders',
-        'schedule': crontab(),
-    },
-}
-CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+    from celery.schedules import crontab
+    CELERY_BEAT_SCHEDULE = {
+        'auto-settle-rush-every-minute': {
+            'task': 'goodBuy_order.tasks.auto_settle_rush_orders',
+            'schedule': crontab(),
+        },
+    }
