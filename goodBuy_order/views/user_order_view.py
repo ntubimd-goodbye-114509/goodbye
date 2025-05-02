@@ -1,9 +1,7 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import *
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from collections import defaultdict
 from django.utils import timezone
-from django.db.models import F, Sum,Prefetch
 
 from goodBuy_shop.models import *
 from goodBuy_shop.views import shopInformation_many
@@ -11,6 +9,7 @@ from goodBuy_web.models import *
 from ..models import *
 from ..utils import *
 from ..rush_utils import *
+from utils import *
 # -------------------------
 # 訂單顯示 - 使用者 - 全部 - 分類+all
 # -------------------------

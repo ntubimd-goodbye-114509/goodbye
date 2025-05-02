@@ -1,9 +1,8 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import *
 from django.contrib import messages
 from collections import defaultdict
 
 from goodBuy_shop.models import *
-from goodBuy_shop.utils import shop_exists_required
 from goodBuy_web.models import *
 from ..models import *
 from ..utils import *

@@ -61,4 +61,5 @@ class Command(BaseCommand):
                     order.save()
 
             shop.is_rush_settled = True
-            shop.save()
+            shop.purchase_priority_id = 1
+            shop.save(update_fields=['is_rush_settled', 'purchase_priority_id'])

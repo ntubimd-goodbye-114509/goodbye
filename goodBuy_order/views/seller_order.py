@@ -4,10 +4,8 @@ from django.utils import timezone
 from django.db import transaction
 from django.contrib.auth.decorators import login_required
 
-from goodBuy_order.models import Order, OrderPayment
-from goodBuy_shop.models import Shop
+from goodBuy_order.models import OrderPayment
 from ..utils import order_exists_and_shop_owner_required
-
 # -------------------------
 # 確認接收訂單
 # -------------------------

@@ -7,8 +7,7 @@ from datetime import timezone
 from ..models import *
 from goodBuy_web.models import *
 from ..utils import *
-from goodBuy_shop.utils import shop_exists_required
-
+from utils import *
 from want_query import *
 from goodBuy_shop.views.shop_query import shopInformation_many
 # -------------------------
@@ -27,7 +26,6 @@ def my_want_footprints(request):
 def choose_shop_to_reply(request, want):
     shops = shopInformation_many(Shop.objects.filter(owner=request.user, permission__id=1).order_by('-date'))
     
-    # 已經回復過的shop
     replied_shop_ids = WantBack.objects.filter(user=request.user, want=want).values_list('shop_id', flat=True)
 
     return render(request, '收物帖界面+id', locals())

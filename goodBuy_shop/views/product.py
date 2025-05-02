@@ -6,9 +6,8 @@ from django.db import transaction
 
 from goodBuy_shop.models import *
 from goodBuy_web.models import *
-from ..utils import *
+from utils import *
 from ..product_form import *
-
 # -------------------------
 # 新增product
 # -------------------------

@@ -45,19 +45,6 @@ def cart_exists_required(view_func):
     
     return _wrapped_view
 # -------------------------
-# 訂單存在檢查
-# -------------------------
-def order_exists_required(view_func):
-    @wraps(view_func)
-    def _wrapped_view(request, order_id, *args, **kwargs):
-        try:
-            order = Order.objects.get(id=order_id)
-        except:
-            messages.error(request, "訂單不存在")
-            return redirect('訂單頁面')
-        return view_func(request, order, *args, **kwargs)
-    return _wrapped_view
-# -------------------------
 # 訂單存在+商店主人檢查
 # -------------------------
 def order_exists_and_shop_owner_required(view_func):

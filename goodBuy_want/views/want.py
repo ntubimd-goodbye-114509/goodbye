@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from goodBuy_shop.models import Permission
 from ..models import *
 from ..forms import *
-from ..utils import *
+from utils import *
 
 # -------------------------
 # 新增收物帖

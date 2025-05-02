@@ -1,24 +1,22 @@
 from django.db.models import *
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import *
-from django.core.files.storage import FileSystemStorage
-from datetime import datetime, timezone
+from datetime import timezone
 
 from ..models import *
 from goodBuy_web.models import *
-from ..utils import *
+from utils import *
 from ..shop_forms import *
 
 # -------------------------
 # 顯示商店公告
 # -------------------------
-@shop_exists_required
+@shop_exists_and_not_blacklisted()
 def showShopAnnouncement_many(request, shop):
     announcements = shop.shopAnnouncement_set.all().order_by('-update')
     return render(request, '顯示公告頁面', locals())
 
-@shop_exists_required
+@announcement_exists_and_shop_visible()
 def showShopAnnouncement_one(request, shop, announcement_id):
     try:
         announcement = ShopAnnouncement.objects.get(id=announcement_id, shop=shop)
@@ -36,7 +34,8 @@ def addAnnouncement(request, shop):
         if form.is_valid():
             try:
                 announcement = form.save(commit=False)
-                announcement.shop = shop  # 綁定店家
+                announcement.shop = shop
+                announcement.update = timezone.now()
                 announcement.save()
                 messages.success(request, '公告新增成功')
                 return redirect('shop_list', shop_id=shop.id)
@@ -51,23 +50,16 @@ def addAnnouncement(request, shop):
 # -------------------------
 # 刪除商店公告
 # -------------------------
-@shop_owner_required
-def deleteAnnouncement(request, shop, announcement_id):
-    try:
-        announcement = ShopAnnouncement.objects.get(id=announcement_id, shop=shop)
-    except ShopAnnouncement.DoesNotExist:
-        messages.error(request, '查無此公告')
-        return redirect('shop_detail', shop_id=shop.id)
+@announcement_owner_required
+def deleteAnnouncement(request, announcement):
     announcement.delete()
     messages.success(request, '公告刪除成功')
-    return redirect('刪除成功導向')
+    return redirect('shop_detail', shop_id=announcement.shop.id)
 # -------------------------
 # 修改商店公告
 # -------------------------
-@shop_owner_required
-def editAnnouncement(request, shop, announcement_id):
-    announcement = get_object_or_404(ShopAnnouncement, id=announcement_id, shop=shop)
-
+@announcement_owner_required
+def editAnnouncement(request, announcement):
     if request.method == 'POST':
         form = AnnouncementForm(request.POST, instance=announcement)
         if form.is_valid():
@@ -76,7 +68,7 @@ def editAnnouncement(request, shop, announcement_id):
                 announcement.update = timezone.now()
                 announcement.save()
                 messages.success(request, '公告修改成功')
-                return redirect('shop_detail', shop_id=shop.id)
+                return redirect('shop_detail', shop_id=announcement.shop.id)
             except Exception as e:
                 messages.error(request, f'公告修改失敗：{e}')
         else:
