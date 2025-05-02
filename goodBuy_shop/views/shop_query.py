@@ -1,18 +1,16 @@
 from django.db.models import *
 from django.contrib import messages
 from django.shortcuts import *
-from django.core.files.storage import FileSystemStorage
+from django.contrib.auth.decorators import login_required
 from datetime import timezone
 
 from goodBuy_shop.models import *
 from goodBuy_web.models import *
 from goodBuy_order.models import IntentProduct
 
-from ..utils import *
+from utils import *
 from ..shop_utils import *
 from ..time_utils import *
-from goodBuy_web.utils import *
-from goodBuy_tag.utils import *
 
 # -------------------------
 # 主頁商店推送（待加入演算法）
@@ -34,7 +32,7 @@ def shopByUserId_many(request, user):
 # -------------------------
 # 商店查詢 - shop-id - 單一店鋪界面
 # -------------------------
-@shop_exists_required
+@shop_exists_and_not_blacklisted
 def shopById_one(request, shop):
     is_rush_buy = shop.purchase_priority_id in [2, 3]
 
@@ -112,11 +110,14 @@ def shopByTag(request, tag):
 # -------------------------
 # 商店查詢 - 隱私狀況（ex.查詢自己私人的商店
 # -------------------------
-@user_exists_required
-def shopByPermissionId(request, user, permission_id):
-    if not Permission.objects.filter(id=permission_id).exists():
-        messages.error(request, "權限參數無效")
+@login_required
+def shopByPermissionId(request, permission_id):
+    if permission_id not in [1, 2]:
+        messages.error(request, "僅支援公開/私人可見的商店查詢")
         return redirect('home')
-    shops = shopInformation_many(Shop.objects.filter(owner=user, permission__id=permission_id)).order_by('-date')
+
+    shops = shopInformation_many(
+        Shop.objects.filter(owner=request.user, permission__id=permission_id)
+    ).order_by('-date')
 
     return render(request, '查詢完成頁面', locals())

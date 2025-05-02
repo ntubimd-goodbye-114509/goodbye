@@ -3,7 +3,7 @@ from django.http import JsonResponse
 
 from ..models import *
 from goodBuy_shop.models import Shop, ShopTag
-from ..utils import *
+from utils import *
 from goodBuy_shop.views.shop_query import shopInformation_many
 
 # -------------------------

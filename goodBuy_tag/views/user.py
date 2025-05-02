@@ -5,9 +5,7 @@ from django.contrib.auth.decorators import login_required
 from datetime import timezone
 
 from ..models import *
-from goodBuy_web.models import *
-from ..utils import *
-from goodBuy_shop.views.shop_query import *
+from utils import *
 # -------------------------
 # 標籤收藏
 # -------------------------

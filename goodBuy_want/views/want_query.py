@@ -1,31 +1,19 @@
 from django.shortcuts import render, redirect
 from datetime import timezone
+from django.contrib.auth.decorators import login_required
+from django.db.models import *
 
 from ..models import *
 from goodBuy_shop.models import Permission
 
-from ..utils import *
-from goodBuy_web.utils import *
-from goodBuy_tag.utils import *
-
+from ..want_utils import *
+from utils import *
 # -------------------------
 # 收物帖主頁推送
 # -------------------------
 def wantAll_update(request):
     wants = want.objects.filter(permission__id=1).order_by('-date')
     return render(request, '主頁', locals())
-# -------------------------
-# 收物貼fk串接
-# -------------------------
-def wantInformation_many(wants):
-    return (
-        wants
-        .select_related('permission')
-        .prefetch_related(
-            Prefetch('want_tag_set', queryset=WantTag.objects.select_related('tag')),
-            Prefetch('images', queryset=WantImg.objects.filter(is_cover=True)),
-        )
-    )
 # -------------------------
 # 收物帖查詢 - user_id
 # -------------------------
@@ -40,7 +28,7 @@ def wantByUserId_many(request, user):
 # -------------------------
 # 收物帖查詢 - want_id
 # -------------------------
-@want_exists_required
+@user_exists_and_not_blacklisted
 def wantById_one(request, want):
     if request.user.is_authenticated and request.user.id == want.owner.id:
         backs = ( WantBack.objects.filter(want=want).select_related('user', 'shop').order_by('-date'))
@@ -90,11 +78,11 @@ def wantByTag(request, tag):
 # -------------------------
 # 收物帖查詢 - permission_id
 # -------------------------
-@user_exists_required
-def wantByPermissionId(request, user, permission_id):
-    if not Permission.objects.filter(id=permission_id).exists():
-        messages.error(request, "權限參數無效")
+@login_required(login_url='login')
+def wantByPermissionId(request, permission_id):
+    if permission_id not in [1, 2]:
+        messages.error(request, "僅支援公開/私人可見的收物帖查詢")
         return redirect('home')
-    wants = wantInformation_many(want.objects.filter(owner=user, permission__id=permission_id)).order_by('-date')
+    wants = wantInformation_many(Want.objects.filter(owner=request.user, permission__id=permission_id)).order_by('-date')
 
     return render(request, '查詢完成頁面', locals())

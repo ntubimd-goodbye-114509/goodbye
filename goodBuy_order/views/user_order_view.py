@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import *
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
@@ -32,7 +32,7 @@ def buyer_order_list(request):
 # 訂單顯示 - 使用者 - 單一
 # -------------------------
 @login_required(login_url='login')
-@object_exists_required(model=Order, arg_name='order_id', context_name='order', not_found_msg='找不到這筆訂單')
+@order_exists_required
 def order_detail(request, order):
     if order.user != request.user and order.shop.owner != request.user:
         messages.error(request, "無權查看此訂單")

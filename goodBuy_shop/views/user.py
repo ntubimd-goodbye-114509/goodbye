@@ -6,7 +6,7 @@ from datetime import timezone
 
 from ..models import *
 from goodBuy_web.models import *
-from ..utils import *
+from utils import *
 from ..shop_utils import *
 
 # -------------------------
