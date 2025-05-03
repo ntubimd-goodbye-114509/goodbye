@@ -9,15 +9,18 @@
     flex-direction: column;
     align-items: center;
     background-color: #A3C6E0;
-    position: relative;  /* ✅ 這是 z-index 有效的前提 */
+    position: fixed;       /* ❗固定在視窗上方 */
+    top: 0;
+    left: 0;
     width: 100%;
-    z-index: 1000;         /* ✅ 比 menu 的 99 高 */
+    height: 200px;         /* ❗請設定 header 的高度，依你實際高度調整 */
+    z-index: 1000;
 }
 
 /* 隱藏的側邊欄 */
 .menu {
     position: fixed;
-    top: 146px;
+    top:200px ;
     left: -550px; /* 初始位置在視窗外 */
     width: 400px; /* 側邊欄寬度 */
     height: 100%; /* 側邊欄全屏高度 */
@@ -31,6 +34,7 @@
 /* 側邊欄滑出樣式 */
 .menu.active {
     left: 0; /* 將側邊欄滑出 */
+    top:200px
 }
 
 /* 側邊欄內部樣式 */
@@ -185,6 +189,7 @@
     display: flex;
     flex-direction: column;
     min-height: 100vh; /* 讓整頁至少撐滿螢幕高度 */
+    margin-top: 200px;
 }
 
 .main-content {
@@ -237,8 +242,6 @@
     .menu {
         position: fixed;
         left: -600px;
-        top: 60px; /* 不要頂到最上面 */
-        max-height: 90vh;
         overflow-y: auto;
         width: 80%;
         z-index: 999;
@@ -248,7 +251,6 @@
 
     .menu.active {
         left: 0;
-        top:206px;
     }
 
     .menu ul li a {
@@ -292,11 +294,7 @@
 
 /* 平板裝置 (601px - 1024px) */
 @media (max-width: 601px) {
-    .menu {
-        width: 70%;           /* 更小一點，不會蓋住整個畫面 */
-        left: -600px;
-        top: 60px;
-    }
+
 
     .menu.active {
         left: 0;
@@ -338,6 +336,7 @@
 @media (min-width: 1330px) and (max-width: 1330px) {
     .menu {
         left: -600px;
+        top: 100px;
     }
 
     .menu.active {

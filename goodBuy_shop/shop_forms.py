@@ -59,7 +59,7 @@ class ShopForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         if self.user:
-            user_accounts = PaymentAccount.objects.filter(owner=self.user)
+            user_accounts = PaymentAccount.objects.filter(user=self.user)
 
             if self.is_edit:
                 shop_account_ids = ShopPayment.objects.filter(shop=self.instance).values_list('payment_account_id', flat=True)
