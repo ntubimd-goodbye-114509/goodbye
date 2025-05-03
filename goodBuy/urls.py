@@ -27,11 +27,14 @@ from django.conf.urls.static import static
 
 
 urlpatterns = [
+    #共同頁面
+    path('', homePage, name='home'),    #主頁
     path('admin/', admin.site.urls),
     path('login/', logins, name='login'),   #登入
     path('register/', register, name='register'), #註冊
     path('logout/', logouts, name='logout'),    #登出
     path('editprofile/', editprofile, name='editprofile'), #編輯個人資料
 
-    path('', homePage, name='home'),    #主頁
+    #商品
+    path('add_shop/', add_shop, name='add_shop'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
