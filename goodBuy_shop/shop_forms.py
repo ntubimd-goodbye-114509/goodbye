@@ -59,13 +59,22 @@ class ShopForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         if self.user:
-            all_accounts = PaymentAccount.objects.all()
-            user_accounts = self.user.payment_accounts.all()
-            sorted_accounts = sorted(all_accounts, key=lambda acc: acc not in user_accounts)
-            self.fields['payment_ids'].queryset = PaymentAccount.objects.filter(id__in=[acc.id for acc in sorted_accounts])
+            user_accounts = PaymentAccount.objects.filter(owner=self.user)
 
-        if self.instance and self.instance.pk:
-            self.fields['payment_ids'].initial = self.instance.payment_account_set.values_list('id', flat=True)
+            if self.is_edit:
+                shop_account_ids = ShopPayment.objects.filter(shop=self.instance).values_list('payment_account_id', flat=True)
+                shop_accounts = PaymentAccount.objects.filter(id__in=shop_account_ids)
+                full_queryset = (user_accounts | shop_accounts).distinct()
+            else:
+                full_queryset = user_accounts
+
+            self.fields['payment_ids'].queryset = full_queryset
+
+        if self.is_edit:
+            self.fields['payment_ids'].initial = ShopPayment.objects.filter(
+                shop=self.instance
+            ).values_list('payment_account_id', flat=True)
+
 
     def save(self, commit=True):
         shop = super().save(commit=False)
