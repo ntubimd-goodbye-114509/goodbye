@@ -49,7 +49,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'goodBuy_web',
+    'goodBuy_web.apps.GoodBuyWebConfig',
     'goodBuy_shop',
     'goodBuy_order',
     'goodBuy_want',

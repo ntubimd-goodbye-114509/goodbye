@@ -34,7 +34,11 @@
               <!-- 登入後 -->
 
               <div class="user-info1">
-                <img src="{{ request.user.profile.avatar.url|default:'default_avatar.png' }}" class="avatar" />
+                {% if user.profile.avatar %}
+                    <img src="{{ user.profile.avatar.url }}" class="avatar">
+                {% else %}
+                    <img src="{% static 'img/Defuser.png' %}" class="avatar">
+                {% endif %}
                 
                 <div class="name-edit">
                   <h3>{{ request.user.username }}</h3>

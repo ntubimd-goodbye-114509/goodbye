@@ -36,27 +36,26 @@ def register(request):
         #驗證
         if email=='':
             messages.error(request, 'Email 不可為空')
-            return render(request, 'register.html')
+            return render(request, 'common/register.html')
         
         elif User.objects.filter(email=email).exists():
             messages.error(request, '該電子郵件已被註冊')
-            return render(request, 'register.html')
+            return render(request, 'common/register.html')
         
         elif password != password2:
             messages.error(request, '兩次輸入的密碼不相符')
-            return render(request,'register.html')
+            return render(request,'common/register.html')
         
         elif username == '':
             username = email.split('@')[0]
 
         elif User.objects.filter(username=username).exists():
             messages.error(request, '該用戶名已被使用')
-            return render(request, 'register.html')    
+            return render(request, 'common/register.html')    
             
         u = User.objects.create_user(username=username, password=password, email=email)
         u.save()
-        Profile.objects.create(user=u)
-        return redirect('/login/')
+        return redirect('login')
     return render(request,'common/register.html')
 
 #登出
