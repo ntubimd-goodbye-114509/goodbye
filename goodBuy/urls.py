@@ -37,4 +37,8 @@ urlpatterns = [
 
     #商品
     path('add_shop/', add_shop, name='add_shop'),
+
+    #訂單狀態更新
+    path('order/<int:order_id>/buyer-action/', buyer_action, name='order_buyer_action'),
+    path('order/<int:order_id>/seller-action/', seller_action, name='order_seller_action'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

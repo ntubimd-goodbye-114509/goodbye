@@ -1,5 +1,5 @@
 # core/decorators_shortcuts.py
-from .decorators_base import object_exists_required, object_owner_required, blacklist_check
+from .decorators_base import *
 from django.contrib.auth import get_user_model
 from goodBuy_shop.models import Shop, Product, ShopAnnouncement
 from goodBuy_tag.models import Tag
@@ -125,3 +125,12 @@ def announcement_exists_and_shop_visible():
                 deleted_check=lambda a: a.shop.permission_id == 3,
                 deleted_msg='此公告所屬商店已被刪除'
             )(view_func))
+
+# --- 訂單買家和賣家檢查 ---
+def order_buyer_required(redirect_to='home'):
+    return lambda view_func: \
+        order_exists_required(check_order_buyer(redirect_to=redirect_to)(view_func))
+
+def order_seller_required(redirect_to='home'):
+    return lambda view_func: \
+        order_exists_required(check_order_seller(redirect_to=redirect_to)(view_func))
