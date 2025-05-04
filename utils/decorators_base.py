@@ -133,3 +133,24 @@ def blacklist_check(owner_getter, redirect_to='home', msg='你已被此使用者
         return _wrapped_view
     return decorator
 
+def check_order_buyer(redirect_to='home'):
+    def decorator(view_func):
+        @wraps(view_func)
+        def _wrapped_view(request, order, *args, **kwargs):
+            if order.user != request.user:
+                messages.error(request, '您無權操作此訂單')
+                return redirect(redirect_to)
+            return view_func(request, order, *args, **kwargs)
+        return _wrapped_view
+    return decorator
+
+def check_order_seller(redirect_to='home'):
+    def decorator(view_func):
+        @wraps(view_func)
+        def _wrapped_view(request, order, *args, **kwargs):
+            if order.shop.owner != request.user:
+                messages.error(request, '您無權操作此訂單')
+                return redirect(redirect_to)
+            return view_func(request, order, *args, **kwargs)
+        return _wrapped_view
+    return decorator
