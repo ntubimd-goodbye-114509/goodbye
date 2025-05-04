@@ -14,10 +14,7 @@ from utils import order_buyer_required, order_seller_required
 def buyer_action(request, order):
     action = request.POST.get('action')
 
-    if order.order_state_id == 3 and action == 'paid':
-        order.order_state_id = 4
-        messages.success(request, '付款成功')
-    elif order.order_state_id == 5 and action == 'confirm_received':
+    if order.order_state_id == 5 and action == 'confirm_received':
         order.order_state_id = 6
         messages.success(request, '已確認收貨')
     else:
@@ -146,4 +143,10 @@ def choose_payment_method(request, order):
         return redirect('buyer_order_detail', order_id=order.id)
 
     return render(request, 'order/payment_choice.html', locals())
+# -------------------------
+# 買家上傳付款憑證
+# -------------------------
+
+# -------------------------
+# 賣家確認付款憑證
 # -------------------------
