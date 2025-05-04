@@ -35,7 +35,7 @@ def add_shop(request):
             return redirect('shop_detail', shop_id=shop.id)
         else:
             messages.error(request, '表單資料有誤')
-    return render(request, 'shop_form.html', {'form': form})
+    return render(request, 'add_shop_form.html', {'form': form})
 # -------------------------
 # 修改商店資訊（多個）
 # -------------------------
