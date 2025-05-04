@@ -7,7 +7,7 @@ from .order import Order,ShopPayment
 # -------------------------
 class OrderPayment(models.Model):
     SELLER_CHOICES = [
-        ('wait confirmed','待確認'),
+        ('wait wait_confirmed','待確認'),
         ('confirmed','已收到'),
         ('returned','已退回'),
         ('none', '取貨付款')
