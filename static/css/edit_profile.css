@@ -1,0 +1,254 @@
+/* 全局樣式 */
+body {
+    font-family: 'Noto Sans TC', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f9f9f9;
+    color: #333;
+}
+
+/* 容器樣式 */
+.profile-edit-container {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 標題樣式 */
+.profile-edit-container h1 {
+    text-align: center;
+    color: #4CAF50;
+    margin-bottom: 20px;
+}
+
+/* 表單樣式 */
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 5px;
+    display: block;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea,
+input[type="file"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+textarea {
+    resize: none;
+    height: 100px;
+}
+
+/* 頭像樣式 */
+img {
+    border-radius: 50%;
+    margin-bottom: 10px;
+}
+
+/* 按鈕樣式 */
+button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    width: 100%;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+/* 返回主頁連結樣式 */
+a.Options {
+    display: block;
+    text-align: center;
+    margin-top: 20px;
+    color: #4CAF50;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+a.Options:hover {
+    text-decoration: underline;
+}
+
+/* 訊息樣式 */
+.messages {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 20px;
+}
+
+.messages li {
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.messages li.error {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.messages li.success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+/* 編輯頁面新增樣式 */
+
+/* 表單輸入框聚焦效果 */
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+textarea:focus {
+    border-color: #4CAF50; /* 聚焦時邊框變為綠色 */
+    outline: none; /* 移除默認的聚焦外框 */
+    box-shadow: 0 0 5px rgba(76, 175, 80, 0.5); /* 添加柔和的陰影效果 */
+}
+
+/* 禁用按鈕樣式 */
+button:disabled {
+    background-color: #ccc; /* 禁用時按鈕背景變灰 */
+    cursor: not-allowed; /* 禁用時鼠標顯示不可用 */
+}
+
+/* 頭像上傳區域 */
+.profile-picture {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.profile-picture img {
+    width: 120px; /* 頭像寬度 */
+    height: 120px; /* 頭像高度 */
+    border-radius: 50%; /* 圓形頭像 */
+    border: 2px solid #4CAF50; /* 綠色邊框 */
+    margin-bottom: 10px;
+}
+
+.profile-picture input[type="file"] {
+    display: none; /* 隱藏默認的文件選擇按鈕 */
+}
+
+.profile-picture label {
+    background-color: #4CAF50;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.profile-picture label:hover {
+    background-color: #45a049;
+}
+
+/* 響應式設計 */
+@media (max-width: 600px) {
+    .profile-edit-container {
+        max-width: 90%; /* 手機版容器寬度 */
+        padding: 15px; /* 減少內邊距 */
+    }
+
+    .profile-edit-container h1 {
+        font-size: 20px; /* 減小標題字體大小 */
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    textarea {
+        font-size: 14px; /* 減小輸入框字體大小 */
+        padding: 8px; /* 減少內邊距 */
+    }
+
+    button {
+        font-size: 14px; /* 減小按鈕字體大小 */
+        padding: 8px 10px; /* 減少按鈕內邊距 */
+    }
+
+    .profile-picture img {
+        width: 100px; /* 手機版頭像寬度 */
+        height: 100px; /* 手機版頭像高度 */
+    }
+
+    .profile-picture label {
+        font-size: 12px; /* 減小上傳按鈕字體大小 */
+        padding: 6px 10px; /* 減少按鈕內邊距 */
+    }
+}
+
+/* 平板裝置 (601px - 1024px) */
+@media (min-width: 601px) and (max-width: 1024px) {
+    /* 容器樣式 */
+    .profile-edit-container {
+        max-width: 80%; /* 調整容器寬度為螢幕的 80% */
+        margin: 40px auto; /* 減少上下間距 */
+        padding: 25px; /* 增加內邊距 */
+    }
+
+    /* 標題樣式 */
+    .profile-edit-container h1 {
+        font-size: 24px; /* 調整標題字體大小 */
+        margin-bottom: 25px; /* 增加標題與表單的間距 */
+    }
+
+    /* 表單樣式 */
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    textarea,
+    input[type="file"] {
+        font-size: 16px; /* 調整輸入框字體大小 */
+        padding: 12px; /* 增加輸入框內邊距 */
+    }
+
+    textarea {
+        height: 120px; /* 增加文字區域高度 */
+    }
+
+    /* 按鈕樣式 */
+    button {
+        font-size: 18px; /* 調整按鈕字體大小 */
+        padding: 12px 20px; /* 增加按鈕內邊距 */
+    }
+
+    /* 返回主頁連結樣式 */
+    a.Options {
+        font-size: 16px; /* 調整連結字體大小 */
+        margin-top: 25px; /* 增加與按鈕的間距 */
+    }
+
+    /* 頭像樣式 */
+    img {
+        width: 140px; /* 調整頭像寬度 */
+        height: 140px; /* 調整頭像高度 */
+    }
+}
