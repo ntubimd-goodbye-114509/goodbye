@@ -35,10 +35,18 @@ class Order(models.Model):
     def __str__(self):
         return f'{self.user} 的訂單（{self.shop_name}） - {self.total} 元'
 
+    # 已支付總金額
     @property
     def paid_total(self):
         return self.payments.aggregate(models.Sum('amount'))['amount__sum'] or 0
 
+    # 尚須付款金額
     @property
     def remaining_amount(self):
         return (self.total + (self.second_supplement or 0)) - self.paid_total
+    
+    # 是否已上傳付款憑證但尚未被確認或退回
+    @property
+    def has_pending_payment_proof(self):
+        return self.payments.filter(is_paid_by_user=True, seller_state='wait_confirmed').exists()
+
