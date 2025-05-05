@@ -1,10 +1,20 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
-from goodBuy_order.models import Order
+from goodBuy_order.models import Order, OrderPayment
 from goodBuy_shop.models import ShopPayment
 from django.shortcuts import redirect, render
+
+from ..forms import OrderPaymentForm
+from .order_payment import *
 from utils import order_buyer_required, order_seller_required
+# -------------------------
+# 庫存退回
+# -------------------------
+def restore_order_stock(order):
+    for item in order.items.select_related('product'):
+        item.product.stock += item.quantity
+        item.product.save()
 # -------------------------
 # 訂單狀態修改 - ex. 付款、出貨
 # -------------------------
@@ -13,17 +23,35 @@ from utils import order_buyer_required, order_seller_required
 @order_buyer_required(redirect_to='buyer_order_list')
 def buyer_action(request, order):
     action = request.POST.get('action')
+    if order.order_state_id == 1 and action == 'chosen_payment':
+        choose_payment_method(request, order)
 
-    if order.order_state_id == 5 and action == 'confirm_received':
-        order.order_state_id = 6
+    elif order.order_state_id in [1, 2] and action == 'cancel_order':
+        order.order_state_id = 11
+        restore_order_stock(order)
+        messages.warning(request, '訂單已取消')
+
+    elif order.order_state_id == 3 and action == 'need_pay':
+        upload_payment_proof(request, order)
+
+    elif order.order_state_id == 5 and action == 'confirm_received':
+        if order.payment_category == 'cash_on_delivery' and not order.payments.exists():
+            OrderPayment.objects.create(
+                order=order,
+                amount=order.total + (order.second_supplement or 0),
+                is_paid_by_user=True,
+                seller_state='none',
+                remark='取貨付款自動記錄',
+            )
         messages.success(request, '已確認收貨')
+        order.pay_state_id = 6
+    
     else:
         messages.error(request, '操作無效或狀態錯誤')
-        return redirect('buyer_order_detail', order_id=order.id)
+        return redirect(request.META.get('HTTP_REFERER') or 'home')
 
     order.save()
-    next_url = request.POST.get('next') or request.META.get('HTTP_REFERER') or 'home'
-    return redirect(next_url)
+    return redirect('buyer_order_list')  # 可替換成你的實際「已完成訂單列表頁面」
 # -------------------------
 # 賣家訂單狀態修改
 # -------------------------
@@ -34,15 +62,26 @@ def seller_action(request, order):
     if order.order_state_id == 2 and action == 'confirm_order':
         order.order_state_id = 3
         messages.success(request, '訂單已確認')
+    
     elif order.order_state_id == 2 and action == 'reject_stock':
         order.order_state_id = 7
+        restore_order_stock(order)
         messages.warning(request, '商品庫存不足，已拒絕交易')
+    
     elif order.order_state_id == 2 and action == 'reject_user':
         order.order_state_id = 8
+        restore_order_stock(order)
         messages.warning(request, '已拒絕此用戶交易')
+    
+    elif order.order_state_id == 2 and action == 'reject_unsuccessful':
+        order.order_state_id = 10
+        restore_order_stock(order)
+        messages.warning(request, '已告知用戶流團')
+    
     elif order.order_state_id == 4 and action == 'shipped':
         order.order_state_id = 5
         messages.success(request, '訂單已出貨')
+    
     else:
         messages.error(request, '操作無效或狀態錯誤')
         return redirect('seller_order_detail', order_id=order.id)
@@ -58,10 +97,7 @@ def seller_action(request, order):
 def batch_seller_action(request):
     VALID_SELLER_ACTIONS = {
     'confirm_order': {'from_state': 2, 'to_state': 3},
-    'reject_stock': {'from_state': 2, 'to_state': 7},
-    'reject_user': {'from_state': 2, 'to_state': 8},
     'shipped': {'from_state': 4, 'to_state': 5},
-    
     }
     action = request.POST.get('action')
     order_ids = request.POST.getlist('order_ids')
@@ -94,59 +130,3 @@ def batch_seller_action(request):
         messages.warning(request, '沒有符合條件的訂單被處理')
 
     return redirect(request.META.get('HTTP_REFERER', 'home'))
-# -------------------------
-# 買家選擇付款方式
-# -------------------------
-@login_required
-@order_buyer_required(redirect_to='buyer_order_list')
-def choose_payment_method(request, order):
-    shop = order.shop
-    shop_payment_links = ShopPayment.objects.filter(shop=shop).select_related('payment_account')
-
-    available_payment_methods = []
-    remittance_accounts = []
-
-    if shop.transfer:
-        remittance_accounts = shop_payment_links.exclude(payment_account__id=1)
-        if remittance_accounts.exists():
-            available_payment_methods.append('remittance')
-
-        if shop_payment_links.filter(payment_account__id=1).exists():
-            available_payment_methods.append('cash_on_delivery')
-    else:
-        available_payment_methods.append('cash_on_delivery')
-
-    if not available_payment_methods:
-        messages.error(request, '此商店未設定任何可用付款方式')
-        return redirect('buyer_order_detail', order_id=order.id)
-
-    if request.method == 'POST':
-        selected_method = request.POST.get('payment_method')
-
-        if selected_method not in available_payment_methods:
-            messages.error(request, '付款方式無效')
-            return redirect('order_payment_choice', order_id=order.id)
-
-        order.payment_category = selected_method
-
-        if selected_method == 'remittance':
-            try:
-                selected_account_id = int(request.POST.get('payment_account_id'))
-            except (TypeError, ValueError, ShopPayment.DoesNotExist):
-                messages.error(request, '請選擇有效的匯款帳戶')
-                return redirect('order_payment_choice', order_id=order.id)
-
-        order.order_state_id = 2
-        order.save()
-
-        messages.success(request, '付款方式已選擇')
-        return redirect('buyer_order_detail', order_id=order.id)
-
-    return render(request, 'order/payment_choice.html', locals())
-# -------------------------
-# 買家上傳付款憑證
-# -------------------------
-
-# -------------------------
-# 賣家確認付款憑證
-# -------------------------

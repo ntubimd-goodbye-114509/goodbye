@@ -21,7 +21,7 @@ class OrderPayment(models.Model):
 
     is_paid_by_user = models.BooleanField(default=False)
 
-    seller_state = models.CharField(max_length=20,choices=SELLER_CHOICES,default='wait confirmed')
+    seller_state = models.CharField(max_length=20, choices=SELLER_CHOICES, default='wait confirmed')
 
     deadline = models.DateTimeField(null=True, blank=True)
 
