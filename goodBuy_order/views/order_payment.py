@@ -10,9 +10,11 @@ from utils import order_buyer_required, order_seller_required
 # -------------------------
 # 買家選擇付款方式
 # -------------------------
-@login_required
-@order_buyer_required(redirect_to='buyer_order_list')
 def choose_payment_method(request, order):
+    if order.order_state_id != 1:
+        messages.error(request, '訂單狀態錯誤，無法選擇付款方式')
+        return redirect('buyer_order_detail', order_id=order.id)
+    
     shop = order.shop
     shop_payment_links = ShopPayment.objects.filter(shop=shop).select_related('payment_account')
 
@@ -59,8 +61,6 @@ def choose_payment_method(request, order):
 # -------------------------
 # 買家上傳付款憑證
 # -------------------------
-@login_required
-@order_buyer_required(redirect_to='buyer_order_list')
 def upload_payment_proof(request, order):
     if order.payment_category != 'remittance':
         messages.error(request, '此訂單不需匯款，無法上傳憑證')
