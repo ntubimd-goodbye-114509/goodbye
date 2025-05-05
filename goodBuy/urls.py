@@ -24,7 +24,7 @@ from goodBuy_want.views import *
 from goodBuy_web.views.homePage import *
 from django.conf import settings
 from django.conf.urls.static import static
-
+from goodBuy_web.views.payment import payment_accounts
 
 urlpatterns = [
     #共同頁面
@@ -41,4 +41,7 @@ urlpatterns = [
     #訂單狀態更新
     path('order/<int:order_id>/buyer-action/', buyer_action, name='order_buyer_action'),
     path('order/<int:order_id>/seller-action/', seller_action, name='order_seller_action'),
+
+    #付款方式
+    path('payment/', payment_accounts, name='payment_accounts'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

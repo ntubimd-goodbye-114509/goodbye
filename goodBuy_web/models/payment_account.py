@@ -12,7 +12,7 @@ class ActivePaymentManager(models.Manager):
 # -------------------------
 class PaymentAccount(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    payment = models.ForeignKey(Payment, on_delete=models.CASCADE, related_name='payment_accounts')
+    payment = models.ForeignKey(Payment, on_delete=models.CASCADE, related_name='accounts')
     img = models.ImageField(upload_to='payment_img/', blank=True, null=True)
     account = models.CharField(max_length=255)
     is_delete = models.BooleanField(default=False)

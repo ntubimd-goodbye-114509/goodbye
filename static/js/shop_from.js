@@ -79,7 +79,7 @@ window.addEventListener("DOMContentLoaded", () => {
     area.appendChild(div);
   }
   
-  // 狀態邏輯：現貨才顯示開始時間
+// 狀態邏輯：現貨才顯示開始時間
   const shopStateField = document.querySelector('[name="shop_state"]');
   const startTimeGroup = document.getElementById("start-time-group");
   if (shopStateField && startTimeGroup) {
