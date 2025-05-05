@@ -17,7 +17,7 @@ from ..time_utils import *
 # -------------------------
 def shopAll_update(request):
     shops = Shop.objects.filter(permission__id=1).order_by('-date')
-    return render(request, '主頁', locals())
+    return render(request, 'home.html', locals())
 # -------------------------
 # 商店查詢 - user-id
 # -------------------------
