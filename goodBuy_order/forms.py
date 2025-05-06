@@ -1,6 +1,7 @@
 from django import forms
 from .models import Order
-from goodBuy_web.models import UserAddress, Payment, PaymentAccount
+from goodBuy_web.models import UserAddress
+from goodBuy_order.models import OrderPayment
 
 from django import forms
 from goodBuy_order.models import Order
@@ -71,7 +72,36 @@ class OrderForm(forms.ModelForm):
         if shop and not shop.deposit:
             self.fields['payment_mode'].widget = forms.HiddenInput()
             self.fields['payment_mode'].required = False
+# -------------------------
+# 上傳付款憑證
+# -------------------------
+class OrderPaymentForm(forms.ModelForm):
+    class Meta:
+        model = OrderPayment
+        fields = ['amount', 'pay_proof', 'remark']
+        widgets = {
+            'amount': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'placeholder': '請輸入匯款金額',
+                'min': 1
+            }),
+            'pay_proof': forms.ClearableFileInput(attrs={
+                'class': 'form-control',
+                'accept': 'image/*'
+            }),
+            'remark': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': '其他備註（可選）'
+            }),
+        }
+        labels = {
+            'amount': '匯款金額',
+            'pay_proof': '匯款憑證上傳',
+            'remark': '備註',
+        }
 
-# -------------------------
-# 分次付款
-# -------------------------
+    def clean_amount(self):
+        amount = self.cleaned_data.get('amount')
+        if amount is not None and amount <= 0:
+            raise forms.ValidationError('金額必須大於 0')
+        return amount

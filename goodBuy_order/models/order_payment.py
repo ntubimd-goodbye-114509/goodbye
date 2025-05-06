@@ -7,7 +7,7 @@ from .order import Order,ShopPayment
 # -------------------------
 class OrderPayment(models.Model):
     SELLER_CHOICES = [
-        ('wait confirmed','待確認'),
+        ('wait wait_confirmed','待確認'),
         ('confirmed','已收到'),
         ('returned','已退回'),
         ('none', '取貨付款')
@@ -21,7 +21,7 @@ class OrderPayment(models.Model):
 
     is_paid_by_user = models.BooleanField(default=False)
 
-    seller_state = models.CharField(max_length=20,choices=SELLER_CHOICES,default='wait confirmed')
+    seller_state = models.CharField(max_length=20, choices=SELLER_CHOICES, default='wait confirmed')
 
     deadline = models.DateTimeField(null=True, blank=True)
 
