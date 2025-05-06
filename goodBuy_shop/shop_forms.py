@@ -2,7 +2,7 @@ from django import forms
 from django.forms.widgets import ClearableFileInput
 from django.http import QueryDict
 
-from goodBuy_shop.models import Shop, ShopImg, ShopPayment, ShopTag, ShopAnnouncement
+from goodBuy_shop.models import *
 from goodBuy_tag.models import Tag
 from goodBuy_web.models import PaymentAccount
 from .time_utils import timeFormatChange_now, timeFormatChange_longtime
@@ -57,6 +57,8 @@ class ShopForm(forms.ModelForm):
         self.is_edit = kwargs.get('instance') is not None and kwargs.get('instance').pk is not None
 
         super().__init__(*args, **kwargs)
+
+        self.fields['permission'].queryset = Permission.objects.filter(id__in=[1, 2])
 
         if self.user:
             user_accounts = PaymentAccount.objects.filter(user=self.user)

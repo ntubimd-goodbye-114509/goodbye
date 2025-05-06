@@ -10,7 +10,7 @@ from utils import order_buyer_required, order_seller_required
 # -------------------------
 # 買家選擇付款方式
 # -------------------------
-def choose_payment_method(request, order):
+def choose_payment_method(order, request=None):
     if order.order_state_id != 1:
         messages.error(request, '訂單狀態錯誤，無法選擇付款方式')
         return redirect('buyer_order_detail', order_id=order.id)
@@ -61,7 +61,7 @@ def choose_payment_method(request, order):
 # -------------------------
 # 買家上傳付款憑證
 # -------------------------
-def upload_payment_proof(request, order):
+def upload_payment_proof(order, request=None):
     if order.payment_category != 'remittance':
         messages.error(request, '此訂單不需匯款，無法上傳憑證')
         return redirect('buyer_order_detail', order_id=order.id)
@@ -102,11 +102,47 @@ def upload_payment_proof(request, order):
         form = OrderPaymentForm()
 
     return render(request, 'order/upload_payment.html', locals())
-
 # -------------------------
-# 賣家查看付款憑證
+# 查看付款憑證
 # -------------------------
 
 # -------------------------
 # 賣家確認/拒絕付款憑證
 # -------------------------
+
+# -------------------------
+# 賣家通知付款
+# -------------------------
+def notify_buyer_to_pay(order, request=None):
+    current = order.pay_state_id
+
+    if current in [1, 2, 4, 6, 7, 9, 10]:
+        if request:
+            messages.error(request, '目前付款狀態不允許通知付款')
+        return False
+
+    elif current == 3:
+        order.pay_state_id = 4
+        if request:
+            messages.success(request, '已通知買家支付尾款')
+
+    elif current == 5:
+        if order.second_supplement and order.second_supplement > 0:
+            order.pay_state_id = 6
+            if request:
+                messages.success(request, '已通知買家支付額外費用')
+        else:
+            order.pay_state_id = 7
+            if request:
+                messages.success(request, '已確認買家已支付所有費用')
+                order.order_state_id = 4
+
+    elif current == 8:
+        order.pay_state_id = 9
+        if request:
+            messages.success(request, '已確認買家完成全額付款')
+            order.order_state_id = 4
+            
+    order.save()
+    return True
+
