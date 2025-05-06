@@ -2,7 +2,9 @@
 from functools import wraps
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
-
+# -------------------------
+# 物件存在檢查
+# -------------------------
 def object_exists_required(
     model,
     arg_name,
@@ -55,8 +57,9 @@ def object_exists_required(
             return view_func(request, *args, **kwargs)
         return _wrapped_view
     return decorator
-
-
+# -------------------------
+# 物件擁有者檢查
+# -------------------------
 def object_owner_required(
     model,
     arg_name,
@@ -114,7 +117,9 @@ def object_owner_required(
             return view_func(request, *args, **kwargs)
         return _wrapped_view
     return decorator
-
+# -------------------------
+# 黑名單檢查
+# -------------------------
 def blacklist_check(owner_getter, redirect_to='home', msg='你已被此使用者封鎖，無法查看。'):
     """
     檢查 request.user 是否被 owner 封鎖
@@ -132,7 +137,9 @@ def blacklist_check(owner_getter, redirect_to='home', msg='你已被此使用者
             return view_func(request, obj, *args, **kwargs)
         return _wrapped_view
     return decorator
-
+# -------------------------
+# 訂單是否屬於買家檢查
+# -------------------------
 def check_order_buyer(redirect_to='home'):
     def decorator(view_func):
         @wraps(view_func)
@@ -143,7 +150,9 @@ def check_order_buyer(redirect_to='home'):
             return view_func(request, order, *args, **kwargs)
         return _wrapped_view
     return decorator
-
+# -------------------------
+# 訂單是否為賣家商店的檢查
+# -------------------------
 def check_order_seller(redirect_to='home'):
     def decorator(view_func):
         @wraps(view_func)

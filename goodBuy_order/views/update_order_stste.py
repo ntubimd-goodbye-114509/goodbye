@@ -7,6 +7,7 @@ from django.shortcuts import redirect, render
 
 from ..forms import OrderPaymentForm
 from .order_payment import *
+from .user_order import *
 from utils import order_buyer_required, order_seller_required
 # -------------------------
 # 庫存退回
@@ -24,7 +25,7 @@ def restore_order_stock(order):
 def buyer_action(request, order):
     action = request.POST.get('action')
     if order.order_state_id == 1 and action == 'chosen_payment':
-        choose_payment_method(request, order)
+        choose_payment_method(order, request)
 
     elif order.order_state_id in [1, 2] and action == 'cancel_order':
         order.order_state_id = 11
@@ -32,7 +33,7 @@ def buyer_action(request, order):
         messages.warning(request, '訂單已取消')
 
     elif order.order_state_id == 3 and action == 'need_pay':
-        upload_payment_proof(request, order)
+        upload_payment_proof(order, request)
 
     elif order.order_state_id == 5 and action == 'confirm_received':
         if order.payment_category == 'cash_on_delivery' and not order.payments.exists():
@@ -51,7 +52,7 @@ def buyer_action(request, order):
         return redirect(request.META.get('HTTP_REFERER') or 'home')
 
     order.save()
-    return redirect('buyer_order_list')  # 可替換成你的實際「已完成訂單列表頁面」
+    return redirect('buyer_order_list')
 # -------------------------
 # 賣家訂單狀態修改
 # -------------------------
@@ -60,8 +61,15 @@ def seller_action(request, order):
     action = request.POST.get('action')
 
     if order.order_state_id == 2 and action == 'confirm_order':
-        order.order_state_id = 3
+        if order.payment_category == 'cash_on_delivery':
+            order.order_state_id = 4
+        else:
+            order.order_state_id = 3
         messages.success(request, '訂單已確認')
+
+    elif order.order_state_id == 3 and action == 'notify_payment':
+        if not notify_buyer_to_pay(order, request):
+            return redirect('seller_order_detail', order_id=order.id)
     
     elif order.order_state_id == 2 and action == 'reject_stock':
         order.order_state_id = 7
@@ -96,9 +104,11 @@ def seller_action(request, order):
 @login_required
 def batch_seller_action(request):
     VALID_SELLER_ACTIONS = {
-    'confirm_order': {'from_state': 2, 'to_state': 3},
-    'shipped': {'from_state': 4, 'to_state': 5},
+        'confirm_order': {'from_state': 2, 'to_state': 3},
+        'shipped': {'from_state': 4, 'to_state': 5},
+        'notify_payment': None,
     }
+
     action = request.POST.get('action')
     order_ids = request.POST.getlist('order_ids')
 
@@ -106,10 +116,8 @@ def batch_seller_action(request):
         messages.error(request, '此操作不支援批量處理')
         return redirect(request.META.get('HTTP_REFERER', 'home'))
 
-    from_state = VALID_SELLER_ACTIONS[action]['from_state']
-    to_state = VALID_SELLER_ACTIONS[action]['to_state']
-
     success_count = 0
+
     for oid in order_ids:
         try:
             order = Order.objects.select_related('shop').get(id=oid)
@@ -117,6 +125,16 @@ def batch_seller_action(request):
             continue
         if order.shop.owner != request.user:
             continue
+
+        if action == 'notify_payment':
+            if order.order_state_id == 3 and notify_buyer_to_pay(order):
+                order.save()
+                success_count += 1
+            continue
+
+        from_state = VALID_SELLER_ACTIONS[action]['from_state']
+        to_state = VALID_SELLER_ACTIONS[action]['to_state']
+
         if order.order_state_id != from_state:
             continue
 

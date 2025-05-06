@@ -3,12 +3,15 @@ from .decorators_base import *
 from django.contrib.auth import get_user_model
 from goodBuy_shop.models import Shop, Product, ShopAnnouncement
 from goodBuy_tag.models import Tag
-from goodBuy_order.models import Order, Cart, PurchaseIntent
+from goodBuy_order.models import *
 from goodBuy_want.models import Want
 
 User = get_user_model()
 
 # --- 基礎存在驗證 ---
+# -------------------------
+# 商店存在檢查
+# -------------------------
 shop_exists_required = object_exists_required(
     model=Shop,
     arg_name='shop_id',
@@ -16,7 +19,9 @@ shop_exists_required = object_exists_required(
     deleted_check='auto',
     deleted_msg='這個商店已被刪除'
 )
-
+# -------------------------
+# 商品存在檢查
+# -------------------------
 product_exists_required = object_exists_required(
     model=Product,
     arg_name='product_id',
@@ -24,29 +29,36 @@ product_exists_required = object_exists_required(
     deleted_check='auto',
     deleted_msg='這個商品或商店已被刪除'
 )
-
+# -------------------------
+# 訂單存在檢查
+# -------------------------
 order_exists_required = object_exists_required(
     model=Order,
     arg_name='order_id',
     context_name='order',
     not_found_msg='找不到這個訂單'
 )
-
-
+# -------------------------
+# 標籤存在檢查
+# -------------------------
 tag_exists_required = object_exists_required(
     model=Tag,
     arg_name='tag_id',
     context_name='tag',
     not_found_msg='找不到這個Tag'
 )
-
+# -------------------------
+# 使用者存在檢查
+# -------------------------
 user_exists_required = object_exists_required(
     model=User,
     arg_name='user_id',
     context_name='user',
     not_found_msg='找不到使用者'
 )
-
+# -------------------------
+# 收物帖存在檢查
+# -------------------------
 want_exists_required = object_exists_required(
     model=Want,
     arg_name='want_id',
@@ -55,6 +67,9 @@ want_exists_required = object_exists_required(
 )
 
 # --- 擁有者驗證 ---
+# -------------------------
+# 商店擁有者檢查
+# -------------------------
 shop_owner_required = object_owner_required(
     model=Shop,
     arg_name='shop_id',
@@ -65,7 +80,9 @@ shop_owner_required = object_owner_required(
     deleted_check='auto',
     deleted_msg='這個商店已被刪除'
 )
-
+# -------------------------
+# 產品擁有者檢查
+# -------------------------
 product_owner_required = object_owner_required(
     model=Product,
     arg_name='product_id',
@@ -76,7 +93,9 @@ product_owner_required = object_owner_required(
     deleted_check='auto',
     deleted_msg='這個商品或商店已被刪除'
 )
-
+# -------------------------
+# 收物帖擁有者檢查
+# -------------------------
 want_owner_required = object_owner_required(
     model=Want,
     arg_name='post_id',
@@ -87,7 +106,9 @@ want_owner_required = object_owner_required(
     deleted_check='auto',
     deleted_msg='這篇收物帖已被刪除'
 )
-
+# -------------------------
+# 公告擁有者檢查
+# -------------------------
 announcement_owner_required = object_owner_required(
     model=ShopAnnouncement,
     arg_name='announcement_id',
@@ -98,23 +119,45 @@ announcement_owner_required = object_owner_required(
     deleted_check=lambda a: a.shop.permission_id == 3,
     deleted_msg='此公告所屬商店已被刪除'
 )
+# -------------------------
+# 訂單支付記錄擁有者檢查
+# -------------------------
+order_payment_owner_required = object_owner_required(
+    model=OrderPayment,
+    arg_name='payment_id',
+    owner_field='order.shop.owner',
+    context_name='payment',
+    not_found_msg='找不到這筆付款紀錄',
+    owner_error_msg='您無權審核此筆付款',
+    deleted_check=lambda p: p.order.shop.permission_id == 3,
+    deleted_msg='此付款所屬商店已被刪除'
+)
 
 # --- 黑名單組合 ---
+# -------------------------
+# 商店存在 & 非黑名單檢查
+# -------------------------
 def shop_exists_and_not_blacklisted():
     return lambda view_func: \
         blacklist_check(lambda shop: shop.owner, msg='你已被此賣家封鎖，無法查看')(\
             shop_exists_required(view_func))
-
+# -------------------------
+# 商品存在 & 非黑名單檢查
+# -------------------------
 def product_exists_and_not_blacklisted():
     return lambda view_func: \
         blacklist_check(lambda product: product.shop.owner, msg='你已被此賣家封鎖，無法查看')(\
             product_exists_required(view_func))
-
+# -------------------------
+# 使用者存在 & 非黑名單檢查
+# -------------------------
 def user_exists_and_not_blacklisted():
     return lambda view_func: \
         blacklist_check(lambda user: user, msg='你已被此使用者封鎖，無法查看')(\
             user_exists_required(view_func))
-
+# -------------------------
+# 公告存在 & 非黑名單檢查
+# -------------------------
 def announcement_exists_and_shop_visible():
     return lambda view_func: \
         blacklist_check(lambda a: a.shop.owner, msg='你已被此賣家封鎖，無法查看')(\
@@ -127,10 +170,15 @@ def announcement_exists_and_shop_visible():
             )(view_func))
 
 # --- 訂單買家和賣家檢查 ---
+# -------------------------
+# 訂單為購買者擁有檢查
+# -------------------------
 def order_buyer_required(redirect_to='home'):
     return lambda view_func: \
         order_exists_required(check_order_buyer(redirect_to=redirect_to)(view_func))
-
+# -------------------------
+# 訂單為賣家擁有檢查
+# -------------------------
 def order_seller_required(redirect_to='home'):
     return lambda view_func: \
         order_exists_required(check_order_seller(redirect_to=redirect_to)(view_func))
