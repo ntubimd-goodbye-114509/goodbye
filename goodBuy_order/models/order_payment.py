@@ -7,9 +7,10 @@ from .order import Order,ShopPayment
 # -------------------------
 class OrderPayment(models.Model):
     SELLER_CHOICES = [
-        ('wait wait_confirmed','待確認'),
+        ('wait_confirmed','待確認'),
         ('confirmed','已收到'),
         ('returned','已退回'),
+        ('overdue','已逾期'),
         ('none', '取貨付款')
     ]
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='payments')

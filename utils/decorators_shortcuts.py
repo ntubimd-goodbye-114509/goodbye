@@ -3,7 +3,7 @@ from .decorators_base import *
 from django.contrib.auth import get_user_model
 from goodBuy_shop.models import Shop, Product, ShopAnnouncement
 from goodBuy_tag.models import Tag
-from goodBuy_order.models import Order, Cart, PurchaseIntent
+from goodBuy_order.models import *
 from goodBuy_want.models import Want
 
 User = get_user_model()
@@ -97,6 +97,17 @@ announcement_owner_required = object_owner_required(
     owner_error_msg='這不是您商店的公告喔',
     deleted_check=lambda a: a.shop.permission_id == 3,
     deleted_msg='此公告所屬商店已被刪除'
+)
+
+order_payment_owner_required = object_owner_required(
+    model=OrderPayment,
+    arg_name='payment_id',
+    owner_field='order.shop.owner',
+    context_name='payment',
+    not_found_msg='找不到這筆付款紀錄',
+    owner_error_msg='您無權審核此筆付款',
+    deleted_check=lambda p: p.order.shop.permission_id == 3,
+    deleted_msg='此付款所屬商店已被刪除'
 )
 
 # --- 黑名單組合 ---

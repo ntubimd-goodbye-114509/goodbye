@@ -1,115 +1,98 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
-from goodBuy_order.models import Order
-from goodBuy_shop.models import ShopPayment
+from django.db.models import Sum
+
 from django.shortcuts import redirect, render
 
-from ..forms import OrderPaymentForm
-from utils import order_buyer_required, order_seller_required
+from utils import *
 # -------------------------
-# 買家選擇付款方式
+# 查看付款憑證 - 單筆
 # -------------------------
-def choose_payment_method(order, request=None):
-    if order.order_state_id != 1:
-        messages.error(request, '訂單狀態錯誤，無法選擇付款方式')
-        return redirect('buyer_order_detail', order_id=order.id)
+@login_required
+def view_single_payment(request, payment_id):
+    try:
+        payment = OrderPayment.objects.get(id=payment_id)
+    except OrderPayment.DoesNotExist:
+        messages.error(request, '付款憑證不存在')
+        return redirect('home')
     
-    shop = order.shop
-    shop_payment_links = ShopPayment.objects.filter(shop=shop).select_related('payment_account')
+    order = payment.order
+    is_seller = (order.shop.owner == request.user)
+    is_buyer = (order.user == request.user)
 
-    available_payment_methods = []
-    remittance_accounts = []
+    if not (is_seller or is_buyer):
+        messages.error(request, '你沒有權限查看此筆付款紀錄')
+        return redirect('home')
 
-    if shop.transfer:
-        remittance_accounts = shop_payment_links.exclude(payment_account__id=1)
-        if remittance_accounts.exists():
-            available_payment_methods.append('remittance')
+    return render(request, 'goodBuy_order/view_single_payment.html', locals())
+# -------------------------
+# 查看付款憑證 - 多筆
+# -------------------------
+@login_required
+def list_related_payments(request):
+    user = request.user
+    action = request.GET.get('action')
+    buyer_or_seller = request.GET.get('buyer_or_seller')
+    confirmed_total = waiting_total = None
 
-        if shop_payment_links.filter(payment_account__id=1).exists():
-            available_payment_methods.append('cash_on_delivery')
+    if buyer_or_seller == 'buyer':
+        payments = OrderPayment.objects.filter(
+            order__user=user
+        ).exclude(seller_state='none')
+
+    elif buyer_or_seller == 'seller':
+        payments = OrderPayment.objects.filter(
+            order__shop__owner=user
+        ).exclude(seller_state='none')
+        confirmed_total = payments.filter(seller_state='confirmed').aggregate(Sum('amount'))['amount__sum'] or 0
+        waiting_total = payments.filter(seller_state='wait confirmed').aggregate(Sum('amount'))['amount__sum'] or 0
+
     else:
-        available_payment_methods.append('cash_on_delivery')
+        messages.error(request, '查詢權限錯誤')
+        return redirect('home') 
 
-    if not available_payment_methods:
-        messages.error(request, '此商店未設定任何可用付款方式')
-        return redirect('buyer_order_detail', order_id=order.id)
+    if action == 'wait_confirmed':
+        payments = payments.filter(seller_state='wait_confirmed')
+    elif action == 'confirmed':
+        payments = payments.filter(seller_state='confirmed')
+    elif action == 'cancel':
+        payments = payments.filter(seller_state__in=['returned', 'overdue'])
 
-    if request.method == 'POST':
-        selected_method = request.POST.get('payment_method')
+    payments = payments.distinct().order_by('-pay_time')
 
-        if selected_method not in available_payment_methods:
-            messages.error(request, '付款方式無效')
-            return redirect('order_payment_choice', order_id=order.id)
-
-        order.payment_category = selected_method
-
-        if selected_method == 'remittance':
-            try:
-                selected_account_id = int(request.POST.get('payment_account_id'))
-            except (TypeError, ValueError, ShopPayment.DoesNotExist):
-                messages.error(request, '請選擇有效的匯款帳戶')
-                return redirect('order_payment_choice', order_id=order.id)
-
-        order.order_state_id = 2
-        order.save()
-
-        messages.success(request, '付款方式已選擇')
-        return redirect('buyer_order_detail', order_id=order.id)
-
-    return render(request, 'order/payment_choice.html', locals())
-# -------------------------
-# 買家上傳付款憑證
-# -------------------------
-def upload_payment_proof(order, request=None):
-    if order.payment_category != 'remittance':
-        messages.error(request, '此訂單不需匯款，無法上傳憑證')
-        return redirect('buyer_order_detail', order_id=order.id)
-
-    if order.has_pending_payment_proof:
-        messages.error(request, '您已上傳付款憑證，請等待賣家確認或退回後再試')
-        return redirect('buyer_order_detail', order_id=order.id)
-
-    remit_accounts = ShopPayment.objects.filter(shop=order.shop).exclude(payment_account__id=1)
-
-    if request.method == 'POST':
-        form = OrderPaymentForm(request.POST, request.FILES)
-        account_id = request.POST.get('payment_account_id')
-
-        if not account_id:
-            messages.error(request, '請選擇匯款帳戶')
-            return redirect('buyer_order_detail', order_id=order.id)
-
-        try:
-            shop_payment = remit_accounts.get(id=account_id)
-        except ShopPayment.DoesNotExist:
-            messages.error(request, '匯款帳戶無效')
-            return redirect('buyer_order_detail', order_id=order.id)
-
-        if form.is_valid():
-            payment_record = form.save(commit=False)
-            payment_record.order = order
-            payment_record.shop_payment = shop_payment
-            payment_record.is_paid_by_user = True
-            payment_record.seller_state = 'wait_confirmed'
-            payment_record.save()
-
-            messages.success(request, '匯款資訊已上傳，等待賣家確認')
-            return redirect('buyer_order_detail', order_id=order.id)
-        else:
-            messages.error(request, '表單內容有誤，請重新確認')
-    else:
-        form = OrderPaymentForm()
-
-    return render(request, 'order/upload_payment.html', locals())
-# -------------------------
-# 查看付款憑證
-# -------------------------
-
+    return render(request, 'goodBuy_order/payment_list_all.html', {
+        'payments': payments,
+        'confirmed_total': confirmed_total,
+        'waiting_total': waiting_total,
+    })
 # -------------------------
 # 賣家確認/拒絕付款憑證
 # -------------------------
+@require_POST
+@order_payment_owner_required
+def audit_payment(request, payment):
+    action = request.POST.get('action')
 
+    if payment.seller_state != 'wait confirmed':
+        messages.warning(request, '這筆付款已處理過')
+        return redirect('view_payment_proofs', order_id=payment.order.id)
+
+    if action == 'confirm':
+        payment.seller_state = 'confirmed'
+        payment.remark = request.POST.get('remark', '') or payment.remark
+        messages.success(request, '已確認收款')
+
+    elif action == 'reject':
+        payment.seller_state = 'returned'
+        payment.remark = request.POST.get('remark', '') or payment.remark
+        messages.success(request, '已退回憑證')
+
+    else:
+        messages.error(request, '無效的操作')
+
+    payment.save()
+    return redirect('view_payment_proofs', order_id=payment.order.id)
 # -------------------------
 # 賣家通知付款
 # -------------------------
@@ -126,7 +109,7 @@ def notify_buyer_to_pay(order, request=None):
         if request:
             messages.success(request, '已通知買家支付尾款')
 
-    elif current == 5:
+    elif current == 5 or current == 8:
         if order.second_supplement and order.second_supplement > 0:
             order.pay_state_id = 6
             if request:
@@ -141,8 +124,9 @@ def notify_buyer_to_pay(order, request=None):
         order.pay_state_id = 9
         if request:
             messages.success(request, '已確認買家完成全額付款')
-            order.order_state_id = 4
             
     order.save()
     return True
-
+# -------------------------
+# 賣家設定二次補款
+# -------------------------
