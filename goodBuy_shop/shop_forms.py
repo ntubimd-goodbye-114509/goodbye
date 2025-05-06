@@ -13,13 +13,6 @@ class MultipleClearableFileInput(ClearableFileInput):
 
 class ShopForm(forms.ModelForm):
     tag_names = forms.CharField(required=False, widget=forms.HiddenInput())
-    
-    images = forms.FileField(
-        required=False,
-        widget=MultipleClearableFileInput(attrs={'multiple': True, 'class': 'form-control'})
-    )
-    cover_index = forms.IntegerField(required=False, widget=forms.HiddenInput())
-    image_order = forms.CharField(required=False, widget=forms.HiddenInput())
 
     payment_ids = forms.ModelMultipleChoiceField(
         queryset=PaymentAccount.objects.none(),

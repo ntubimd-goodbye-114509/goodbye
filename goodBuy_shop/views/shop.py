@@ -34,6 +34,7 @@ def add_shop(request):
             messages.success(request, '商店新增成功')
             return redirect('shop_detail', shop_id=shop.id)
         else:
+            print('表單驗證失敗:', form.errors)
             messages.error(request, '表單資料有誤')
     return render(request, 'add_shop_form.html', {'form': form})
 # -------------------------
@@ -75,7 +76,7 @@ def edit_shop(request, shop):
         else:
             messages.error(request, '表單資料有誤')
 
-    return render(request, 'shop_form.html', locals())
+    return render(request, 'shop_detail.html', locals())
 
 # -------------------------
 # 刪除商店（軟刪除）
