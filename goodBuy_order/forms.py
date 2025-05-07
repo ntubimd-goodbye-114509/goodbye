@@ -105,3 +105,13 @@ class OrderPaymentForm(forms.ModelForm):
         if amount is not None and amount <= 0:
             raise forms.ValidationError('金額必須大於 0')
         return amount
+# -------------------------
+# 二次補款金額設定
+# -------------------------
+class SecondSupplementForm(forms.Form):
+    second_supplement = forms.IntegerField(
+        required=True,
+        min_value=0,
+        label='補款金額',
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': '請輸入金額（元）'})
+    )
