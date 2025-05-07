@@ -27,13 +27,16 @@ def view_single_payment(request, payment_id):
 
     return render(request, 'goodBuy_order/view_single_payment.html', locals())
 # -------------------------
-# 查看付款憑證 - 多筆
+# 查看付款憑證 - 多筆 - 可商店查詢
 # -------------------------
 @login_required
 def list_related_payments(request):
     user = request.user
     action = request.GET.get('action')
     buyer_or_seller = request.GET.get('buyer_or_seller')
+    shop_id = request.GET.get('shop_id')
+
+    # 初始化統計資料
     confirmed_total = waiting_total = None
 
     if buyer_or_seller == 'buyer':
@@ -45,6 +48,15 @@ def list_related_payments(request):
         payments = OrderPayment.objects.filter(
             order__shop__owner=user
         ).exclude(seller_state='none')
+
+        if shop_id:
+            try:
+                shop = Shop.objects.get(id=shop_id, owner=user)
+            except Shop.DoesNotExist:
+                messages.error(request, '你無權查看這家商店的付款紀錄')
+                return redirect('home')
+            payments = payments.filter(order__shop=shop)
+
         confirmed_total = payments.filter(seller_state='confirmed').aggregate(Sum('amount'))['amount__sum'] or 0
         waiting_total = payments.filter(seller_state='wait confirmed').aggregate(Sum('amount'))['amount__sum'] or 0
 
@@ -53,7 +65,7 @@ def list_related_payments(request):
         return redirect('home') 
 
     if action == 'wait_confirmed':
-        payments = payments.filter(seller_state='wait_confirmed')
+        payments = payments.filter(seller_state='wait confirmed')
     elif action == 'confirmed':
         payments = payments.filter(seller_state='confirmed')
     elif action == 'cancel':
@@ -61,11 +73,7 @@ def list_related_payments(request):
 
     payments = payments.distinct().order_by('-pay_time')
 
-    return render(request, 'goodBuy_order/payment_list_all.html', {
-        'payments': payments,
-        'confirmed_total': confirmed_total,
-        'waiting_total': waiting_total,
-    })
+    return render(request, 'goodBuy_order/payment_list_all.html', locals())
 # -------------------------
 # 賣家確認/拒絕付款憑證
 # -------------------------

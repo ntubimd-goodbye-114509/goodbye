@@ -105,3 +105,6 @@ class OrderPaymentForm(forms.ModelForm):
         if amount is not None and amount <= 0:
             raise forms.ValidationError('金額必須大於 0')
         return amount
+# -------------------------
+# 二次補款金額設定
+# -------------------------
