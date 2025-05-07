@@ -1,7 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
-from django.db.models import Sum
+from django.db.models import Sum, OuterRef, Subquery
 from django.shortcuts import redirect, render
 
 from ..forms import SecondSupplementForm
@@ -10,22 +10,25 @@ from utils import *
 # 查看付款憑證 - 單筆
 # -------------------------
 @login_required
-def view_single_payment(request, payment_id):
-    try:
-        payment = OrderPayment.objects.get(id=payment_id)
-    except OrderPayment.DoesNotExist:
-        messages.error(request, '付款憑證不存在')
+@order_exists_required
+def view_order_payment_history(request, order):
+
+    is_seller = (order.shop.owner == request.user)
+    is_buyer = (order.user == request.user)   
+    
+    if not (is_seller or is_buyer):
+        messages.error(request, '你沒有權限查看這筆訂單的付款紀錄')
         return redirect('home')
     
-    order = payment.order
-    is_seller = (order.shop.owner == request.user)
-    is_buyer = (order.user == request.user)
-
-    if not (is_seller or is_buyer):
-        messages.error(request, '你沒有權限查看此筆付款紀錄')
+    if order.payment_category == 'cash_on_delivery':
+        messages.error(request, '貨到付款訂單無法查看付款紀錄')
         return redirect('home')
+    
+    payments = order.payments.order_by('-pay_time')
 
-    return render(request, 'goodBuy_order/view_single_payment.html', locals())
+    latest_payment = payments.first() if payments.exists() else None
+
+    return render(request, 'goodBuy_order/view_order_payment_history.html', locals())
 # -------------------------
 # 查看付款憑證 - 多筆 - 可商店查詢
 # -------------------------
@@ -36,18 +39,17 @@ def list_related_payments(request):
     buyer_or_seller = request.GET.get('buyer_or_seller')
     shop_id = request.GET.get('shop_id')
 
-    # 初始化統計資料
     confirmed_total = waiting_total = None
 
     if buyer_or_seller == 'buyer':
         payments = OrderPayment.objects.filter(
             order__user=user
-        ).exclude(seller_state='none')
+        ).exclude(seller_state='none').order_by('-pay_time')
 
     elif buyer_or_seller == 'seller':
         payments = OrderPayment.objects.filter(
             order__shop__owner=user
-        ).exclude(seller_state='none')
+        ).exclude(seller_state='none').order_by('-pay_time')
 
         if shop_id:
             try:
@@ -59,7 +61,6 @@ def list_related_payments(request):
 
         confirmed_total = payments.filter(seller_state='confirmed').aggregate(Sum('amount'))['amount__sum'] or 0
         waiting_total = payments.filter(seller_state='wait confirmed').aggregate(Sum('amount'))['amount__sum'] or 0
-
     else:
         messages.error(request, '查詢權限錯誤')
         return redirect('home') 
@@ -71,7 +72,13 @@ def list_related_payments(request):
     elif action == 'cancel':
         payments = payments.filter(seller_state__in=['returned', 'overdue'])
 
-    payments = payments.distinct().order_by('-pay_time')
+    latest_payment_per_order = OrderPayment.objects.filter(
+        order=OuterRef('order')
+    ).order_by('-pay_time')
+
+    payments = payments.filter(
+        id=Subquery(latest_payment_per_order.values('id')[:1])
+    ).order_by('-pay_time')
 
     return render(request, 'goodBuy_order/payment_list_all.html', locals())
 # -------------------------
