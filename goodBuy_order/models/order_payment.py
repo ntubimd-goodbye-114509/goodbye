@@ -22,24 +22,25 @@ class OrderPayment(models.Model):
 
     is_paid_by_user = models.BooleanField(default=False)
 
-    seller_state = models.CharField(max_length=20, choices=SELLER_CHOICES, default='wait confirmed')
+    seller_state = models.CharField(max_length=20, choices=SELLER_CHOICES, default='wait_confirmed')
 
     deadline = models.DateTimeField(null=True, blank=True)
 
+    @property
+    def display_status(self):
+        if self.deadline and timezone.now() > self.deadline:
+            return '已逾期'
+        elif self.seller_state == 'returned':
+            return '已退回'
+        elif self.seller_state == 'confirmed':
+            return '已確認收款'
+        elif self.is_paid_by_user:
+            return '使用者已上傳憑證'
+        else:
+            return '待使用者付款'
+        
     def __str__(self):
         method = self.shop_payment.payment.name if self.shop_payment and self.shop_payment.payment else "未知方式"
         account = self.shop_payment.account if self.shop_payment else "無帳號"
 
-        # 狀態判斷
-        if self.deadline and timezone.now() > self.deadline:
-            status = '已逾期'
-        elif self.seller_state == 'returned':
-            status = '已退回'
-        elif self.seller_state == 'confirmed':
-            status = '已確認收款'
-        elif self.is_paid_by_user:
-            status = '使用者已上傳憑證'
-        else:
-            status = '待使用者付款'
-
-        return f'{method}（{account}）支付 {self.amount} 元｜{status}'
+        return f'{method}（{account}）支付 {self.amount} 元｜{self.display_status}'

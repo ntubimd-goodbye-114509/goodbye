@@ -65,6 +65,15 @@ want_exists_required = object_exists_required(
     context_name='want',
     not_found_msg='找不到這個收物帖'
 )
+# -------------------------
+# 付款記錄存在檢查
+# -------------------------
+payment_exists_required = object_exists_required(
+    model=OrderPayment,
+    arg_name='payment_id',
+    context_name='payment',
+    not_found_msg='找不到這個支付記錄'
+)
 
 # --- 擁有者驗證 ---
 # -------------------------
