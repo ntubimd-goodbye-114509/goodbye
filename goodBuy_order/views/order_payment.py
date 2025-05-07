@@ -2,9 +2,9 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.db.models import Sum
-
 from django.shortcuts import redirect, render
 
+from ..forms import SecondSupplementForm
 from utils import *
 # -------------------------
 # 查看付款憑證 - 單筆
@@ -138,3 +138,17 @@ def notify_buyer_to_pay(order, request=None):
 # -------------------------
 # 賣家設定二次補款
 # -------------------------
+@order_seller_required
+def set_second_supplement(request, order):
+    if request.method == 'POST':
+        form = SecondSupplementForm(request.POST)
+        if form.is_valid():
+            order.second_supplement = form.cleaned_data['second_supplement']
+            order.save()
+
+            messages.success(request, '補款金額已更新')
+            return redirect('seller_order_detail', order_id=order.id)
+    else:
+        form = SecondSupplementForm(initial={'second_supplement': order.second_supplement or 0})
+
+    return render(request, 'goodBuy_order/set_second_supplement.html', locals())
