@@ -71,16 +71,26 @@ def change_pass(request):
         new_password = request.POST.get('new_password')
         confirm_password = request.POST.get('confirm_password')
 
-        if not check_password(current_password, request.user.password):
+        # 驗證當前密碼是否正確
+        if not request.user.check_password(current_password):
             messages.error(request, '目前密碼不正確')
-        elif new_password != confirm_password:
+            return redirect('change_pass')  # 返回修改密碼頁面
+
+        # 驗證新密碼與確認密碼是否一致
+        if new_password != confirm_password:
             messages.error(request, '新密碼與確認密碼不一致')
-        else:
-            request.user.set_password(new_password)
-            request.user.save()
-            messages.success(request, '密碼修改成功')
-            return redirect('/login/')
+            return redirect('change_pass')  # 返回修改密碼頁面
+        
+        # 更新密碼
+        request.user.set_password(new_password)
+        request.user.save()
+        login(request, request.user)  
+
+        messages.success(request, '密碼修改成功')
+        return redirect('editprofile')  # 返回編輯個人資料頁面
+
     return render(request, 'common/change_pass.html')
+
     
 @login_required
 def editprofile(request):
@@ -93,7 +103,7 @@ def editprofile(request):
         if email and email != user.email:
             if User.objects.filter(email=email).exclude(id=user.id).exists():
                 messages.error(request, '此電子郵件已被使用')
-                return redirect('edit_profile')
+                return redirect('editprofile')
             user.email = email
 
         # 更新用戶名
@@ -101,7 +111,7 @@ def editprofile(request):
         if username and username != user.username:
             if User.objects.filter(username=username).exclude(id=user.id).exists():
                 messages.error(request, '此用戶名已被使用')
-                return redirect('edit_profile')
+                return redirect('editprofile')
             user.username = username
 
         # 更新密碼
@@ -110,8 +120,9 @@ def editprofile(request):
         if new_password and confirm_password:
             if new_password != confirm_password:
                 messages.error(request, '新密碼與確認密碼不一致')
-                return redirect('edit_profile')
+                return redirect('editprofile')
             user.set_password(new_password)
+            login(request, request.user)  
 
         # 更新暱稱
         nickname = request.POST.get('nickname')
