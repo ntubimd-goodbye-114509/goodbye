@@ -4,7 +4,7 @@ from goodBuy_web.models import UserAddress
 from goodBuy_order.models import OrderPayment
 
 from django import forms
-from goodBuy_order.models import Order
+from goodBuy_order.models import Order, Comment
 
 # -------------------------
 # 訂單新增 地址、付款方式選擇
@@ -115,3 +115,18 @@ class SecondSupplementForm(forms.Form):
         label='補款金額',
         widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': '請輸入金額（元）'})
     )
+# -------------------------
+# 評論表單
+# -------------------------
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ['rank', 'comment']
+        widgets = {
+            'rank': forms.NumberInput(attrs={'min': 1, 'max': 5, 'class': 'form-control'}),
+            'comment': forms.Textarea(attrs={'class': 'form-control', 'placeholder': '請留下您的評價'}),
+        }
+        labels = {
+            'rank': '評分（1~5）',
+            'comment': '評論內容'
+        }
