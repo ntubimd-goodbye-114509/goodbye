@@ -77,7 +77,7 @@ def order_detail(request, order):
 
     return render(request, 'order_detail.html', locals())
 # -------------------------
-# 待付款&付款記錄顯示 - 買家
+# 待付款&付款記錄顯示 - 僅買家
 # -------------------------
 @login_required(login_url='login')
 def my_payment_records(request):
