@@ -123,6 +123,7 @@ class CommentForm(forms.ModelForm):
         model = Comment
         fields = ['rank', 'comment']
         widgets = {
+            # 'rank': forms.HiddenInput(), 改點星星
             'rank': forms.NumberInput(attrs={'min': 1, 'max': 5, 'class': 'form-control'}),
             'comment': forms.Textarea(attrs={'class': 'form-control', 'placeholder': '請留下您的評價'}),
         }

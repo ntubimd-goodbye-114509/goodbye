@@ -11,7 +11,7 @@ from utils import *
 @login_required
 @order_buyer_required
 def create_comment(request, order):
-    if order.order_state_id != 6:  # 假設6是「訂單完成」
+    if order.order_state_id != 6:
         messages.warning(request, '此訂單尚未完成，無法評論')
         return redirect('view_order_detail', order_id=order.id)
 
