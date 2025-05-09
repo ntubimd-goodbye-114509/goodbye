@@ -198,3 +198,75 @@ a.Options {
 a.Options:hover {
     text-decoration: underline;
 }
+/* RWD */
+/* 平板裝置 (601px - 1024px) */
+@media (max-width: 1024px) and (min-width: 601px) {
+    .profile-edit-container {
+        max-width: 90%; /* 調整容器寬度 */
+        padding: 15px;
+    }
+
+    .form-top {
+        flex-direction: column; /* 垂直排列 */
+        align-items: center;
+    }
+
+    .profile-picture {
+        margin-right: 0; /* 移除右邊距 */
+        margin-bottom: 20px; /* 增加下方間距 */
+    }
+
+    .user-info input[type="text"] {
+        width: 100%; /* 滿版寬度 */
+    }
+
+    .form-bottom input[type="text"],
+    .form-bottom input[type="email"],
+    .form-bottom input[type="password"],
+    .form-bottom textarea {
+        width: 100%; /* 滿版寬度 */
+    }
+}
+
+/* 手機版 (max-width: 600px) */
+@media (max-width: 600px) {
+    .profile-edit-container {
+        max-width: 100%; /* 滿版寬度 */
+        padding: 10px;
+    }
+
+    .form-top {
+        flex-direction: column; /* 垂直排列 */
+        align-items: center;
+    }
+
+    .profile-picture {
+        margin-right: 0; /* 移除右邊距 */
+        margin-bottom: 15px; /* 增加下方間距 */
+    }
+
+    .user-info {
+        padding-top: 0; /* 移除上方間距 */
+        padding-left: 0; /* 移除左邊距 */
+    }
+
+    .user-info input[type="text"] {
+        width: 100%; /* 滿版寬度 */
+    }
+
+    .form-bottom input[type="text"],
+    .form-bottom input[type="email"],
+    .form-bottom input[type="password"],
+    .form-bottom textarea {
+        width: 100%; /* 滿版寬度 */
+    }
+
+    button {
+        font-size: 14px; /* 調整按鈕字體大小 */
+        padding: 8px 12px; /* 調整按鈕內距 */
+    }
+
+    a.Options {
+        font-size: 12px; /* 調整返回主頁連結字體大小 */
+    }
+}
