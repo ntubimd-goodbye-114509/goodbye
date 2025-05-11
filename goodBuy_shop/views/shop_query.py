@@ -16,8 +16,9 @@ from ..time_utils import *
 # 主頁商店推送（待加入演算法）
 # -------------------------
 def shopAll_update(request):
-    shops = Shop.objects.filter(permission__id=1).order_by('-date')
-    return render(request, 'home.html', locals())
+    shops = shopInformation_many(Shop.objects.filter(permission__id=1).order_by('-date'))
+    print(Shop.objects.filter(permission__id=1).count())
+    return render(request, 'home.html', {'shops': shops})
 # -------------------------
 # 商店查詢 - user-id
 # -------------------------

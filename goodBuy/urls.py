@@ -22,10 +22,10 @@ from goodBuy_shop.views.product import add_product as add_product_to_shop_view
 from goodBuy_order.views import *
 from goodBuy_tag.views import *
 from goodBuy_want.views import *
-from goodBuy_web.views.homePage import *
+from goodBuy_web.views import *
 from django.conf import settings
 from django.conf.urls.static import static
-from goodBuy_web.views.payment import payment_accounts
+from goodBuy_web.views import *
 
 urlpatterns = [
     #共同頁面
@@ -38,7 +38,7 @@ urlpatterns = [
 
     #商店
     path('add_shop/', add_shop, name='add_shop'),
-    path('shop/<int:shop_id>/', shop_owner_required(edit_shop), name='shop_detail'),
+    path('shop/<int:shop_id>/', shop_owner_required(edit_shop), name='shopById_one'),
     #(特定商店)
     path('shop/<int:shop_id>/add_product/', add_product_to_shop_view, name='add_shop_product'),
     
