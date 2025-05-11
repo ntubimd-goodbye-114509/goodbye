@@ -1,4 +1,4 @@
-// 頁面載入後調整 header 區塊間距
+// 根據 header 高度調整內容區距
 window.addEventListener("DOMContentLoaded", () => {
   const header = document.querySelector('.header');
   const content = document.querySelector('.main-content');
@@ -7,43 +7,37 @@ window.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-// ------------------------------
 // 標籤輸入與點擊選取邏輯
-// ------------------------------
 const tagInput = document.getElementById("tag-input");
 const tagHidden = document.querySelector("input[name='tag_names']");
 const tagList = document.getElementById("tag-list");
 let tagSet = new Set();
 
-if (tagInput && tagHidden && tagList) {
-  tagInput.addEventListener("keydown", function(e) {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      const val = this.value.trim();
-      if (val && !tagSet.has(val)) {
-        tagSet.add(val);
-        tagList.innerHTML += `<span class='badge bg-info text-dark me-1'>${val}</span>`;
-        tagHidden.value = [...tagSet].join(",");
-      }
-      this.value = "";
+tagInput.addEventListener("keydown", function(e) {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    const val = this.value.trim();
+    if (val && !tagSet.has(val)) {
+      tagSet.add(val);
+      tagList.innerHTML += `<span class='badge bg-info text-dark me-1'>${val}</span>`;
+      tagHidden.value = [...tagSet].join(",");
+    }
+    this.value = "";
+  }
+});
+
+document.querySelectorAll(".tag-option").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const val = btn.textContent.trim();
+    if (!tagSet.has(val)) {
+      tagSet.add(val);
+      tagList.innerHTML += `<span class='badge bg-info text-dark me-1'>${val}</span>`;
+      tagHidden.value = [...tagSet].join(",");
     }
   });
+});
 
-  document.querySelectorAll(".tag-option").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const val = btn.textContent.trim();
-      if (!tagSet.has(val)) {
-        tagSet.add(val);
-        tagList.innerHTML += `<span class='badge bg-info text-dark me-1'>${val}</span>`;
-        tagHidden.value = [...tagSet].join(",");
-      }
-    });
-  });
-}
-
-// ------------------------------
-// 新增商品區塊
-// ------------------------------
+// 動態新增商品欄位
 function addProduct() {
   const area = document.getElementById("product-area");
   if (!area) return;
@@ -52,17 +46,37 @@ function addProduct() {
   div.className = "card p-3 mb-3 position-relative";
   div.innerHTML = `
     <img src="/static/img/x.png" class="position-absolute end-0 top-0 m-2" role="button" style="width: 20px; height: 20px;" onclick="this.parentElement.remove()">
-    <div class="mb-2"><label class="form-label">名稱</label><input type="text" name="product_name[]" class="form-control" required></div>
-    <div class="mb-2"><label class="form-label">價格</label><input type="number" name="product_price[]" class="form-control" required></div>
-    <div class="mb-2"><label class="form-label">數量</label><input type="number" name="product_qty[]" class="form-control" required></div>
-    <div class="mb-2"><label class="form-label">商品圖片</label><input type="file" name="images" multiple"></div>
+
+    <div class="mb-2"><label class="form-label">商品名稱</label>
+      <input type="text" name="product_name[]" class="form-control" required>
+    </div>
+    <div class="mb-2"><label class="form-label">價格</label>
+      <input type="number" name="product_price[]" class="form-control" required>
+    </div>
+    <div class="mb-2"><label class="form-label">數量</label>
+      <input type="number" name="product_qty[]" class="form-control" required>
+    </div>
+    <div class="mb-2"><label class="form-label">商品圖片（可更換）</label>
+      <div class="image-preview mb-2"></div>
+      <input type="file" name="product_image" class="form-control product-img-input" accept="image/*">
+    </div>
   `;
   area.appendChild(div);
+
+  // 啟用剛剛新增的圖片預覽功能
+  const fileInput = div.querySelector('.product-img-input');
+  const previewDiv = div.querySelector('.image-preview');
+  fileInput.addEventListener('change', function () {
+    previewDiv.innerHTML = '';
+    if (this.files && this.files[0]) {
+      const url = URL.createObjectURL(this.files[0]);
+      previewDiv.innerHTML = `<img src="${url}" style="width:100px;height:100px;object-fit:cover;">`;
+    }
+  });
 }
 
-// ------------------------------
-// 現貨狀態才顯示開始時間欄位
-// ------------------------------
+
+// 切換「開始時間」顯示（僅限現貨）
 const shopStateField = document.querySelector('[name="shop_state"]');
 const startTimeGroup = document.getElementById("start-time-group");
 if (shopStateField && startTimeGroup) {
@@ -73,9 +87,7 @@ if (shopStateField && startTimeGroup) {
   toggleStartTime();
 }
 
-// ------------------------------
-// 封面圖片上傳與預覽邏輯
-// ------------------------------
+// 圖片預覽與封面選取
 const imageInput = document.querySelector('input[name="images"]');
 const coverIndexInput = document.querySelector('input[name="cover_index"]');
 const imageOrderInput = document.querySelector('input[name="image_order"]');
@@ -117,3 +129,4 @@ if (imageInput && coverIndexInput && imageOrderInput) {
     }
   });
 }
+

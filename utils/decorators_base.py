@@ -2,6 +2,7 @@
 from functools import wraps
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
+from goodBuy_shop.models import Shop
 # -------------------------
 # 物件存在檢查
 # -------------------------
@@ -114,6 +115,7 @@ def object_owner_required(
                 return redirect(redirect_to)
 
             kwargs[context_name or model.__name__.lower()] = obj
+            kwargs.pop(arg_name, None) #移除多餘的 shop_id 傳入
             return view_func(request, *args, **kwargs)
         return _wrapped_view
     return decorator
@@ -163,3 +165,18 @@ def check_order_seller(redirect_to='home'):
             return view_func(request, order, *args, **kwargs)
         return _wrapped_view
     return decorator
+
+# -------------------------
+# 限定商店擁有者才能看到（shop_id 會自動轉成 shop）
+# -------------------------
+shop_owner_required = object_owner_required(
+    model=Shop,
+    arg_name='shop_id',           # URL 中的參數名稱（例如 /shop/<shop_id>/）
+    owner_field='owner',          # Shop 模型中的擁有者欄位
+    context_name='shop',          # 傳入 view 的參數名稱
+    not_found_msg='找不到賣場',
+    owner_error_msg='您不是此賣場的擁有者',
+    redirect_to='home',
+    deleted_check='auto',         # 自動檢查 permission = 3 為已刪除
+    deleted_msg='此賣場已被刪除'
+)

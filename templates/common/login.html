@@ -13,17 +13,6 @@
         <div class="container mt-5">
             <h1 class="text-white text-center mb-4">Login</h1>
     
-            {% if msg %}
-                <h5 class="text-center text-danger">{{ msg }}</h5>
-            {% endif %}
-            {% if messages and not message_displayed %}
-                {% with message_displayed=True %}
-                    {% for message in messages %}
-                        <p class="text-danger text-center">{{ message }}</p>
-                    {% endfor %}
-                {% endwith %}
-            {% endif %}
-    
             <form action="/login/" method="post" class="mx-auto" style="max-width: 400px;">
                 {% csrf_token %}
                 
