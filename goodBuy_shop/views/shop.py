@@ -22,8 +22,13 @@ def add_shop(request):
             shop = form.save()
 
             # 封面圖片處理
+            print("上傳圖片檔案們：", request.FILES.getlist('images'))
             images = request.FILES.getlist('images')
-            cover_index = int(request.POST.get('cover_index', -1))
+            cover_index_str = request.POST.get('cover_index')
+            try:
+                cover_index = int(cover_index_str)
+            except (TypeError, ValueError):
+                cover_index = -1
             order_str = request.POST.get('image_order')
             if order_str:
                 order_list = list(map(int, order_str.split(',')))

@@ -25,7 +25,7 @@
               {% endif %}
 
               <!-- 圖片連結 -->
-              <a href="{% url 'shopById_one' shop.id %}" class="text-decoration-none text-dark">
+              <a href="{% url 'shop_detail' shop.id %}" class="text-decoration-none text-dark">
               {% if shop.images.all|length > 0 and shop.images.all.0.img %}
                 <img src="{{ shop.images.all.0.img.url }}" class="card-img-top">
               {% else %}

@@ -38,7 +38,7 @@ urlpatterns = [
 
     #商店
     path('add_shop/', add_shop, name='add_shop'),
-    path('shop/<int:shop_id>/', shop_owner_required(edit_shop), name='shopById_one'),
+    path('shop/<int:shop_id>/', shop_owner_required(edit_shop), name='shop_detail'),
     #(特定商店)
     path('shop/<int:shop_id>/add_product/', add_product_to_shop_view, name='add_shop_product'),
     
@@ -49,3 +49,6 @@ urlpatterns = [
     #付款方式
     path('payment/', payment_accounts, name='payment_accounts'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
