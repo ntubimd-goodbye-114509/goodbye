@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path
 from goodBuy_web.views.user_login_register import *  # Replace 'your_app' with the actual app name
 from goodBuy_shop.views import *
+from goodBuy_shop.views.product import add_product as add_product_to_shop_view
 from goodBuy_order.views import *
 from goodBuy_tag.views import *
 from goodBuy_want.views import *
@@ -35,9 +36,12 @@ urlpatterns = [
     path('logout/', logouts, name='logout'),    #登出
     path('editprofile/', editprofile, name='editprofile'), #編輯個人資料
 
-    #商品
+    #商店
     path('add_shop/', add_shop, name='add_shop'),
-
+    path('shop/<int:shop_id>/', shop_owner_required(edit_shop), name='shop_detail'),
+    #(特定商店)
+    path('shop/<int:shop_id>/add_product/', add_product_to_shop_view, name='add_shop_product'),
+    
     #訂單狀態更新
     path('order/<int:order_id>/buyer-action/', buyer_action, name='order_buyer_action'),
     path('order/<int:order_id>/seller-action/', seller_action, name='order_seller_action'),
