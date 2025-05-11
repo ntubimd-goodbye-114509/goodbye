@@ -22,10 +22,10 @@ from goodBuy_shop.views.product import add_product as add_product_to_shop_view
 from goodBuy_order.views import *
 from goodBuy_tag.views import *
 from goodBuy_want.views import *
-from goodBuy_web.views.homePage import *
+from goodBuy_web.views import *
 from django.conf import settings
 from django.conf.urls.static import static
-from goodBuy_web.views.payment import payment_accounts
+from goodBuy_web.views import *
 
 urlpatterns = [
     #共同頁面
@@ -49,3 +49,6 @@ urlpatterns = [
     #付款方式
     path('payment/', payment_accounts, name='payment_accounts'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

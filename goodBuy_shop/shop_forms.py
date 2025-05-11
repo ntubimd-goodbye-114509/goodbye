@@ -74,10 +74,8 @@ class ShopForm(forms.ModelForm):
     def save(self, commit=True):
         shop = super().save(commit=False)
 
-        if shop.start_time is None:
-            shop.start_time = timeFormatChange_now()
-        if shop.end_time is None:
-            shop.end_time = timeFormatChange_longtime()
+        shop.start_time = timeFormatChange_now(shop.start_time)
+        shop.end_time = timeFormatChange_longtime(shop.end_time)
 
         if self.user:
             shop.owner = self.user
