@@ -44,8 +44,8 @@ def view_cart(request):
             'shop': shop,
             'product': product,
             'cart': item,
-            'cover_img': product.images.filter(is_cover=True).first(),
-            'is_out_of_stock': is_out_of_stock
+            'is_out_of_stock': is_out_of_stock, #是否超出庫存
+            'is_shop_closed': shop.is_end,  #商店是否關閉
         })
 
     grouped_data = defaultdict(list)
@@ -76,6 +76,9 @@ def handle_cart_order_creation(request, form, cart_items):
             shop = Shop.objects.get(id=shop_id)
         except Shop.DoesNotExist:
             messages.error(request, f'商店 {shop_id} 不存在')
+            continue
+        if shop.is_end:
+            messages.error(request, f'{shop.name} 商店已截止，無法下單')
             continue
 
         # 該商店的購物車商品
@@ -180,23 +183,23 @@ def handle_cart_order_creation(request, form, cart_items):
 @login_required(login_url='login')
 @product_exists_and_not_own_shop_required
 def add_to_cart(request, product):
+    if product.shop.is_end:
+        messages.error(request, "該商店已截止")
+        return redirect('shop_by_id', shop_id=product.shop.id)
     try:
-        if product.shop.is_end:
-            raise ValueError("商店已結束，無法購買")
-        
         quantity = int(request.POST.get('quantity', 1))
         if quantity < 1:
-            raise ValueError("數量必須大於0")
-
-        cart = Cart(user=request.user)
-        cart.add_or_update_product(product, quantity)
-        messages.success(request, f'成功將 {product.name} 加入購物車')
-
+            messages.error(request, "數量必須大於0")
+            return redirect('shop_by_id', shop_id=product.shop.id)
     except ValueError as e:
         messages.error(request, str(e))
-        return redirect('product_detail', product_id=product.id)
+        return redirect('shop_by_id', shop_id=product.shop.id)
 
-    return redirect('view_cart')
+    cart = Cart(user=request.user)
+    cart.add_or_update_product(product, quantity)
+    messages.success(request, f'成功將 {product.name} 加入購物車')
+
+    return redirect('shop_by_id', shop_id=product.shop.id)
 # -------------------------
 # 移除購物車
 # -------------------------
@@ -220,6 +223,10 @@ def delete_multiple_cart_items(request):
 @login_required(login_url='login')
 @cart_exists_required
 def update_cart_quantity(request, cart_item):
+    if cart_item.product.shop.is_end:
+        messages.error(request, "該商店已截止，無法修改商品數量")
+        return redirect('購物車界面')
+    
     try:
         new_qty = int(request.POST.get('quantity', 1))
     except ValueError:
