@@ -181,6 +181,9 @@ def handle_cart_order_creation(request, form, cart_items):
 @product_exists_and_not_own_shop_required
 def add_to_cart(request, product):
     try:
+        if product.shop.is_end:
+            raise ValueError("商店已結束，無法購買")
+        
         quantity = int(request.POST.get('quantity', 1))
         if quantity < 1:
             raise ValueError("數量必須大於0")
