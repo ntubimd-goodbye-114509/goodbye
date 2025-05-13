@@ -1,5 +1,6 @@
 from django.db.models import *
 from goodBuy_shop.models import *
+from django.utils import timezone
 from django.db.models.functions import Coalesce
 # -------------------------
 # shop回傳fk串接
@@ -10,6 +11,11 @@ def shopInformation_many(shops):
             total_stock=Sum(Case(When(product__stock__gt=0, then='product__stock'),default=0,output_field=IntegerField())),
             price_min=Coalesce(Min('product__price'), 0),
             price_max=Coalesce(Max('product__price'), 0),
+            is_end=Case(
+                When(end_time__lt=timezone.now(), then=Value(True)),
+                default=Value(False),
+                output_field=BooleanField()
+            )
         )
         .select_related('permission', 'shop_state', 'purchase_priority')
         .prefetch_related(

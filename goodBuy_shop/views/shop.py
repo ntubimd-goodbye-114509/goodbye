@@ -68,8 +68,6 @@ def add_shop(request):
             print('表單驗證失敗:', form.errors)
             messages.error(request, '表單資料有誤')
     return render(request, 'add_shop.html', {'form': form})
-
-
 # -------------------------
 # 修改商店資訊（多個）
 # -------------------------
@@ -201,6 +199,12 @@ def edit_shop(request, shop):
 @login_required(login_url='login')
 @shop_owner_required
 def deleteShop(request, shop):
+    has_unfinished_orders = Order.objects.filter(shop=shop, order_state__in=[1,2,3,4,5]).exists()
+
+    if has_unfinished_orders:
+        messages.error(request, '賣場有未完成訂單，無法刪除。請先當前訂單。')
+        return redirect('shop_detail', shop_id=shop.id)
+
     shop.permission = Permission.objects.get(id=3)
     shop.save()
     messages.success(request, '賣場已刪除')
