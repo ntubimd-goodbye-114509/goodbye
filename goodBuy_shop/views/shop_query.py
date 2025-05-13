@@ -106,7 +106,6 @@ def shopBySearch(request):
     shops = shopInformation_many(shops)
 
     return render(request, '搜尋結果界面', locals())
-
 # -------------------------
 # 商店查詢 - tag
 # -------------------------

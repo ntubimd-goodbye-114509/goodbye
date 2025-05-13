@@ -1,9 +1,10 @@
 from django.db import models
+from django.db.models import Sum, Q
+from django.utils import timezone
 from goodBuy_web.models import User
 from .permission import Permission
 from .shop_state import ShopState
 from .purchase_priority import PurchasePriority
-
 # -------------------------
 # 商店
 # -------------------------
@@ -28,6 +29,23 @@ class Shop(models.Model):
     
     is_rush_settled = models.BooleanField(default=False)
     objects = ActiveShopManager()
+    
+    # 商店是否截止
+    @property
+    def is_end(self):
+        return timezone.now() > self.end_time
+    
+    # 商店總銷量，多帶則是已有多少人參與
+    @property
+    def sales_total(self):
+        from goodBuy_order.models import ProductOrder, PurchaseIntent
+        if self.purchase_priority.id == 1:
+            return ProductOrder.objects.filter(
+                order__shop=self,
+                order__order_state__id=5
+            ).aggregate(total=Sum('quantity'))['total'] or 0
+        else:
+            return PurchaseIntent.objects.filter(shop=self).values('user').distinct().count()
     
     def __str__(self):
         return self.name
