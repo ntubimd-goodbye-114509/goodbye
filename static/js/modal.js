@@ -1,3 +1,11 @@
+window.addEventListener("DOMContentLoaded", () => {
+  const header = document.querySelector('.header');
+  const content = document.querySelector('.main');
+  if (header && content) {
+    content.style.marginTop = header.offsetHeight + 'px';
+  }
+});
+
 // test 彈跳式頁面(第一次寫)
 document.addEventListener("DOMContentLoaded", function () {
     const openModalBtn = document.getElementById("open-modal");
