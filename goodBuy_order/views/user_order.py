@@ -19,7 +19,10 @@ from ..utils import *
 def purchase_single_product(request, product):
     shop = product.shop
     quantity = int(request.POST.get('quantity', 1))
-
+    
+    if shop.is_end:
+        messages.error(request, '商店已結束營業')
+        return redirect('商店界面', shop_id=shop.id)
     # --------------------------
     # 搶購處理：僅建立 Intent
     # --------------------------
