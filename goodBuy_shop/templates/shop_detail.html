@@ -25,12 +25,14 @@
                         </div>
                         {% endif %}
                     </div>
-
-                    <form method="post" action="{% url 'shop_delete' shop.id %}" onsubmit="return confirm('確定要刪除這個商店嗎？');">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-sm btn-outline-danger">刪除賣場</button>
-                    </form>
-
+<!-- 刪除賣場 -->
+                    {% if user == shop.owner %}
+                        <form method="post" action="{% url 'shop_delete' shop.id %}" onsubmit="return confirm('確定要刪除這個商店嗎？');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-danger">刪除賣場</button>
+                        </form>
+                    {% endif %}
+                    
                 </div>
                 <p>{{ shop.introduce|linebreaksbr }}</p>
                 <p><strong>開始時間：</strong>{{ shop.start_time|date:"Y/m/d" }} <strong>結束時間：</strong>{{ shop.end_time|date:"Y/m/d" }}</p>
@@ -42,7 +44,11 @@
                 {% for product in products %}
                 <div class="row align-items-center border-bottom py-2">
                     <div class="col-md-2">
-                        <img src="{{ product.img.url }}" alt="{{ product.name }}" class="img-fluid">
+                        {% if product.img %}
+                            <img src="{{ product.img.url }}" alt="{{ product.name }}" class="img-fluid">
+                        {% else %}
+                            <div class="text-muted">無圖片</div>
+                        {% endif %}
                     </div>
                     <div class="col-md-4">{{ product.name }}</div>
                     <div class="col-md-2 text-danger">{{ product.price }}$</div>
@@ -62,22 +68,12 @@
                 {% endfor %}
             </div>
 
-            {% if user != shop.owner %}
-            <div class="mt-4 text-end">
-                <form action="{% url 'order_from_shop' shop.id %}" method="post">
-                    {% csrf_token %}
-                    <button class="btn btn-danger">立即下單</button>
-                </form>
-            </div>
-            {% endif %}
-        </div>
-
         <div class="col-md-4">
             <div class="card p-3">
                 <h6>買家留言區</h6>
                 {% for comment in comments %}
                     <div class="border p-2 mb-2">
-                        <strong>{{ comment.user.username }}</strong>：{{ comment.comment }}
+                        <h2>{{ comment.user.username }}</h2>：{{ comment.comment }}
                         <br><small class="text-muted">{{ comment.update|date:"Y/m/d H:i" }}</small>
                     </div>
                 {% empty %}
