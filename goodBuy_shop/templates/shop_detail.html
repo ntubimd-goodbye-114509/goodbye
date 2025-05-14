@@ -5,10 +5,9 @@
     <meta charset="UTF-8">
     <title>{{ shop.name }} - 賣場詳情</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/shop_detail.css' %}">
+    <link rel="stylesheet" href="/static/css/shop_detail.css/">
 </head>
 <body>
-{% include 'common/header.html' %}
 
 <div class="container mt-4">
     <div class="row">
@@ -16,6 +15,7 @@
             <div class="card p-3">
                 <div class="d-flex align-items-center mb-3">
                     <img src="{{ shop_images.first.img.url }}" alt="主圖" class="img-thumbnail me-3" style="width: 100px; height: 100px;">
+
                     <div>
                         <h5>{{ shop.name }}</h5>
                         <small class="text-muted">{{ shop.update|date:"Y/m/d H:i" }}</small>
@@ -25,6 +25,12 @@
                         </div>
                         {% endif %}
                     </div>
+
+                    <form method="post" action="{% url 'shop_delete' shop.id %}" onsubmit="return confirm('確定要刪除這個商店嗎？');">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-outline-danger">刪除賣場</button>
+                    </form>
+
                 </div>
                 <p>{{ shop.introduce|linebreaksbr }}</p>
                 <p><strong>開始時間：</strong>{{ shop.start_time|date:"Y/m/d" }} <strong>結束時間：</strong>{{ shop.end_time|date:"Y/m/d" }}</p>

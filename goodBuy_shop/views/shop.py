@@ -139,13 +139,23 @@ def edit_shop(request, shop):
         else:
             messages.error(request, '表單資料有誤')
 
-    return render(request, 'shop_detail.html', {
+    return render(request, 'edit_shop.html', {
         'form': form,
         'shop': shop,
         'predefined_tags': Tag.objects.values_list('name', flat=True),
         'selected_tags': shop.shoptag_set.values_list('tag__name', flat=True),
         'products': shop.product_set.filter(is_delete=False),
         'shop_images': shop.images.all(),
+    })
+
+def shop_detail(request, shop_id):
+    shop = get_object_or_404(Shop, id=shop_id)
+    return render(request, 'shop_detail.html', {
+        'shop': shop,
+        'products': shop.product_set.filter(is_delete=False),
+        'shop_images': shop.images.all(),
+        'predefined_tags': Tag.objects.values_list('name', flat=True),
+        'selected_tags': shop.shoptag_set.values_list('tag__name', flat=True),
     })
 
 # @login_required(login_url='login')
@@ -208,7 +218,7 @@ def deleteShop(request, shop):
     shop.permission = Permission.objects.get(id=3)
     shop.save()
     messages.success(request, '賣場已刪除')
-    return redirect('刪除成功導向')
+    return redirect('home')
 # -------------------------
 # 商店刪除圖片
 # -------------------------

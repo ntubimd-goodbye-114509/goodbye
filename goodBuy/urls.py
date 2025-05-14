@@ -38,9 +38,12 @@ urlpatterns = [
 
     #商店
     path('add_shop/', add_shop, name='add_shop'),
-    path('shop/<int:shop_id>/', shop_owner_required(edit_shop), name='shop_detail'),
+
     #(特定商店)
-    path('shop/<int:shop_id>/add_product/', add_product_to_shop_view, name='add_shop_product'),
+    path('shop/<int:shop_id>/add_product/', add_product_to_shop_view, name='add_shop_product'), #新增商店產品
+    path('shop/<int:shop_id>/', shop_detail, name='shop_detail'), #商店細節
+    path('shop/<int:shop_id>/edit/', shop_owner_required(edit_shop), name='shop_edit'),  #商店編輯
+    path('shop/<int:shop_id>/delete/', deleteShop, name='shop_delete'), #商店刪除
     
     #訂單狀態更新
     path('order/<int:order_id>/buyer-action/', buyer_action, name='order_buyer_action'),
