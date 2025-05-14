@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>目前參加的多帶</h1>
+    <ul>
+        {% for shop in shops %}
+        <li>{{ shop.name }}（截止：{{ shop.end_time }}）</li>
+        {% empty %}
+        <li>目前沒有多帶中的商店</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

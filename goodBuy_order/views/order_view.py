@@ -50,7 +50,7 @@ def buyer_order_list(request):
     else:
         title = '全部'
 
-    return render(request, '訂單顯示', locals())
+    return render(request, 'order_list.html', locals())
 # -------------------------
 # 訂單顯示 - 單一
 # -------------------------
@@ -82,14 +82,14 @@ def order_detail(request, order):
 @login_required(login_url='login')
 def my_payment_records(request):
     payments = OrderPayment.objects.filter(order__user=request.user)\
-    .exclude(shop_payment__payment_id=1)\
+    .exclude(shop_payment__payment_account_id=1)\
     .select_related('order', 'shop_payment', 'order__shop')
 
     wait_confirmed = payments.filter(seller_state='wait confirmed')
     confirmed = payments.filter(seller_state='confirmed')
     returned = payments.filter(seller_state='returned')
 
-    return render(request, '付款界面',locals())
+    return render(request, 'payment_records.html',locals())
 # -------------------------
 # 多帶進行中 - 買家
 # -------------------------

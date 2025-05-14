@@ -48,6 +48,20 @@ urlpatterns = [
 
     #付款方式
     path('payment/', payment_accounts, name='payment_accounts'),
+
+    # 購物車
+    path('cart/', view_cart, name='cart'),  # 購物車主畫面
+    path('cart/add/<int:product_id>/', add_to_cart, name='add_to_cart'),  # 加入購物車
+    path('cart/delete/<int:cart_item_id>/', delete_cart_item, name='delete_cart_item'),  # 刪除單項
+    path('cart/delete_selected/', delete_multiple_cart_items, name='delete_multiple_cart_items'),  # 批次刪除
+    path('cart/update_quantity/<int:cart_item_id>/', update_cart_quantity, name='update_cart_quantity'),  # 修改數量
+    
+    # 訂單
+    path('orders/', buyer_order_list, name='buyer_order_list'),  # 所有訂單
+    path('orders/<int:order_id>/', order_detail, name='order_detail'),  # 單一訂單詳情
+    path('payments/', my_payment_records, name='my_payment_records'),  # 我的付款紀錄
+    path('my_rush_shops/', my_rush_shops, name='my_rush_shops'),  # 多帶搶購頁面
+    path('my_rush_status/<int:shop_id>/<int:intent_id>/', my_rush_status_in_intent, name='my_rush_status_in_intent'),  # 我的搶購結果
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
