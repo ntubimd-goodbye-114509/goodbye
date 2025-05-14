@@ -82,7 +82,7 @@ def order_detail(request, order):
 @login_required(login_url='login')
 def my_payment_records(request):
     payments = OrderPayment.objects.filter(order__user=request.user)\
-    .exclude(shop_payment__payment_id=1)\
+    .exclude(shop_payment__payment_account_id=1)\
     .select_related('order', 'shop_payment', 'order__shop')
 
     wait_confirmed = payments.filter(seller_state='wait confirmed')
