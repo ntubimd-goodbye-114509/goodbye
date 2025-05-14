@@ -50,7 +50,7 @@ def buyer_order_list(request):
     else:
         title = '全部'
 
-    return render(request, '訂單顯示', locals())
+    return render(request, 'order_list.html', locals())
 # -------------------------
 # 訂單顯示 - 單一
 # -------------------------
@@ -89,7 +89,7 @@ def my_payment_records(request):
     confirmed = payments.filter(seller_state='confirmed')
     returned = payments.filter(seller_state='returned')
 
-    return render(request, '付款界面',locals())
+    return render(request, 'payment_records.html',locals())
 # -------------------------
 # 多帶進行中 - 買家
 # -------------------------

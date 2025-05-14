@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>我的付款記錄</h1>
+
+    <h2>待確認</h2>
+    <ul>
+        {% for p in wait_confirmed %}
+        <li>{{ p.order.shop.name }} - {{ p.amount }} - {{ p.pay_time }}</li>
+        {% endfor %}
+    </ul>
+
+    <h2>已確認</h2>
+    <ul>
+        {% for p in confirmed %}
+        <li>{{ p.order.shop.name }} - {{ p.amount }} - {{ p.pay_time }}</li>
+        {% endfor %}
+    </ul>
+
+    <h2>已退回</h2>
+    <ul>
+        {% for p in returned %}
+        <li>{{ p.order.shop.name }} - {{ p.amount }} - {{ p.pay_time }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

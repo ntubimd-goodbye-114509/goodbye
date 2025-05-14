@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>訂單詳情 #{{ order.id }}</h1>
+    <p>狀態：{{ order.order_state.name }}</p>
+    <p>總金額：{{ order.total }}</p>
+    
+    <h2>商品清單</h2>
+    <ul>
+        {% for po in product_orders %}
+        <li>{{ po.product.name }} x {{ po.quantity }} - 小計 {{ po.subtotal }}</li>
+        {% endfor %}
+    </ul>
+    
+    {% if payments %}
+    <h2>付款紀錄</h2>
+    <ul>
+        {% for pay in payments %}
+        <li>{{ pay.pay_time }}：{{ pay.amount }} 元（{{ pay.seller_state }}）</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    
+    {% if deposit_amount %}
+    <p>訂金：{{ deposit_amount }}</p>
+    <p>尾款+補款：{{ tail_amount }}</p>
+    {% endif %}
+</body>
+</html>

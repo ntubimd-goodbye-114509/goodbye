@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+<h1>{{ title }}訂單</h1>
+
+<ul>
+    <h1>{{ title }}訂單</h1>
+    {% for order in orders %}
+    <li>
+        訂單編號：{{ order.id }}，商店：{{ order.shop.name }}，總金額：{{ order.total }}，狀態：{{ order.order_state.name }}
+        <a href="{% url 'order_detail' order.id %}">查看</a>
+    </li>
+    {% empty %}
+    <li>目前沒有訂單</li>
+    {% endfor %}
+</ul>
+
+</body>
+</html>

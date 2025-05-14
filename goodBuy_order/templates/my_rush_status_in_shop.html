@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>商店：{{ shop.name }}</h1>
+    <p>剩餘秒數：{{ remaining_seconds }}</p>
+    <h2>我的搶購清單</h2>
+    <ul>
+        {% for p in product_list %}
+        <li>{{ p.product.name }} x {{ p.quantity }} - {{ p.price }} 元 - 
+            {% if p.is_successful %}✅成功{% else %}❌失敗{% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+    <p>總數量：{{ total_quantity }}</p>
+    <p>總金額：{{ total_price }}</p>
+</body>
+</html>
