@@ -16,6 +16,8 @@ def timeFormatChange_now(t):
         return datetime.strptime(datetime.now().strftime(DATETIME_FORMAT), DATETIME_FORMAT)
     
 def timeFormatChange_longtime(t):
+    if isinstance(t, datetime): 
+        return t
     if t:
         return datetime.strptime(t, DATETIME_FORMAT)
     else:
