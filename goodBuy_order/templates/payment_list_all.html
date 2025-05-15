@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>付款紀錄總覽（{{ buyer_or_seller }}）</h1>
+
+    {% if buyer_or_seller == 'seller' %}
+    <p>待確認總金額：{{ waiting_total }} 元</p>
+    <p>已確認總金額：{{ confirmed_total }} 元</p>
+    {% endif %}
+
+    <ul>
+    {% for payment in payments %}
+        <li>
+            訂單：#{{ payment.order.id }}（商店：{{ payment.order.shop.name }}）<br>
+            金額：{{ payment.amount }} 元<br>
+            狀態：{{ payment.get_seller_state_display }}<br>
+            時間：{{ payment.pay_time }}<br>
+            <a href="{% url 'view_payment_proofs' payment.order.id %}">查看詳情</a>
+        </li>
+    {% empty %}
+        <li>無相關付款紀錄</li>
+    {% endfor %}
+    </ul>
+</body>
+</html>
