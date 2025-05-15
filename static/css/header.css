@@ -13,7 +13,7 @@
     top: 0;
     left: 0;
     width: 100%;
-    height: 200px;         /* ❗請設定 header 的高度，依你實際高度調整 */
+    height: 120px;         /* ❗請設定 header 的高度，依你實際高度調整 */
     z-index: 1000;
 }
 
@@ -24,6 +24,7 @@
     left: -550px; /* 初始位置在視窗外 */
     width: 400px; /* 側邊欄寬度 */
     height: 100%; /* 側邊欄全屏高度 */
+    overflow-y: auto;
     background-color: rgba(219, 232, 242, 0.8); /* 使用半透明背景 */
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1); /* 添加陰影 */
     transition: left 0.3s ease; /* 滑動動畫 */
@@ -34,7 +35,7 @@
 /* 側邊欄滑出樣式 */
 .menu.active {
     left: 0; /* 將側邊欄滑出 */
-    top:200px
+    top:120px
 }
 
 /* 側邊欄內部樣式 */
@@ -61,21 +62,21 @@
     background: none;
     border: none;
     cursor: pointer;
-    margin-top: 1%;
+    margin-top: 0%;
 }
 
 .menu-btn img {
-    width: 60px; /* 控制圖片大小 */
-    height: 60px;
+    width: 50px; /* 控制圖片大小 */
+    height: 50px;
 }
 
 .logo {
-    margin-bottom: 15px; /* 調整 logo 與搜尋欄的距離 */
-    margin-top: -30px;
+    margin-bottom: 40px; /* 調整 logo 與搜尋欄的距離 */
+    margin-top: -15px;
 }
 
 .logo img {
-    height: 150px; /* 控制 logo 高度 */
+    height: 110px; /* 控制 logo 高度 */
     object-fit: contain;
 }
 
@@ -84,13 +85,15 @@
     align-items: center;
     justify-content: center;
     width: 75%; /* 搜尋欄寬度 */
+    height: 75%;
     max-width: 75%;
-    margin-top: -50px;
+    margin-top: -70px;
     margin-bottom: 20px; /* 與下方元素間距 */
 }
 
 .search-bar input {
     width: 100%;
+    height: 75%;
     padding: 10px 16px;
     border: none;
     border-radius: 25px 0 0 25px;
@@ -100,12 +103,18 @@
 
 .search-bar button {
     padding: 10px 16px;
+    height: 75%;
     border: none;
     background-color: white;
     border-left: 1px solid #ccc;
     border-radius: 0 25px 25px 0;
     cursor: pointer;
     color: #270303;
+}
+
+.search-bar button i {
+  position: relative;
+  top: -4px; 
 }
 
 .msg-btn {
@@ -306,12 +315,12 @@
 
     .menu-btn img,
     .msg-btn img {
-        width: 40px;
-        height: 40px;
+        width: 20px;
+        height: 20px;
     }
 
     .logo img {
-        height: 100px;
+        height: 80px;
     }
 
     .search-bar {
