@@ -28,7 +28,7 @@ def view_order_payment_history(request, order):
 
     latest_payment = payments.first() if payments.exists() else None
 
-    return render(request, 'goodBuy_order/view_order_payment_history.html', locals())
+    return render(request, 'view_order_payment_history.html', locals())
 # -------------------------
 # 查看付款憑證 - 多筆 - 可商店查詢
 # -------------------------
@@ -80,7 +80,7 @@ def list_related_payments(request):
         id=Subquery(latest_payment_per_order.values('id')[:1])
     ).order_by('-pay_time')
 
-    return render(request, 'goodBuy_order/payment_list_all.html', locals())
+    return render(request, 'payment_list_all.html', locals())
 # -------------------------
 # 賣家確認/拒絕付款憑證
 # -------------------------
