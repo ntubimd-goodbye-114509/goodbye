@@ -65,6 +65,15 @@ urlpatterns = [
     path('payments/', my_payment_records, name='my_payment_records'),  # 我的付款紀錄
     path('my_rush_shops/', my_rush_shops, name='my_rush_shops'),  # 多帶搶購頁面
     path('my_rush_status/<int:shop_id>/<int:intent_id>/', my_rush_status_in_intent, name='my_rush_status_in_intent'),  # 我的搶購結果
+
+    # 收物帖
+    path('add_want/', add_want, name='add_want'),  # 新增收物帖
+    path('want/<int:want_id>/', want_exists_required(wantById_one), name='want_detail'),  # 收物帖詳情
+    path('want/<int:post_id>/edit/', edit_want, name='edit_want'),  # 編輯收物帖
+    path('want/<int:post_id>/delete/', delete_want, name='delete_want'),  # 刪除收物帖
+    path('want/<int:post_id>/delete_image/<int:image_id>/', delete_want_image, name='delete_want_image'),  # 刪除收物帖圖片
+
+    
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
