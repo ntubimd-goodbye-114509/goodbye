@@ -1,2 +1,2 @@
-from .tag import Tag
-from .tag_collect import TagCollect
+from .tag_collect import *
+from .tag import *
