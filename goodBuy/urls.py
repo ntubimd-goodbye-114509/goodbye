@@ -60,11 +60,16 @@ urlpatterns = [
     path('cart/update_quantity/<int:cart_item_id>/', update_cart_quantity, name='update_cart_quantity'),  # 修改數量
     
     # 訂單
-    path('orders/', buyer_order_list, name='buyer_order_list'),  # 所有訂單
+    path('orders/', buyer_order_list, name='buyer_order_list'),  # 所有訂單（可透過state和shop傳入參數做篩選）
     path('orders/<int:order_id>/', order_detail, name='order_detail'),  # 單一訂單詳情
     path('payments/', my_payment_records, name='my_payment_records'),  # 我的付款紀錄
-    path('my_rush_shops/', my_rush_shops, name='my_rush_shops'),  # 多帶搶購頁面
-    path('my_rush_status/<int:shop_id>/<int:intent_id>/', my_rush_status_in_intent, name='my_rush_status_in_intent'),  # 我的搶購結果
+    path('my_rush_shops/', my_rush_shops, name='my_rush_shops'),  # 多帶頁面（多個）
+    path('my_rush_status/<int:shop_id>/<int:intent_id>/', my_rush_status_in_intent, name='my_rush_status_in_intent'),  # 多帶頁面（單個）
+    path('payments/order/<int:order_id>/', view_order_payment_history, name='view_payment_proofs'), # 單筆訂單的付款紀錄
+    path('payments/list/', list_related_payments, name='list_related_payments'), # 所有付款紀錄列表（根據買賣家過濾）
+    path('payments/audit/<int:payment_id>/', audit_payment, name='audit_payment'), # 賣家確認/退回某一筆付款
+    path('payments/second_supplement/<int:order_id>/', set_second_supplement, name='set_second_supplement'),# 賣家設定補款金額
+
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
