@@ -9,7 +9,6 @@
 <h1>{{ title }}訂單</h1>
 
 <ul>
-    <h1>{{ title }}訂單</h1>
     {% for order in orders %}
     <li>
         訂單編號：{{ order.id }}，商店：{{ order.shop.name }}，總金額：{{ order.total }}，狀態：{{ order.order_state.name }}

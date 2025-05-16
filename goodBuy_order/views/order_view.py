@@ -14,7 +14,7 @@ from utils import *
 # 訂單顯示 - 全部 - 分類+all
 # -------------------------
 @login_required(login_url='login')
-def buyer_order_list(request):
+def order_list(request):
     state = request.GET.get('state')
     shop = request.GET.get('shop')
 

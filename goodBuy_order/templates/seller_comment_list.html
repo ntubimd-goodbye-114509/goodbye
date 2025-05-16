@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div class="container mt-4">
+        <h4>{{ user.username }} 的評論紀錄</h4>
+        <p>平均評價：{{ average_rank|floatformat:1 }} / 5</p>
+    
+        <div class="mb-3">
+            <label>篩選評分：</label>
+            {% for i in "12345" %}
+                <a href="?rank={{ i }}" class="btn btn-outline-primary btn-sm {% if request.GET.rank == i %}active{% endif %}">{{ i }} 星</a>
+            {% endfor %}
+            <a href="{% url 'view_seller_comments' user.id %}" class="btn btn-outline-secondary btn-sm">清除篩選</a>
+        </div>
+    
+        <div class="mb-3">
+            <label>排序：</label>
+            <a href="?{% if request.GET.rank %}rank={{ request.GET.rank }}&{% endif %}order=newest" class="btn btn-sm {% if request.GET.order != 'oldest' %}btn-primary{% else %}btn-outline-primary{% endif %}">最新</a>
+            <a href="?{% if request.GET.rank %}rank={{ request.GET.rank }}&{% endif %}order=oldest" class="btn btn-sm {% if request.GET.order == 'oldest' %}btn-primary{% else %}btn-outline-primary{% endif %}">最舊</a>
+        </div>
+    
+        {% for comment in comments %}
+            <div class="card mb-3">
+                <div class="card-header">
+                    {{ comment.user.username }} 給了 {{ comment.rank }} 星
+                </div>
+                <div class="card-body">
+                    <p>{{ comment.comment }}</p>
+                    <p class="text-muted">更新時間：{{ comment.update }}</p>
+                </div>
+            </div>
+        {% empty %}
+            <p>目前尚無評論。</p>
+        {% endfor %}
+    </div>
+</body>
+</html>
