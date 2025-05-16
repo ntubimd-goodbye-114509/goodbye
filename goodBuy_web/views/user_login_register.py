@@ -93,7 +93,7 @@ def change_pass(request):
 
     
 @login_required
-def editprofile(request):
+def editProfile(request):
     if request.method == 'POST':
         user = request.user
         profile, created = Profile.objects.get_or_create(user=user) 

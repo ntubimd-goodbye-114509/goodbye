@@ -72,6 +72,7 @@ def add_shop(request):
 # 修改商店資訊（多個）
 # -------------------------
 @login_required(login_url='login')
+@shop_owner_required
 def edit_shop(request, shop):
     form = ShopForm(request.POST or None, request.FILES or None, instance=shop, user=request.user)
 
@@ -147,7 +148,7 @@ def edit_shop(request, shop):
         'products': shop.product_set.filter(is_delete=False),
         'shop_images': shop.images.all(),
     })
-
+@shop_owner_required
 def shop_detail(request, shop_id):
     shop = get_object_or_404(Shop, id=shop_id)
     return render(request, 'shop_detail.html', {

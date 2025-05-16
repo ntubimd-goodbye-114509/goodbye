@@ -158,6 +158,13 @@ def product_exists_and_not_blacklisted():
         blacklist_check(lambda product: product.shop.owner, msg='你已被此賣家封鎖，無法查看')(\
             product_exists_required(view_func))
 # -------------------------
+# 收物帖存在 & 非黑名單檢查
+# -------------------------
+def want_exists_and_not_blacklisted():
+    return lambda view_func: \
+        blacklist_check(lambda want: want.user, msg='你已被此賣家封鎖，無法查看')(\
+            want_exists_required(view_func))
+# -------------------------
 # 使用者存在 & 非黑名單檢查
 # -------------------------
 def user_exists_and_not_blacklisted():

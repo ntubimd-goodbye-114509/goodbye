@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>訂單 #{{ order.id }} 的付款紀錄</h1>
+
+    {% if not payments %}
+    <p>目前無付款紀錄</p>
+    {% else %}
+    <ul>
+        {% for payment in payments %}
+        <li>
+            時間：{{ payment.pay_time }}<br>
+            金額：{{ payment.amount }} 元<br>
+            狀態：{{ payment.get_seller_state_display }}<br>
+            備註：{{ payment.remark }}
+            {% if is_seller and payment.seller_state == 'wait confirmed' %}
+            <form method="POST" action="{% url 'audit_payment' payment.id %}">
+                {% csrf_token %}
+                <input type="text" name="remark" placeholder="備註">
+                <button type="submit" name="action" value="confirm">確認收款</button>
+                <button type="submit" name="action" value="reject">退回</button>
+            </form>
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    <a href="{% url 'buyer_order_list' %}">返回訂單列表</a>
+
+</body>
+</html>
