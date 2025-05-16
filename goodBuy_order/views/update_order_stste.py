@@ -6,7 +6,7 @@ from goodBuy_shop.models import ShopPayment
 from django.shortcuts import redirect, render
 
 from ..forms import OrderPaymentForm
-from .order_payment import *
+from .payment import *
 from .user_order import *
 from utils import order_buyer_required, order_seller_required
 # -------------------------
@@ -52,7 +52,7 @@ def buyer_action(request, order):
         return redirect(request.META.get('HTTP_REFERER') or 'home')
 
     order.save()
-    return redirect('buyer_order_list')
+    return redirect('order_list')
 # -------------------------
 # 賣家訂單狀態修改
 # -------------------------

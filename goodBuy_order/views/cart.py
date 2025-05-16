@@ -6,6 +6,7 @@ from django.db import transaction
 from django.db.models import F, Sum,Prefetch
 from collections import defaultdict
 from django.utils import timezone
+from django.urls import reverse
 
 from goodBuy_shop.models import *
 from goodBuy_web.models import *
@@ -93,10 +94,6 @@ def handle_cart_order_creation(request, form, cart_items):
             messages.error(request, f'{shop.name} 表單無效')
             continue
 
-        if not shop_form.is_valid():
-            messages.error(request, f'{shop.name} 表單無效')
-            continue
-
         address = shop_form.cleaned_data['address']
         payment_method_choice = shop_form.cleaned_data['payment_method']
         payment_mode = shop_form.cleaned_data.get('payment_mode')
@@ -174,9 +171,11 @@ def handle_cart_order_creation(request, form, cart_items):
 
                 Cart.objects.filter(id__in=[c.id for c in shop_cart_items]).delete()
                 messages.success(request, f'{shop.name} 訂單建立成功')
+                return redirect(f"{reverse('order_list')}?state=2")
 
         except Exception as e:
             messages.error(request, f'{shop.name} 下單失敗：{str(e)}')
+            return redirect('cart')
 # -------------------------
 # 加入購物車
 # -------------------------
@@ -208,7 +207,7 @@ def add_to_cart(request, product):
 def delete_cart_item(request, cart_item):
     cart_item.delete()
     messages.success(request, f'{cart_item.product.name} 已從購物車移除')
-    return redirect('購物車界面')
+    return redirect('cart')
 
 @login_required(login_url='login')
 def delete_multiple_cart_items(request):
@@ -216,7 +215,7 @@ def delete_multiple_cart_items(request):
         cart_ids = request.POST.getlist('cart_ids')  # 前端傳來勾選的 cart_id list
         Cart.objects.filter(id__in=cart_ids, user=request.user).delete()
         messages.success(request, '已成功移除選取的商品')
-    return redirect('購物車界面')
+    return redirect('cart')
 # -------------------------
 # 修改數量
 # -------------------------
@@ -225,17 +224,17 @@ def delete_multiple_cart_items(request):
 def update_cart_quantity(request, cart_item):
     if cart_item.product.shop.is_end:
         messages.error(request, "該商店已截止，無法修改商品數量")
-        return redirect('購物車界面')
+        return redirect('cart')
     
     try:
         new_qty = int(request.POST.get('quantity', 1))
     except ValueError:
         messages.error(request, "輸入的數量無效")
-        return redirect('購物車界面')
+        return redirect('cart')
 
     if new_qty <= 0:
         messages.error(request, "數量必須大於 0")
-        return redirect('購物車界面')
+        return redirect('cart')
 
     other_cart_qty = (
         Cart.objects.filter(product=cart_item.product)
@@ -253,4 +252,4 @@ def update_cart_quantity(request, cart_item):
     cart_item.update = timezone.now()
     cart_item.save()
     messages.success(request, f'{cart_item.product.name} 數量已更新為 {cart_item.amount}')
-    return redirect('購物車界面')
+    return redirect('cart')

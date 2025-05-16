@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div class="container mt-4">
+        <h4>付款紀錄時間軸</h4>
+    
+        {% if grouped %}
+            {% for month, payments in grouped.items %}
+                <h5 class="mt-4">{{ month }}</h5>
+                <ul class="list-group">
+                    {% for payment in payments %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ payment.direction_type }}</strong>
+                                - NT${{ payment.amount }}
+                                <br>
+                                訂單：#{{ payment.order.id }}
+                                <br>
+                                時間：{{ payment.pay_time|localtime|date:"Y-m-d H:i" }}
+                                {% if payment.remark %}
+                                    <br><small class="text-muted">備註：{{ payment.remark }}</small>
+                                {% endif %}
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endfor %}
+        {% else %}
+            <p>目前尚無付款紀錄。</p>
+        {% endif %}
+    </div>
+</body>
+</html>
