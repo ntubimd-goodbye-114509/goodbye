@@ -1,0 +1,142 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ want.title }} - 收物帖詳情</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/goodBuy_want/static/css/want_detail.css/">
+</head>
+<body>
+    <div class="container mt-4">
+        <div class="row">
+            <!-- 收物帖詳情 -->
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center bg-light">
+                        <h5 class="mb-0">收物帖詳情</h5>
+                        {% if request.user == want.user %}
+                        <div>
+                            <a href="{% url 'edit_want' post_id=want.id %}" class="btn btn-sm btn-outline-secondary">編輯</a>
+                            <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                刪除
+                            </button>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        <!-- 收物帖標題 -->
+                        <h4>{{ want.title }}</h4>
+                        
+                        <div class="d-flex justify-content-between">
+                            <p class="text-muted mb-2">
+                                <small>發布者: {{ want.user.username }} | 更新於: {{ want.update|date:"Y/m/d H:i" }}</small>
+                            </p>
+                        </div>
+                        
+                        <!-- 標籤 -->
+                        <div class="mb-3">
+                            {% for tag_rel in want.want_tag_set.all %}
+                                <span class="tag-badge"># {{ tag_rel.tag.name }}</span>
+                            {% endfor %}
+                        </div>
+                        
+                        <!-- 圖片區域 -->
+                        <div class="mb-3">
+                            {% for img in want.images.all %}
+                                {% if img.is_cover %}
+                                    <img src="{{ img.img.url }}" alt="{{ want.title }}" class="cover-image img-fluid mb-3" id="main-image">
+                                {% endif %}
+                            {% endfor %}
+                            
+                            <div class="image-gallery">
+                                {% for img in want.images.all|dictsort:"position" %}
+                                    <div class="gallery-item {% if img.is_cover %}active{% endif %}" data-src="{{ img.img.url }}">
+                                        <img src="{{ img.img.url }}" alt="Gallery Image">
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <!-- 收物帖內容 -->
+                        <div class="mb-4">
+                            <h5>詳細描述</h5>
+                            <div class="p-3 bg-light rounded">
+                                {{ want.post_text|linebreaksbr }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 右側資訊 -->
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">發布者資訊</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <img src="{% if want.user.avatar %}{{ want.user.avatar.url }}{% else %}{% static 'img/default_avatar.png' %}{% endif %}" alt="{{ want.user.username }}" class="rounded-circle me-3" style="width: 50px; height: 50px; object-fit: cover;">
+                            <div>
+                                <strong>{{ want.user.username }}</strong>
+                                <p class="text-muted mb-0 small">註冊時間：{{ want.user.date_joined|date:"Y/m/d" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                {% if backs %}
+                <div class="card">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">回應清單</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group">
+                        {% for back in backs %}
+                            <li class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>{{ back.user.username }}</strong> 以 <strong>{{ back.shop.name }}</strong> 回應
+                                    </div>
+                                    <small class="text-muted">{{ back.date|date:"Y/m/d H:i" }}</small>
+                                </div>
+                                <a href="{% url 'shop_detail' shop_id=back.shop.id %}" class="btn btn-sm btn-outline-primary mt-2">查看商店</a>
+                            </li>
+                        {% empty %}
+                            <li class="list-group-item">目前沒有回應</li>
+                        {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    {% if request.user == want.user %}
+    <!-- 刪除確認彈窗 -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">確定要刪除這則收物帖嗎？</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    此操作無法復原。
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <a href="{% url 'delete_want' post_id=want.id %}" class="btn btn-danger">確認刪除</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/goodBuy_want/static/js/want_detail.js"></script>
+</body>
+</html>

@@ -8,7 +8,7 @@ from ..models import *
 from goodBuy_web.models import *
 from ..utils import *
 from utils import *
-from want_query import *
+from goodBuy_want.views.want_query import *
 from goodBuy_shop.views.shop_query import shopInformation_many
 # -------------------------
 # 收物帖足跡
@@ -33,7 +33,7 @@ def choose_shop_to_reply(request, want):
 # 收物帖回復
 # -------------------------
 @login_required(login_url='login')
-@want_and_shop_exists_required
+@want_and_shop_exists_required()
 def reply_want(request, want, shop):
     exists = WantBack.objects.filter(user=request.user, want=want, shop=shop).exists()
     if exists:
