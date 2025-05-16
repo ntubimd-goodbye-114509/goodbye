@@ -21,10 +21,11 @@ class WantForm(forms.ModelForm):
 
     class Meta:
         model = Want
-        fields = ['title', 'post_text']
+        fields = ['title', 'post_text','permission']
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '輸入收物帖標題'}),
             'post_text': forms.Textarea(attrs={'class': 'form-control', 'placeholder': '輸入收物帖內容'}),
+            'permission': forms.Select(attrs={'class': 'form-control'}),
         }
 
     def __init__(self, *args, **kwargs):

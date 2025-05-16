@@ -45,7 +45,15 @@ def edit_want(request, want):
             images = request.FILES.getlist('images')
             cover_index = int(request.POST.get('cover_index', -1))
             order_str = request.POST.get('image_order')
+            cover_image_id = request.POST.get('cover_image_id')
+              # 處理既有圖片設為封面
+            if cover_image_id:
+                try:
+                    _set_want_cover(want, cover_image_id)
+                except Exception:
+                    pass
 
+            # 處理新上傳的圖片
             if order_str:
                 order_list = list(map(int, order_str.split(',')))
                 sorted_images = [images[i] for i in order_list]
@@ -53,7 +61,9 @@ def edit_want(request, want):
                 sorted_images = images
 
             for idx, img in enumerate(sorted_images):
-                WantImg.objects.create(want=want, img=img, is_cover=(idx == cover_index), position=idx)
+                # 只有當沒有設定既有圖片為封面時，才讓新上傳的圖片可能成為封面
+                is_cover = not cover_image_id and (idx == cover_index)
+                WantImg.objects.create(want=want, img=img, is_cover=is_cover, position=idx)
 
             messages.success(request, '收物帖修改成功')
             return redirect('want_detail', want_id=want.id)
@@ -69,7 +79,7 @@ def delete_want(request, want):
     want.permission = Permission.objects.get(id=3)
     want.save()
     messages.success(request, '收物帖已刪除')
-    return render(request, '收物帖界面', locals())
+    return redirect('home')
 # -------------------------
 # 收物帖圖片刪除
 # -------------------------
@@ -79,14 +89,11 @@ def delete_want_image(request, want, image_id):
     image = get_object_or_404(WantImg, id=image_id, want=want)
     image.delete()
     messages.success(request, '圖片已刪除')
-    return redirect('want_edit', want_id=want.id)
+    return redirect('edit_want', post_id=want.id)
 # -------------------------
-# 收物帖圖片設定封面
+# 收物帖圖片設定封面 (內部幫助函數，不再暴露為URL路由)
 # -------------------------
-@login_required(login_url='login')
-@want_owner_required
-def set_cover_image(request, want, image_id):
+def _set_want_cover(want, image_id):
+    """內部函數：設置收物帖封面圖片"""
     WantImg.objects.filter(want=want).update(is_cover=False)
     WantImg.objects.filter(id=image_id, want=want).update(is_cover=True)
-    messages.success(request, '封面已更新')
-    return redirect('want_edit', want_id=want.id)
