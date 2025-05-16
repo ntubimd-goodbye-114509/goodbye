@@ -31,7 +31,7 @@ def create_comment(request, order):
     else:
         form = CommentForm()
 
-    return render(request, 'comment/create_comment.html', locals())
+    return render(request, 'create_comment.html', locals())
 # -------------------------
 # 顯示賣家評論和平均評價
 # -------------------------
@@ -57,4 +57,4 @@ def view_seller_comments(request, user):
 
     average_rank = comments.aggregate(avg_rank=Avg('rank'))['avg_rank'] or 0
 
-    return render(request, 'comment/seller_comment_list.html', locals())
+    return render(request, 'seller_comment_list.html', locals())
