@@ -5,3 +5,4 @@ from .user_order import *
 from .order_view import *
 from .order_payment import *
 from .bookkeeping import *
+from .comment import *
