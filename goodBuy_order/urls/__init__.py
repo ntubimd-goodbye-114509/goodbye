@@ -4,6 +4,6 @@ from .payment import urlpatterns as payment_urlpatterns
 from .cart import urlpatterns as cart_urlpatterns
 from .comment import urlpatterns as comment_urlpatterns
 
-urlpatterns = order_urlpatterns + action_urlpatterns \
-            + payment_urlpatterns + cart_urlpatterns \
-            + comment_urlpatterns
+urlpatterns = order_urlpatterns + action_urlpatterns + \
+            payment_urlpatterns + cart_urlpatterns + \
+            comment_urlpatterns
