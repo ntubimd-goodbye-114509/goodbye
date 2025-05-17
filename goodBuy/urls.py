@@ -14,7 +14,7 @@ urlpatterns = [
     path('shop/user/', include('goodBuy_shop.urls.user')),
 
     path('want/', include('goodBuy_want.urls.want')),
-    path('want/user/', include('goodBuy_want.urls.user')),
+    # path('want/user/', include('goodBuy_want.urls.user')),
     # path('want/action/', include('goodBuy_want.urls.want_action')),
 
     path('tag/', include('goodBuy_tag.urls.tag')),
