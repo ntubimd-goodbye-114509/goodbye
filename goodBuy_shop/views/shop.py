@@ -149,8 +149,7 @@ def edit_shop(request, shop):
         'shop_images': shop.images.all(),
     })
 @shop_owner_required
-def shop_detail(request, shop_id):
-    shop = get_object_or_404(Shop, id=shop_id)
+def shop_detail(request, shop):
     return render(request, 'shop_detail.html', {
         'shop': shop,
         'products': shop.product_set.filter(is_delete=False),
