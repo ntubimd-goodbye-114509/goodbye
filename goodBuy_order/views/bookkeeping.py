@@ -32,4 +32,4 @@ def payment_timeline(request):
 
     grouped = dict(sorted(grouped.items(), reverse=True))
 
-    return render(request, 'orders/payment_timeline.html', {'grouped': grouped})
+    return render(request, 'payment_timeline.html', {'grouped': grouped})

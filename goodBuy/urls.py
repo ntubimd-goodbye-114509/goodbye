@@ -22,7 +22,8 @@ urlpatterns = [
     path('order/action/', include('goodBuy_order.urls.order_action')),
     path('order/payment/', include('goodBuy_order.urls')),
     path('cart/', include('goodBuy_order.urls.cart')),
-   
+    path('comment/', include('goodBuy_order.urls.comment')),
+
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
