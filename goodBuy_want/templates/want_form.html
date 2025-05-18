@@ -10,7 +10,8 @@
 
     {% include 'common/header.html' %}
 </head>
-<body>    <div class="container main-content">
+<body>    
+    <div class="container main-content">
         <div class="row justify-content-center">
             <div class="col-md-10">
                 <div class="card">
@@ -20,23 +21,6 @@
                     <div class="card-body">                        <!-- 收物帖表單 -->
                         <form method="post" enctype="multipart/form-data">
                             {% csrf_token %}
-
-                            {% if form.errors %}
-                            <div class="alert alert-danger">
-                                <strong>錯誤：</strong>
-                                <ul>
-                                {% for field in form %}
-                                    {% for error in field.errors %}
-                                    <li>{{ field.label }}：{{ error }}</li>
-                                    {% endfor %}
-                                {% endfor %}
-                                {% for error in form.non_field_errors %}
-                                    <li>{{ error }}</li>
-                                {% endfor %}
-                                </ul>
-                            </div>
-                            {% endif %}
-
 
                             <!-- 標題 -->
                             <div class="mb-3">
@@ -83,20 +67,14 @@
                                 </div>{{ form.tag_names }}
                             </div>
                             
-                            <!-- 隱藏欄位 -->
-                            <input type="hidden" name="cover_index" id="id_cover_index" value="0">
-                            <input type="hidden" name="image_order" id="id_image_order" value="">
-                            <input type="hidden" name="cover_image_id" id="id_cover_image_id" value="">
-                            
                             <!-- 圖片上傳 -->
-                            <div class="mb-3">
-                                <label class="form-label">上傳圖片：</label>
-                                <div class="d-flex align-items-center">
-                                    <input type="file" class="form-control" id="id_images" name="images" multiple accept="image/*">
-                                    <button type="button" class="btn btn-outline-primary ms-2" id="add-image">
-                                        選擇圖片
-                                    </button>
+                                <div class="mb-3">
+                                    <label class="form-label">上傳圖片：</label>
+                                    <input type="file" name="images" id="id_images" multiple class="form-control">
                                     <span id="file-count" class="text-muted ms-2">未選擇檔案</span>
+                                    {{ form.cover_index }}
+                                    {{ form.image_order }}
+                                    <input type="hidden" name="cover_image_id" id="id_cover_image_id">
                                 </div>
                                 
                                 <!-- 圖片預覽 -->                                
@@ -108,8 +86,7 @@
                                             </div>
                                         {% endfor %}
                                     {% endif %}
-                                </div>
-                            </div>     
+                                </div>  
 
                             <!-- 回上一步 -->
                             <div class="d-flex justify-content-between">
