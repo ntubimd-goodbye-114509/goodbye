@@ -1,4 +1,73 @@
+/* shop_detail.css */
+
+/* 全局样式 */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+    color: #333;
+}
+
+/* 容器样式 */
+.container {
+    margin-top: 20px;
+}
+
+/* 卡片样式 */
+.card {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+/* 图片样式 */
 .img-thumbnail {
-    width: 100px;
-    height: 100px;
+    border: none;
+    border-radius: 5px;
+}
+
+/* 标题样式 */
+h5 {
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+/* 按钮样式 */
+.btn-outline-secondary {
+    margin-right: 10px;
+}
+
+.btn-outline-danger {
+    margin-top: 10px;
+}
+
+/* 表单样式 */
+.input-group {
+    max-width: 150px;
+}
+
+/* 商品列表样式 */
+.row {
+    margin-bottom: 10px;
+}
+
+.border-bottom {
+    border-bottom: 1px solid #ddd;
+}
+
+.text-danger {
+    color: #dc3545 !important;
+}
+
+/* 留言样式 */
+.border {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+.text-muted {
+    color: #6c757d !important;
 }

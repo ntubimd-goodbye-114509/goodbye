@@ -1,8 +1,127 @@
-.body {
-    margin: 0;
-    font-family: 'Noto Sans TC', sans-serif;
+body {
+  background: #fff9e5 !important; /* 淡黃色背景 */
 }
-.main-content {
-    padding: 2rem;
-     transition: margin-top 0.3s;
+.shop-form-wrapper {
+  background: #ffffff; /* 淡黃色 */
+  border: 2.5px solid #ffd6e0; /* 淺粉色 */
+  border-radius: 18px;
+  box-shadow: 0 2px 12px rgba(255, 182, 193, 0.08);
+  max-width: 950px;
+  min-height: 600px;
+}
+.left-panel {
+  min-height: 500px;
+}
+.right-panel {
+  min-height: 300px;
+}
+.btn-pink, .btn-outline-pink {
+  color: #fff;
+  background: #ffb6c1;
+  border: 1.5px solid #ffb6c1;
+}
+.btn-pink:hover, .btn-outline-pink:hover {
+  background: #ff69b4;
+  border-color: #ff69b4;
+  color: #fff;
+}
+.btn-outline-pink {
+  background: transparent;
+  color: #ff69b4;
+}
+@media (max-width: 991px) {
+  .shop-form-wrapper {
+    flex-direction: column;
+    padding: 0;
+  }
+  .left-panel {
+    border-right: none;
+    border-bottom: 1.5px solid #ffd6e0;
+    margin-bottom: 24px;
+  }
+}
+
+.shop-title {
+  font-size: 1.15rem;
+  font-weight: bold;
+  color: #ff69b4;
+  letter-spacing: 2px;
+  margin-top: 3rem;
+  margin-bottom: 0.5rem;
+  padding-left: 6rem; /* 確保沒有多餘縮排 */
+}
+@media (max-width: 991px) {
+  .shop-title {
+    padding-left: 0;
+  }
+}
+/* 新增圖片方塊樣式 */
+.image-upload-wrapper {
+  width: 350px;   /* 或你想要的最大寬度 */
+  height: 350px;  /* 或你想要的最大高度 */
+  margin-bottom: 1rem;
+}
+.image-upload-box {
+  width: 100%;
+  height: 100%;
+  border: 2px dashed #ffd6e0;
+  border-radius: 12px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  overflow: hidden;
+  position: relative;
+  transition: border-color 0.2s;
+}
+.image-upload-box:hover {
+  border-color: #ff69b4;
+}
+.image-upload-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 12px;
+}
+#image-upload-placeholder {
+  color: #ff69b4;
+  font-size: 1.1rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+.right-panel .form-control {
+  max-width: 400px;
+  width: 100%;
+}
+
+.btn-outline-pink-text {
+  border: 1.5px solid #ffb6c1;
+  color: #ff69b4;
+  background: transparent;
+  transition: background 0.2s, color 0.2s;
+}
+.btn-outline-pink-text:hover {
+  background: #ffe4ef;
+  color: #ff69b4;
+  border-color: #ff69b4;
+}
+
+.image-preview {
+  width: 120px;
+  height: 120px;
+  border: 2px dashed #ffd6e0;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #fff;
+  cursor: pointer;
+  padding: 12px; /* 讓內容不貼邊 */
+  transition: border-color 0.2s;
+}
+.image-preview:hover {
+  border-color: #ff69b4;
 }

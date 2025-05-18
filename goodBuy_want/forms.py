@@ -3,6 +3,7 @@ from django.forms.widgets import ClearableFileInput
 
 from .models import Want, WantImg, WantTag
 from goodBuy_tag.models import Tag
+from goodBuy_shop.models import Permission
 
 class MultipleClearableFileInput(ClearableFileInput):
     allow_multiple_selected = True
@@ -29,6 +30,8 @@ class WantForm(forms.ModelForm):
         self.user = kwargs.pop('user', None)
         self.is_edit = kwargs.get('instance') is not None
         super().__init__(*args, **kwargs)
+
+        self.fields['permission'].queryset = Permission.objects.filter(id__in=[1, 2])
 
     def save(self, commit=True):
         want = super().save(commit=False)

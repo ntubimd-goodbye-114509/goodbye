@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h2>搜尋標籤關鍵字：「{{ kw }}」的結果</h2>
+
+    {% if tags %}
+        <ul>
+            {% for tag in tags %}
+            <li>
+                <a href="{% url 'tagById_one' tag.id %}">{{ tag.name }}</a>
+            </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>沒有找到符合的標籤。</p>
+    {% endif %}
+</body>
+</html>
