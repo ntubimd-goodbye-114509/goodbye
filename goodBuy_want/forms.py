@@ -12,10 +12,7 @@ class MultipleClearableFileInput(ClearableFileInput):
 # -------------------------
 class WantForm(forms.ModelForm):
     tag_names = forms.CharField(required=False, widget=forms.HiddenInput())
-    images = forms.FileField(
-        required=False,
-        widget=MultipleClearableFileInput(attrs={'multiple': True, 'class': 'form-control'})
-    )
+
     cover_index = forms.IntegerField(required=False, widget=forms.HiddenInput())
     image_order = forms.CharField(required=False, widget=forms.HiddenInput())
 
@@ -43,7 +40,8 @@ class WantForm(forms.ModelForm):
             want.save()
 
             # 更新標籤
-            tag_names = self.data.getlist('tag_names')
+            tag_names = self.cleaned_data.get('tag_names', '')
+            tag_names = [t.strip() for t in tag_names.split(',') if t.strip()]
             existing_tags = Tag.objects.filter(name__in=tag_names)
             existing_names = set(existing_tags.values_list('name', flat=True))
             new_names = set(tag_names) - existing_names

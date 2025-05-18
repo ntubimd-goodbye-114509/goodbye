@@ -1,3 +1,4 @@
+from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from goodBuy_shop.models import Permission
@@ -10,12 +11,12 @@ from utils import *
 # -------------------------
 @login_required(login_url='login')
 def add_want(request):
-    form = WantForm(request.POST or None, request.FILES or None)
     if request.method == 'POST':
+        form = WantForm(request.POST, request.FILES, user=request.user)
         if form.is_valid():
-            want = form.save(user=request.user)
+            want = form.save()
             images = request.FILES.getlist('images')
-            cover_index = int(request.POST.get('cover_index', -1))
+            cover_index = int(request.POST.get('cover_index') or -1)
             order_str = request.POST.get('image_order')
 
             if order_str:
@@ -31,6 +32,9 @@ def add_want(request):
             return redirect('want_detail', want_id=want.id)
         else:
             messages.error(request, '表單資料有誤')
+    else:
+        form = WantForm(user=request.user)
+
     return render(request, 'want_form.html', locals())
 # -------------------------
 # 編輯收物帖
@@ -41,9 +45,10 @@ def edit_want(request, want):
     form = WantForm(request.POST or None, request.FILES or None, instance=want)
     if request.method == 'POST':
         if form.is_valid():
-            want = form.save(user=request.user)
+            want = form.save()
             images = request.FILES.getlist('images')
-            cover_index = int(request.POST.get('cover_index', -1))
+            cover_index_raw = request.POST.get('cover_index', '')
+            cover_index = int(cover_index_raw) if cover_index_raw.isdigit() else -1
             order_str = request.POST.get('image_order')
 
             if order_str:
@@ -53,13 +58,16 @@ def edit_want(request, want):
                 sorted_images = images
 
             for idx, img in enumerate(sorted_images):
-                WantImg.objects.create(want=want, img=img, is_cover=(idx == cover_index), position=idx)
+                WantImg.objects.create(want=want, img=img, is_cover=(idx == cover_index), position=idx + want.images.count())
 
             messages.success(request, '收物帖修改成功')
             return redirect('want_detail', want_id=want.id)
         else:
             messages.error(request, '表單資料有誤')
-    return render(request, 'want_form.html', locals())
+    return render(request, 'want_form.html', {
+    'form': form,
+    'want': want,  
+})
 # -------------------------
 # 刪除收物帖
 # -------------------------
@@ -69,7 +77,7 @@ def delete_want(request, want):
     want.permission = Permission.objects.get(id=3)
     want.save()
     messages.success(request, '收物帖已刪除')
-    return render(request, '收物帖界面', locals())
+    return redirect('home')
 # -------------------------
 # 收物帖圖片刪除
 # -------------------------

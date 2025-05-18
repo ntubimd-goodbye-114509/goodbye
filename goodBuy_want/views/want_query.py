@@ -24,18 +24,17 @@ def wantByUserId_many(request, user):
     if not request.user.is_authenticated or request.user != user:
         wants = wants.filter(permission__id=1)
         return render(request, '別人收物帖', locals())
-    return render(request, '自己收物帖', locals())
+    return render(request, 'want_detail.html', locals())
 # -------------------------
 # 收物帖查詢 - want_id
 # -------------------------
 @want_exists_and_not_blacklisted()
-@want_exists_required
 def wantById_one(request, want):
-    if request.user.is_authenticated and request.user.id == want.owner.id:
+    if request.user.is_authenticated and request.user == want.user:
         backs = ( WantBack.objects.filter(want=want).select_related('user', 'shop').order_by('-date'))
-        return render(request, '自己收物帖', locals())
+        return render(request, 'want_detail.html', locals())
 
-    if want.permission.id == 2:
+    if want.permission.id == 2 and request.user != want.owner:
         messages.error(request, '當前收物帖不公開')
         return redirect('home')
     if want.permission.id == 3:

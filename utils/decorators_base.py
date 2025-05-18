@@ -56,7 +56,8 @@ def object_exists_required(
                     messages.error(request, '資料狀態檢查失敗')
                     return redirect(redirect_to)
 
-            kwargs[context_name or model.__name__.lower()] = obj
+            kwargs[context_name or model.__name__.lower()] = obj 
+            kwargs.pop(arg_name, None)
             return view_func(request, *args, **kwargs)
         return _wrapped_view
     return decorator
@@ -124,21 +125,18 @@ def object_owner_required(
 # -------------------------
 # 黑名單檢查
 # -------------------------
-def blacklist_check(owner_getter, redirect_to='home', msg='你已被此使用者封鎖，無法查看。'):
-    """
-    檢查 request.user 是否被 owner 封鎖
-    owner_getter: lambda obj: obj.owner or obj.shop.owner
-    """
+def blacklist_check(owner_getter, redirect_to='home', msg='你已被此使用者封鎖。', context_name='obj'):
     def decorator(view_func):
         @wraps(view_func)
-        def _wrapped_view(request, obj, *args, **kwargs):
-            if request.user.is_authenticated:
+        def _wrapped_view(request, *args, **kwargs):
+            obj = kwargs.get(context_name)
+            if obj and request.user.is_authenticated:
                 owner = owner_getter(obj)
                 from goodBuy_web.models import Blacklist
                 if Blacklist.objects.filter(user=owner, black_user=request.user).exists():
                     messages.error(request, msg)
                     return redirect(redirect_to)
-            return view_func(request, obj, *args, **kwargs)
+            return view_func(request, *args, **kwargs)
         return _wrapped_view
     return decorator
 # -------------------------
@@ -167,27 +165,3 @@ def check_order_seller(redirect_to='home'):
             return view_func(request, order, *args, **kwargs)
         return _wrapped_view
     return decorator
-
-# -------------------------
-# 限定商店擁有者才能看到（shop_id 會自動轉成 shop）
-# -------------------------
-shop_owner_required = object_owner_required(
-    model=Shop,
-    arg_name='shop_id',           # URL 中的參數名稱（例如 /shop/<shop_id>/）
-    owner_field='owner',          # Shop 模型中的擁有者欄位
-    context_name='shop',          # 傳入 view 的參數名稱
-    not_found_msg='找不到賣場',
-    owner_error_msg='您不是此賣場的擁有者',
-    redirect_to='home',
-    deleted_check='auto',         # 自動檢查 permission = 3 為已刪除
-    deleted_msg='此賣場已被刪除'
-)
-
-want_exists_required = object_exists_required(
-    model=Want,
-    arg_name='want_id',
-    context_name='want',
-    not_found_msg='找不到這篇收物帖',
-    deleted_check='auto',
-    deleted_msg='這篇收物帖已被刪除'
-)
