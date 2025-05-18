@@ -29,10 +29,11 @@ def wantByUserId_many(request, user):
 # 收物帖查詢 - want_id
 # -------------------------
 @want_exists_and_not_blacklisted()
+@want_exists_required
 def wantById_one(request, want):
-    if request.user.is_authenticated and request.user.id == want.user.id:
-        backs = (WantBack.objects.filter(want=want).select_related('user', 'shop').order_by('-date'))
-        return render(request, 'want_detail.html', locals())
+    if request.user.is_authenticated and request.user.id == want.owner.id:
+        backs = ( WantBack.objects.filter(want=want).select_related('user', 'shop').order_by('-date'))
+        return render(request, '自己收物帖', locals())
 
     if want.permission.id == 2:
         messages.error(request, '當前收物帖不公開')
@@ -47,7 +48,7 @@ def wantById_one(request, want):
             want=want,
             defaults={'date': timezone.now()}
         )
-    return render(request, 'want_detail.html', locals())
+    return render(request, '別人收物帖', locals())
 # -------------------------
 # 收物帖查詢 - search
 # -------------------------

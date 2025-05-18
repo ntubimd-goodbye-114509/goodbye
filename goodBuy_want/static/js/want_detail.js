@@ -1,3 +1,11 @@
+window.addEventListener("DOMContentLoaded", () => {
+  const header = document.querySelector('.header');
+  const content = document.querySelector('.main-content');
+  if (header && content) {
+    content.style.marginTop = header.offsetHeight + 'px';
+  }
+});
+
 document.addEventListener('DOMContentLoaded', function() {
     // 切換圖片
     const mainImage = document.getElementById('main-image');

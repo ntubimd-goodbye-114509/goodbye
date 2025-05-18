@@ -1,3 +1,11 @@
+window.addEventListener("DOMContentLoaded", () => {
+  const header = document.querySelector('.header');
+  const content = document.querySelector('.main-content');
+  if (header && content) {
+    content.style.marginTop = header.offsetHeight + 'px';
+  }
+});
+
 document.addEventListener('DOMContentLoaded', function() {
     // 圖片預覽和拖曳功能
     const imagePreview = document.getElementById('image-preview');
@@ -7,18 +15,22 @@ document.addEventListener('DOMContentLoaded', function() {
     const coverIndexInput = document.getElementById('id_cover_index');
     const imageOrderInput = document.getElementById('id_image_order');
     let previewItems = [];
-    
-    // 初始化拖曳功能
-    const sortable = new Sortable(imagePreview, {
-        animation: 150,
-        filter: '.add-image',
-        onEnd: updateImageOrder
-    });
-
-
-    addImageBtn.addEventListener('click', () => {
-        fileInput.click();
-    });
+      // 初始化拖曳功能
+    if (imagePreview) {
+        const sortable = new Sortable(imagePreview, {
+            animation: 150,
+            filter: '.add-image',
+            onEnd: updateImageOrder
+        });
+    }
+    // 點擊圖片選擇按鈕
+    if (addImageBtn) {
+        addImageBtn.addEventListener('click', () => {
+            if (fileInput) {
+                fileInput.click();
+            }
+        });
+    }
 
     // 監聽檔案選擇
     fileInput.addEventListener('change', function(e) {
@@ -138,20 +150,24 @@ document.addEventListener('DOMContentLoaded', function() {
         tagArea.appendChild(badge);
         updateTagsHiddenInput();
     }
-    
-    // 更新隱藏輸入框
+      // 更新隱藏輸入框
     function updateTagsHiddenInput() {
-        tagNamesInput.value = Array.from(tags).join(',');
+        if (tagNamesInput) {
+            tagNamesInput.value = Array.from(tags).join(',');
+            console.log('更新標籤輸入框:', tagNamesInput.value);
+        }
     }
     
     // 監聽Enter鍵
-    tagInput.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            addTag(this.value);
-            this.value = '';
-        }
-    });
+    if (tagInput) {
+        tagInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addTag(this.value);
+                this.value = '';
+            }
+        });
+    }
     
     // 點擊添加標籤按鈕
     addTagBtn.addEventListener('click', function() {
@@ -159,8 +175,7 @@ document.addEventListener('DOMContentLoaded', function() {
         tagInput.value = '';
         tagInput.focus();
     });
-    
-    // 處理既有標籤的移除
+      // 處理既有標籤的移除
     document.querySelectorAll('.tag-badge .remove').forEach(btn => {
         btn.addEventListener('click', function() {
             const badge = this.parentElement;
@@ -170,4 +185,26 @@ document.addEventListener('DOMContentLoaded', function() {
             updateTagsHiddenInput();
         });
     });
+    
+    // 表單驗證
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const title = document.getElementById('id_title');
+            if (title && !title.value.trim()) {
+                e.preventDefault();
+                alert('請輸入標題');
+                title.focus();
+            }
+            
+            // 記錄表單數據，幫助開發者調試
+            console.log('表單提交: ', {
+                'title': document.getElementById('id_title')?.value,
+                'cover_index': document.getElementById('id_cover_index')?.value,
+                'image_order': document.getElementById('id_image_order')?.value,
+                'cover_image_id': document.getElementById('id_cover_image_id')?.value,
+                'tag_names': document.getElementById('id_tag_names')?.value
+            });
+        });
+    }
 });
