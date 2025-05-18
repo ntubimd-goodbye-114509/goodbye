@@ -3,6 +3,8 @@ from functools import wraps
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
 from goodBuy_shop.models import Shop
+from goodBuy_want.models import Want
+
 # -------------------------
 # 物件存在檢查
 # -------------------------
@@ -179,4 +181,13 @@ shop_owner_required = object_owner_required(
     redirect_to='home',
     deleted_check='auto',         # 自動檢查 permission = 3 為已刪除
     deleted_msg='此賣場已被刪除'
+)
+
+want_exists_required = object_exists_required(
+    model=Want,
+    arg_name='want_id',
+    context_name='want',
+    not_found_msg='找不到這篇收物帖',
+    deleted_check='auto',
+    deleted_msg='這篇收物帖已被刪除'
 )

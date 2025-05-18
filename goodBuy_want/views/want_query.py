@@ -29,6 +29,7 @@ def wantByUserId_many(request, user):
 # 收物帖查詢 - want_id
 # -------------------------
 @want_exists_and_not_blacklisted()
+@want_exists_required
 def wantById_one(request, want):
     if request.user.is_authenticated and request.user.id == want.owner.id:
         backs = ( WantBack.objects.filter(want=want).select_related('user', 'shop').order_by('-date'))

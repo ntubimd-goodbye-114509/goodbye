@@ -6,30 +6,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% if want %}編輯收物帖{% else %}新增收物帖{% endif %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/goodBuy_want/static/css/want_form.css">
+    <link rel="stylesheet" href="{% static 'css/want_form.css' %}">
+
+    {% include 'common/header.html' %}
 </head>
-<body>
-    <div class="container mt-4">
+<body>    <div class="container main-content">
         <div class="row justify-content-center">
-            <div class="col-md-8">
+            <div class="col-md-10">
                 <div class="card">
                     <div class="card-header bg-light">
                         <h5 class="mb-0">{% if want %}編輯收物帖{% else %}新增收物帖{% endif %}</h5>
                     </div>
-                    <div class="card-body">
-                        <!-- 顯示錯誤訊息 -->
-                        {% if messages %}
-                            {% for message in messages %}
-                                <div class="alert alert-{{ message.tags }}" role="alert">
-                                    {{ message }}
-                                </div>
-                            {% endfor %}
-                        {% endif %}
-
-                        <!-- 收物帖表單 -->
+                    <div class="card-body">                        <!-- 收物帖表單 -->
                         <form method="post" enctype="multipart/form-data">
                             {% csrf_token %}
-                            
+
+                            {% if form.errors %}
+                            <div class="alert alert-danger">
+                                <strong>錯誤：</strong>
+                                <ul>
+                                {% for field in form %}
+                                    {% for error in field.errors %}
+                                    <li>{{ field.label }}：{{ error }}</li>
+                                    {% endfor %}
+                                {% endfor %}
+                                {% for error in form.non_field_errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                                </ul>
+                            </div>
+                            {% endif %}
+
+
                             <!-- 標題 -->
                             <div class="mb-3">
                                 <label for="id_title" class="form-label">標題：</label>
@@ -72,37 +80,38 @@
                                             </span>
                                         {% endfor %}
                                     {% endif %}
-                                </div>
-                                {{ form.tag_names }}
-                            </div>                            <!-- 隱藏欄位 -->
-                            {{ form.cover_index }}
-                            {{ form.image_order }}
+                                </div>{{ form.tag_names }}
+                            </div>
+                            
+                            <!-- 隱藏欄位 -->
+                            <input type="hidden" name="cover_index" id="id_cover_index" value="0">
+                            <input type="hidden" name="image_order" id="id_image_order" value="">
                             <input type="hidden" name="cover_image_id" id="id_cover_image_id" value="">
-
+                            
                             <!-- 圖片上傳 -->
                             <div class="mb-3">
                                 <label class="form-label">上傳圖片：</label>
                                 <div class="d-flex align-items-center">
-                                    <input type="file" class="form-control" id="id_images" name="images" multiple accept="image/*" style="display: none;">
-                                    <button type="button" class="btn btn-outline-primary me-2" id="add-image">
+                                    <input type="file" class="form-control" id="id_images" name="images" multiple accept="image/*">
+                                    <button type="button" class="btn btn-outline-primary ms-2" id="add-image">
                                         選擇圖片
                                     </button>
-                                    <span id="file-count" class="text-muted">未選擇檔案</span>
+                                    <span id="file-count" class="text-muted ms-2">未選擇檔案</span>
                                 </div>
                                 
-                                <!-- 圖片預覽區域 -->
-                                <div class="image-preview" id="image-preview">
+                                <!-- 圖片預覽 -->                                
+                                 <div class="image-preview" id="image-preview">
                                     {% if want and want.wantimg_set.exists %}
                                         {% for img in want.wantimg_set.all %}
-                                            <div class="preview-item existing-image {% if img == want.cover_img %}is-cover{% endif %}" data-id="{{ img.id }}">
+                                            <div class="preview-item existing-image {% if img.is_cover %}is-cover{% endif %}" data-id="{{ img.id }}">
                                                 <img src="{{ img.img.url }}" alt="Preview">
                                             </div>
                                         {% endfor %}
                                     {% endif %}
                                 </div>
-                            </div>
+                            </div>     
 
-                            <!-- 按鈕 -->
+                            <!-- 回上一步 -->
                             <div class="d-flex justify-content-between">
                                 <a href="{% url 'home' %}" class="btn btn-outline-secondary">取消</a>
                                 <button type="submit" class="btn btn-primary">確認</button>
@@ -116,7 +125,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-    <script src="/goodBuy_want/static/js/want_form.js"></script>
-
+    <script src="{% static 'js/want_form.js' %}"></script>
 </body>
 </html>
