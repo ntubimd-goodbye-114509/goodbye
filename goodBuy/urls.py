@@ -18,6 +18,7 @@ urlpatterns = [
     # path('want/action/', include('goodBuy_want.urls.want_action')),
 
     path('tag/', include('goodBuy_tag.urls.tag')),
+    path('tag/user/', include('goodBuy_tag.urls.user')),
 
     path('order/', include('goodBuy_order.urls.order')),
     path('order/action/', include('goodBuy_order.urls.order_action')),

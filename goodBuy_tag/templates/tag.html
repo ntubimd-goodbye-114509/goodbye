@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h2>與標籤「{{ tag.name }}」相關的商店</h2>
+
+    {% if shops %}
+        <ul>
+            {% for shop in shops %}
+            <li>
+                <a href="{% url 'shop_detail' shop.id %}">{{ shop.name }}</a>
+                <p>{{ shop.description }}</p>
+            </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>目前沒有與此標籤相關的商店。</p>
+    {% endif %}
+    </body>
+</html>

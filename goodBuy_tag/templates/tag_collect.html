@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h2>我收藏的標籤</h2>
+
+    {% if shops %}
+        <ul>
+            {% for tag in shops %}
+            <li>
+                <a href="{% url tagById_one tag.id %}">{{ tag.name }}</a>
+                <form action="{% url 'tag_collect_toggle' tag.id %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit">取消收藏</button>
+                </form>
+            </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>你尚未收藏任何標籤。</p>
+    {% endif %}
+</body>
+</html>

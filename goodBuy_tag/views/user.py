@@ -20,7 +20,7 @@ def tag_collect_toggle(request, tag):
         TagCollect.objects.create(user=request.user, tag=tag, date=timezone.now())
         messages.success(request, '收藏成功')
 
-    return redirect('單tag界面', tag_id=tag.id)
+    return redirect('tag.html', tag_id=tag.id)
 # -------------------------
 # 標籤收藏查看
 # -------------------------
@@ -28,5 +28,5 @@ def tag_collect_toggle(request, tag):
 def my_tags_collected(request):
     tag_ids = TagCollect.objects.filter(user=request.user).values_list('tag_id', flat=True)
 
-    shops = Tag.objects.filter(id__in=tag_ids).order_by('-date')
-    return render(request, 'tag收藏瀏覽頁面', locals())
+    shops = Tag.objects.filter(id__in=tag_ids)
+    return render(request, 'tag_collect.html', locals())
