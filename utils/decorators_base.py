@@ -125,6 +125,29 @@ def object_owner_required(
 # -------------------------
 # 黑名單檢查
 # -------------------------
+# def blacklist_check(owner_getter, redirect_to='home', msg='你已被此使用者封鎖，無法查看。'):
+#     """
+#     檢查 request.user 是否被 owner 封鎖
+#     owner_getter: lambda obj: obj.owner or obj.shop.owner
+#     """
+# def blacklist_check(owner_getter, redirect_to='home', msg='你已被此使用者封鎖。', context_name='obj'):
+#     def decorator(view_func):
+#         @wraps(view_func)
+#         def _wrapped_view(request, obj, *args, **kwargs):
+#             if request.user.is_authenticated:
+#         def _wrapped_view(request, *args, **kwargs):
+#             obj = kwargs.get(context_name)
+#             if obj and request.user.is_authenticated:
+#                 owner = owner_getter(obj)
+#                 from goodBuy_web.models import Blacklist
+#                 if Blacklist.objects.filter(user=owner, black_user=request.user).exists():
+#                     messages.error(request, msg)
+#                     return redirect(redirect_to)
+#             return view_func(request, obj, *args, **kwargs)
+#             return view_func(request, *args, **kwargs)
+#         return _wrapped_view
+#     return decorator
+
 def blacklist_check(owner_getter, redirect_to='home', msg='你已被此使用者封鎖。', context_name='obj'):
     def decorator(view_func):
         @wraps(view_func)
@@ -139,6 +162,7 @@ def blacklist_check(owner_getter, redirect_to='home', msg='你已被此使用者
             return view_func(request, *args, **kwargs)
         return _wrapped_view
     return decorator
+
 # -------------------------
 # 訂單是否屬於買家檢查
 # -------------------------
