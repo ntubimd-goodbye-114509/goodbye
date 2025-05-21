@@ -1,9 +1,12 @@
+from datetime import timezone
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.db.models import *
 
 from ..models import *
 from goodBuy_shop.models import Shop, ShopTag
+from goodBuy_web.models import SearchHistory
+
 from utils import *
 from goodBuy_shop.views.shop_query import shopInformation_many
 
@@ -29,7 +32,13 @@ def tagBySearch(request):
     kw = request.GET.get('keyWord')
     if not kw:
         messages.warning(request, "請輸入關鍵字")
-        return redirect('home') 
+        return redirect('home')
+    
+    SearchHistory.objects.update_or_create(
+        user=request.user if request.user.is_authenticated else None,
+        keyword=kw,
+        searched_at=timezone.now()
+    )
 
     tags = Tag.objects.filter(tag__name__icontains=kw)
     return render(request, 'tag_search.html', locals())
