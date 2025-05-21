@@ -86,7 +86,11 @@ def shopBySearch(request):
         messages.warning(request, "請輸入關鍵字")
         return redirect('home') 
 
-    # tag 相似搜尋
+    SearchHistory.objects.update_or_create(
+        user=request.user if request.user.is_authenticated else None,
+        keyword=kw,
+        searched_at=timezone.now()
+    )
     shop_ids_by_tag = ShopTag.objects.filter(tag__name__icontains=kw).values_list('shop_id', flat=True)
 
     # 名稱包含關鍵字或有符合 tag，且 permission = 1（公開）
