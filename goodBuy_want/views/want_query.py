@@ -5,6 +5,7 @@ from django.db.models import *
 
 from ..models import *
 from goodBuy_shop.models import Permission
+from goodBuy_web.models import SearchHistory
 
 from ..want_utils import *
 from utils import *
@@ -59,6 +60,11 @@ def wantBySearch(request):
         messages.warning(request, "請輸入關鍵字")
         return redirect('home') 
 
+    SearchHistory.objects.update_or_create(
+        user=request.user if request.user.is_authenticated else None,
+        keyword=kw,
+        searched_at=timezone.now()
+    )
     want_ids_by_tag = WantTag.objects.filter(tag__name__icontains=kw).values_list('want_id', flat=True)
 
     wants = Want.objects.filter(
