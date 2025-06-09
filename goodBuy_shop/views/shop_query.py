@@ -72,6 +72,15 @@ def shopById_one(request, shop):
             shop=shop,
             defaults={'date': timezone.now()}
         )
+    else:
+        if not request.session.session_key:
+            request.session.save()
+        session_key = request.session.session_key
+        ShopFootprints.objects.update_or_create(
+            session_key=session_key,
+            shop=shop,
+            defaults={'date': timezone.now()}
+        )
 
     announcements = ShopAnnouncement.objects.filter(shop=shop).order_by('-date')
     return render(request, '別人賣場', locals())
