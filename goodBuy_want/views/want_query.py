@@ -48,6 +48,17 @@ def wantById_one(request, want):
             want=want,
             defaults={'date': timezone.now()}
         )
+    else:
+        # 確保 session_key 存在
+        if not request.session.session_key:
+            request.session.save()
+        session_key = request.session.session_key
+        WantFootprints.objects.update_or_create(
+            session_key=session_key,
+            want=want,
+            defaults={'date': timezone.now()}
+        )
+    
     return render(request, '別人收物帖', locals())
 # -------------------------
 # 收物帖查詢 - search
