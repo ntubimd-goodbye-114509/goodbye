@@ -8,6 +8,9 @@ from goodBuy_shop.models import *
 from goodBuy_web.models import *
 from goodBuy_order.models import IntentProduct
 
+from recommendation.weighting import *
+from recommendation.hot_rank import get_hot_shops
+
 from utils import *
 from ..shop_utils import *
 from ..time_utils import *
@@ -15,10 +18,16 @@ from ..time_utils import *
 # -------------------------
 # 主頁商店推送（待加入演算法）
 # -------------------------
-def shopAll_update(request):
-    shops = shopInformation_many(Shop.objects.filter(permission__id=1).order_by('-date'))
-    print(Shop.objects.filter(permission__id=1).count())
-    return render(request, 'home.html', {'shops': shops})
+def homepage(request):
+    if request.user.is_authenticated:
+        personalized = personalized_homepage_shops(request.user, limit=10)
+        hot = get_hot_shops(limit=10)
+        recommendations = list(personalized) + list(hot.exclude(id__in=[s.id for s in personalized])[:10])
+    else:
+        recommendations = get_hot_shops(limit=20)
+    
+    return render(request, 'homepage.html', {'recommendations': recommendations})
+
 # -------------------------
 # 商店查詢 - user-id
 # -------------------------
