@@ -7,16 +7,26 @@ from goodBuy_order.models.order import Order
 from goodBuy_web.models.search_history import SearchHistory
 from goodBuy_web.models.blacklist import BlackList
 import random
+# -------------------------
+# 商店是否截止
+# -------------------------
+def shop_is_active(now):
+    return Q(end_time__isnull=True) | Q(end_time__gt=now)
 
+# -------------------------
 # 活躍商店判斷
+# -------------------------
 def get_active_shop_ids():
     now = timezone.now()
     recent_updated_ids = Shop.objects.filter(updated_at__gte=now - timedelta(days=60)).values_list('id', flat=True)
-    recent_traded_pids = Order.objects.filter(created_at__gte=now - timedelta(days=7)).values_list('product_id', flat=True)
+    recent_traded_pids = Order.objects.filter(created_at__gte=now - timedelta(days=7), 
+                                              order_state__id__in=[4, 5, 6]).values_list('product_id', flat=True)
     recent_traded_shop_ids = Product.objects.filter(id__in=recent_traded_pids).values_list('shop_id', flat=True)
     return set(recent_updated_ids) | set(recent_traded_shop_ids), set(recent_traded_shop_ids)
 
+# -------------------------
 # 商店資訊抓取關鍵資料
+# -------------------------
 def extract_keywords_from_shops(shop_qs):
     keywords = set()
     for shop in shop_qs.only('tags', 'name', 'introduce'):
@@ -28,8 +38,9 @@ def extract_keywords_from_shops(shop_qs):
             keywords.update(shop.introduce.split())
     return keywords
 
-
+# -------------------------
 # kw查詢排序
+# -------------------------
 def score_shops_by_keywords(keywords, active_shop_ids, shop_queryset=None):
     scores = defaultdict(int)
     q = Q()
@@ -52,7 +63,9 @@ def score_shops_by_keywords(keywords, active_shop_ids, shop_queryset=None):
         scores[shop.id] += score
     return scores
 
+# -------------------------
 # 個性化評分部分商店
+# -------------------------
 def compute_shop_scores(user, shop_queryset=None):
     now = timezone.now()
     scores = defaultdict(int)
@@ -72,32 +85,32 @@ def compute_shop_scores(user, shop_queryset=None):
         for s in Shop.objects.filter(
             Q(name__icontains=kw) | Q(tags__icontains=kw),
             id__in=active_shop_ids
-        ):
+        ).filter(shop_is_active(now)):
             _add_score(s.id, 5)
 
+    # 收藏/購買商品 ➜ 找出商店 ➜ 擷取資訊
     cooldown = now - timedelta(days=14)
     fav_pids = ShopCollect.objects.filter(user=user, created_at__lt=cooldown).values_list('product_id', flat=True)
     bought_pids = Order.objects.filter(user=user).values_list('product_id', flat=True)
-    related_pids = list(fav_pids) + list(bought_pids)
+
     related_shop_ids = Product.objects.filter(
-        id__in=related_pids
+        id__in=list(fav_pids) + list(bought_pids)
     ).values_list('shop_id', flat=True).distinct()
 
-    related_shops = Shop.objects.filter(id__in=related_shop_ids)
-
+    related_shops = Shop.objects.filter(id__in=related_shop_ids, id__in=active_shop_ids).filter(shop_is_active(now))
     keywords = extract_keywords_from_shops(related_shops)
 
     keyword_scores = score_shops_by_keywords(keywords, active_shop_ids, shop_queryset)
     for sid, score in keyword_scores.items():
         _add_score(sid, score)
 
-    # 截取最近看過商店的tag等元素
+    # 最近看過的商店 ➜ 擷取 shop tags 去關聯其他商店
     viewed_shop_ids = ShopFootprints.objects.filter(user=user, date__lt=cooldown).values_list('shop_id', flat=True)
-    viewed_shops = Shop.objects.filter(id__in=viewed_shop_ids, id__in=active_shop_ids)
+    viewed_shops = Shop.objects.filter(id__in=viewed_shop_ids, id__in=active_shop_ids).filter(shop_is_active(now))
     for shop in viewed_shops:
         if shop.tags:
             for tag in shop.tags.split(','):
-                for matched in Shop.objects.filter(tags__icontains=tag, id__in=active_shop_ids):
+                for matched in Shop.objects.filter(tags__icontains=tag, id__in=active_shop_ids).filter(shop_is_active(now)):
                     _add_score(matched.id, 4)
 
     # 活躍商店額外加分
@@ -106,7 +119,9 @@ def compute_shop_scores(user, shop_queryset=None):
 
     return scores
 
-
+# -------------------------
+# 個性化首頁商店推薦
+# -------------------------
 def personalized_homepage_shops_final(user, limit=20):
     now = timezone.now()
     active_shop_ids, _ = get_active_shop_ids()
