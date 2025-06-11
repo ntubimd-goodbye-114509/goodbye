@@ -20,9 +20,10 @@ from ..time_utils import *
 # -------------------------
 def homepage(request):
     if request.user.is_authenticated:
-        personalized = personalized_homepage_shops(request.user, limit=10)
+        personalized = personalized_shop_recommendation(request.user, limit=10)
         hot = get_hot_shops(limit=10)
-        recommendations = list(personalized) + list(hot.exclude(id__in=[s.id for s in personalized])[:10])
+        hot = hot.exclude(id__in=[s.id for s in personalized])[:10]
+        recommendations = list(personalized) + list(hot)
     else:
         recommendations = get_hot_shops(limit=20)
     
@@ -96,50 +97,67 @@ def shopById_one(request, shop):
 # -------------------------
 # 商店查詢 - search
 # -------------------------
+from recommendation.weighting import personalized_shop_recommendation
+from django.utils import timezone
+
 def shopBySearch(request):
     kw = request.GET.get('keyWord')
     sort = request.GET.get('sort', 'new')
 
     if not kw:
         messages.warning(request, "請輸入關鍵字")
-        return redirect('home') 
+        return redirect('home')
 
-    SearchHistory.objects.update_or_create(
-        user=request.user if request.user.is_authenticated else None,
-        keyword=kw,
-        searched_at=timezone.now()
-    )
-    shop_ids_by_tag = ShopTag.objects.filter(tag__name__icontains=kw).values_list('shop_id', flat=True)
+    if request.user.is_authenticated:
+        SearchHistory.objects.update_or_create(
+            user=request.user,
+            keyword=kw,
+            searched_at=timezone.now()
+        )
 
-    # 名稱包含關鍵字或有符合 tag，且 permission = 1（公開）
-    shops = Shop.objects.filter(
-        Q(name__icontains=kw) | (Q(id__in=shop_ids_by_tag) & Q(permission__id=1))
-    ).distinct()
+    if request.user.is_authenticated:
+        shops = personalized_shop_recommendation(
+            user=request.user,
+            keywords=[kw],
+            exclude_seen=False,  # 看過的商店依舊可出現
+            limit=100
+        )
+    else:
+        # 未登入使用者 fallback 為純搜尋關鍵字
+        shop_ids_by_tag = ShopTag.objects.filter(tag__name__icontains=kw).values_list('shop_id', flat=True)
+        shops = Shop.objects.filter(
+            Q(name__icontains=kw) | Q(id__in=shop_ids_by_tag),
+            permission__id=1
+        ).distinct()
 
-    # 排序條件處理
-    if sort == 'new':
-        shops = shops.order_by('-update')
-    elif sort == 'old':
+    # 排序
+    if sort == 'old':
         shops = shops.order_by('update')
     else:
-        messages.warning(request, "不支援的排序方式，已使用預設排序")
         shops = shops.order_by('-update')
 
     shops = shopInformation_many(shops)
-
     return render(request, '搜尋結果界面', locals())
+
 # -------------------------
 # 商店查詢 - tag
 # -------------------------
 @tag_exists_required
 def shopByTag(request, tag):
-    shop_ids = ShopTag.objects.filter(tag=tag).values_list('shop_id', flat=True)
-
-    shops = Shop.objects.filter(id__in=shop_ids, permission__id=1)
+    if request.user.is_authenticated:
+        shops = personalized_shop_recommendation(
+            user=request.user,
+            tags=[tag.name],
+            exclude_seen=False,
+            limit=100
+        )
+    else:
+        shop_ids = ShopTag.objects.filter(tag=tag).values_list('shop_id', flat=True)
+        shops = Shop.objects.filter(id__in=shop_ids, permission__id=1)
 
     shops = shopInformation_many(shops)
-
     return render(request, '搜尋結果界面', locals())
+
 # -------------------------
 # 商店查詢 - 隱私狀況（ex.查詢自己私人的商店
 # -------------------------

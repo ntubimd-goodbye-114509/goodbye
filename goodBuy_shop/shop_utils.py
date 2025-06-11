@@ -18,5 +18,4 @@ def shopInformation_many(shops):
             Prefetch('shoptag_set', queryset=ShopTag.objects.select_related('tag')),
             Prefetch('images', queryset=ShopImg.objects.filter(is_cover=True)),
         )
-        .order_by('-total_stock', '-update')
     )
