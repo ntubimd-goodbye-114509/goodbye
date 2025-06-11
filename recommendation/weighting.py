@@ -2,17 +2,13 @@ from collections import defaultdict
 from django.utils import timezone
 from datetime import timedelta
 from django.db.models import Q
-from goodBuy_shop.models import Shop, Product, ShopFootprints, ShopCollect
+from goodBuy_shop.models import Shop, Product, ShopFootprints, ShopCollect, ShopRecommendationHistory
 from goodBuy_order.models.order import Order
-from goodBuy_web.models.search_history import SearchHistory
-from goodBuy_web.models.blacklist import BlackList
-import random
-# -------------------------
-# 商店是否截止
-# -------------------------
-def shop_is_active(now):
-    return Q(end_time__isnull=True) | Q(end_time__gt=now)
+from goodBuy_web.models import SearchHistory, Blacklist
 
+import random
+
+from .utils import *
 # -------------------------
 # 活躍商店判斷
 # -------------------------
@@ -97,7 +93,8 @@ def compute_shop_scores(user, shop_queryset=None):
         id__in=list(fav_pids) + list(bought_pids)
     ).values_list('shop_id', flat=True).distinct()
 
-    related_shops = Shop.objects.filter(id__in=related_shop_ids, id__in=active_shop_ids).filter(shop_is_active(now))
+    valid_ids = set(related_shop_ids) & set(active_shop_ids)
+    related_shops = Shop.objects.filter(id__in=valid_ids).filter(shop_is_active(now))
     keywords = extract_keywords_from_shops(related_shops)
 
     keyword_scores = score_shops_by_keywords(keywords, active_shop_ids, shop_queryset)
@@ -106,7 +103,8 @@ def compute_shop_scores(user, shop_queryset=None):
 
     # 最近看過的商店 ➜ 擷取 shop tags 去關聯其他商店
     viewed_shop_ids = ShopFootprints.objects.filter(user=user, date__lt=cooldown).values_list('shop_id', flat=True)
-    viewed_shops = Shop.objects.filter(id__in=viewed_shop_ids, id__in=active_shop_ids).filter(shop_is_active(now))
+    valid_ids = set(viewed_shop_ids) & set(active_shop_ids)
+    viewed_shops = Shop.objects.filter(id__in=valid_ids).filter(shop_is_active(now))
     for shop in viewed_shops:
         if shop.tags:
             for tag in shop.tags.split(','):
@@ -120,68 +118,93 @@ def compute_shop_scores(user, shop_queryset=None):
     return scores
 
 # -------------------------
-# 個性化首頁商店推薦
+# 商店推薦（可選是否傳入參數）
 # -------------------------
-def personalized_homepage_shops_final(user, limit=20):
+def personalized_shop_recommendation(
+    user,
+    keywords=None,
+    tags=None,
+    exclude_seen=True,
+    limit=20,
+    source='personalized',
+    request=None
+):
     now = timezone.now()
     active_shop_ids, _ = get_active_shop_ids()
 
-    # 黑名單 + 自己排除
+    # 黑名單排除
     blocked_ids = set(
-        BlackList.objects.filter(blocker=user).values_list('blocked_id', flat=True)
+        Blacklist.objects.filter(blocker=user).values_list('blocked_id', flat=True)
     ) | set(
-        BlackList.objects.filter(blocked=user).values_list('blocker_id', flat=True)
+        Blacklist.objects.filter(blocked=user).values_list('blocker_id', flat=True)
     )
     excluded_owner_ids = blocked_ids | {user.id}
 
-    # 已看過商店
-    seen_shop_ids = set(
-        ShopFootprints.objects.filter(user=user).values_list('shop_id', flat=True)
+    seen_shop_ids = set()
+    if exclude_seen:
+        seen_shop_ids = set(
+            ShopFootprints.objects.filter(user=user).values_list('shop_id', flat=True)
+        )
+
+    recent_recommended_ids = set(
+        ShopRecommendationHistory.objects.filter(
+            user=user,
+            recommended_at__gte=now - timedelta(days=7)
+        ).values_list('shop_id', flat=True)
     )
 
-    # 打分 + 過濾
     scores = compute_shop_scores(user)
-    new_ids = [sid for sid in scores if sid not in seen_shop_ids]
-    level1_ids = [
-        sid for sid in new_ids
-        if Shop.objects.filter(id=sid, permission__id=1, id__in=active_shop_ids)
-        .exclude(owner_id__in=excluded_owner_ids).exists()
+    
+    if keywords or tags:
+        all_keywords = (keywords or []) + (tags or [])
+        keyword_scores = score_shops_by_keywords(all_keywords, active_shop_ids)
+        for sid, score in keyword_scores.items():
+            scores[sid] += score
+
+    for sid in list(scores):
+        if sid in recent_recommended_ids:
+            scores[sid] *= 0.5
+
+    candidate_ids = [
+        sid for sid in scores
+        if sid not in seen_shop_ids
+        and Shop.objects.filter(id=sid, permission__id=1)
+        .exclude(owner_id__in=excluded_owner_ids)
+        .filter(shop_is_active(now))
+        .exists()
     ]
 
-    if len(level1_ids) >= limit:
-        return Shop.objects.filter(id__in=level1_ids[:limit])
+    if len(candidate_ids) >= limit:
+        final_ids = candidate_ids[:limit]
+    else:
+        from .hot_rank import get_hot_shops
+        hot_ids = [
+            s.id for s in get_hot_shops(limit=50)
+            if s.id not in seen_shop_ids
+            and s.owner_id not in excluded_owner_ids
+            and s.id in active_shop_ids
+        ]
+        final_ids = candidate_ids + hot_ids[:limit - len(candidate_ids)]
 
-    # 熱門補齊
-    from .hot_rank import get_hot_shops
-    hot_ids = [
-        s.id for s in get_hot_shops(limit=50)
-        if s.id not in seen_shop_ids
-        and s.owner_id not in excluded_owner_ids
-        and s.id in active_shop_ids
-    ]
-    level2_needed = limit - len(level1_ids)
-    level2_ids = hot_ids[:level2_needed]
-
-    # 最近互動 fallback
-    recent_bought_ids = Product.objects.filter(
-        id__in=Order.objects.filter(user=user, created_at__gte=now - timedelta(days=14)).values_list('product_id', flat=True)
-    ).values_list('shop_id', flat=True)
-
-    recent_viewed_ids = ShopFootprints.objects.filter(
-        user=user, date__gte=now - timedelta(days=7)
-    ).values_list('shop_id', flat=True)
-
-    recent_related_ids = list(set(recent_bought_ids) | set(recent_viewed_ids))
-    recent_related_ids = [
-        sid for sid in recent_related_ids
-        if sid not in level1_ids + level2_ids
-        and sid in active_shop_ids
-        and Shop.objects.filter(id=sid, permission__id=1).exclude(owner_id__in=excluded_owner_ids).exists()
-    ]
-    fallback_needed = limit - len(level1_ids) - len(level2_ids)
-    fallback_ids = recent_related_ids[:fallback_needed]
-
-    # 組合推薦清單
-    final_ids = level1_ids + level2_ids + fallback_ids
     random.shuffle(final_ids)
+
+    # 記錄推薦
+    history_objs = []
+    recommended_at = timezone.now()
+
+    for sid in final_ids:
+        obj_kwargs = {
+            'shop_id': sid,
+            'source': source,
+            'recommended_at': recommended_at,
+        }
+        if user.is_authenticated:
+            obj_kwargs['user'] = user
+        elif request:
+            session_key = request.session.session_key or request.session.save()
+            obj_kwargs['session_key'] = request.session.session_key
+        history_objs.append(ShopRecommendationHistory(**obj_kwargs))
+
+    ShopRecommendationHistory.objects.bulk_create(history_objs, ignore_conflicts=True)
+
     return Shop.objects.filter(id__in=final_ids[:limit])
