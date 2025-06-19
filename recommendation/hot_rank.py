@@ -10,13 +10,15 @@ from .utils import *
 # -------------------------
 # 熱門商店推薦
 # -------------------------
-def get_hot_shops(limit=20, days=7, keyword=None, tag=None):
+def get_hot_shops(limit=20, days=7, owner=None, keyword=None, tag=None):
     now = timezone.now()
     recent = now - timedelta(days=days)
     scores = defaultdict(int)   
 
     # 最近瀏覽數
     views = ShopFootprints.objects.filter(date__gte=recent).values('shop_id').annotate(vc=Count('id'))
+    if owner:
+        views = views.filter(shop__owner=owner)
     for v in views:
         scores[v['shop_id']] += v['vc']
 
@@ -25,6 +27,8 @@ def get_hot_shops(limit=20, days=7, keyword=None, tag=None):
         order__date__gte=recent,
         order__order_state__id__in=[4, 5, 6]
     ).values_list('product__shop_id', flat=True)
+    if owner:
+        sales = sales.filter(product__shop__owner=owner)
     for sid in sales:
         scores[sid] += 2
 
@@ -32,7 +36,6 @@ def get_hot_shops(limit=20, days=7, keyword=None, tag=None):
     new_shop_ids = Shop.objects.filter(
         start_time__gte=now - timedelta(days=3)
     ).values_list('id', flat=True)
-
     for sid in new_shop_ids:
         scores[sid] += 3 
 
@@ -41,10 +44,9 @@ def get_hot_shops(limit=20, days=7, keyword=None, tag=None):
     top_ids = [sid for sid, _ in sorted_ids]
 
     # 基本條件（公開 + 未截止）
-    qs = Shop.objects.filter(
-        id__in=top_ids,
-        permission__id=1
-    ).filter(shop_is_active(now))
+    qs = Shop.objects.filter(id__in=top_ids, permission__id=1).filter(shop_is_active(now))
+    if owner:
+        qs = qs.filter(owner=owner)
 
     # 關鍵字篩選
     if keyword:
