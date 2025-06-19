@@ -34,12 +34,28 @@ def homepage(request):
 # -------------------------
 @user_exists_required
 def shopByUserId_many(request, user):
-    shops = shopInformation_many(Shop.objects.filter(owner=user))
-    # 看別人的只顯示公開
-    if not request.user.is_authenticated or request.user != user:
-        shops = shops.filter(permission__id=1)
-        return render(request, '別人主頁賣場', locals())
-    return render(request, '自己主頁賣場', locals())
+    # 本人 ➜ 顯示全部商店（不排序）
+    if request.user.is_authenticated and request.user == user:
+        shops = shopInformation_many(Shop.objects.filter(owner=user))
+        return render(request, '自己主頁賣場', locals())
+
+    # 非本人+有登入 ➜ 只顯示公開商店 + 推薦排序
+    if request.user.is_authenticated:
+        base_queryset = Shop.objects.filter(owner=user, permission__id=1)
+        recommended = personalized_shop_recommendation(
+            user=request.user,
+            shop_queryset=base_queryset,
+            limit=100,
+            exclude_seen=False
+        )
+    else:
+        base_queryset = Shop.objects.filter(owner=user, permission__id=1)
+        hot_shops = get_hot_shops(limit=100)
+        recommended = [s for s in hot_shops if s.owner_id == user.id]
+
+    shops = shopInformation_many(recommended)
+    return render(request, '別人主頁賣場', locals())
+
 # -------------------------
 # 商店查詢 - shop-id - 單一店鋪界面
 # -------------------------
@@ -123,12 +139,8 @@ def shopBySearch(request):
             limit=100
         )
     else:
-        # 未登入使用者 fallback 為純搜尋關鍵字
-        shop_ids_by_tag = ShopTag.objects.filter(tag__name__icontains=kw).values_list('shop_id', flat=True)
-        shops = Shop.objects.filter(
-            Q(name__icontains=kw) | Q(id__in=shop_ids_by_tag),
-            permission__id=1
-        ).distinct()
+        # 未登入使用者提供kw內熱門商店
+        shops = get_hot_shops(limit=100, keyword=kw)
 
     # 排序
     if sort == 'old':
@@ -152,9 +164,7 @@ def shopByTag(request, tag):
             limit=100
         )
     else:
-        shop_ids = ShopTag.objects.filter(tag=tag).values_list('shop_id', flat=True)
-        shops = Shop.objects.filter(id__in=shop_ids, permission__id=1)
-
+        shops = get_hot_shops(limit=100, tag=tag)
     shops = shopInformation_many(shops)
     return render(request, '搜尋結果界面', locals())
 
