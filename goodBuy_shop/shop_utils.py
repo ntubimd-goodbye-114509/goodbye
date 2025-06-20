@@ -19,3 +19,8 @@ def shopInformation_many(shops):
             Prefetch('images', queryset=ShopImg.objects.filter(is_cover=True)),
         )
     )
+# -------------------------
+# shop是否截止
+# -------------------------
+def shop_is_active(now):
+    return Q(end_time__isnull=True) | Q(end_time__gt=now)

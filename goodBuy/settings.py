@@ -54,7 +54,6 @@ INSTALLED_APPS = [
     'goodBuy_order',
     'goodBuy_want',
     'goodBuy_tag',
-    'recommendation',
     'django_celery_beat',
 ]
 

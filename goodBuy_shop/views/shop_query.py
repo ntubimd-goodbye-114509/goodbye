@@ -8,8 +8,8 @@ from goodBuy_shop.models import *
 from goodBuy_web.models import *
 from goodBuy_order.models import IntentProduct
 
-from recommendation.weighting import *
-from recommendation.hot_rank import get_hot_shops
+from goodBuy_shop.views.weighting import *
+from goodBuy_shop.views.hot_rank import get_hot_shops
 
 from utils import *
 from ..shop_utils import *
@@ -113,7 +113,7 @@ def shopById_one(request, shop):
 # -------------------------
 # 商店查詢 - search
 # -------------------------
-from recommendation.weighting import personalized_shop_recommendation
+from goodBuy_shop.views.weighting import personalized_shop_recommendation
 from django.utils import timezone
 
 def shopBySearch(request):
