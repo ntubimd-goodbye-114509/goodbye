@@ -2,8 +2,8 @@ from django.shortcuts import render
 
 from goodBuy_shop.shop_utils import *
 from goodBuy_shop.models import *
-from recommendation.weighting import *
-from recommendation.hot_rank import get_hot_shops
+from goodBuy_shop.views.weighting import *
+from goodBuy_shop.views.hot_rank import get_hot_shops
 
 def homePage(request):
     if request.user.is_authenticated:

@@ -8,7 +8,7 @@ from goodBuy_web.models import SearchHistory, Blacklist
 
 import random
 
-from .utils import *
+from ..shop_utils import shop_is_active
 # -------------------------
 # 活躍商店判斷
 # -------------------------

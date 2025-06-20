@@ -6,7 +6,7 @@ from django.utils import timezone
 from goodBuy_shop.models import Shop, ShopFootprints, ShopTag
 from goodBuy_order.models import ProductOrder
 
-from .utils import *
+from ..shop_utils import shop_is_active
 # -------------------------
 # 熱門商店推薦
 # -------------------------
