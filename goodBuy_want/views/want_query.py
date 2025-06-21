@@ -9,23 +9,37 @@ from goodBuy_web.models import SearchHistory
 
 from ..want_utils import *
 from utils import *
+
+from weighting import *
+from hot_rank import *
 # -------------------------
 # 收物帖主頁推送
 # -------------------------
 def wantAll_update(request):
     wants = want.objects.filter(permission__id=1).order_by('-date')
     return render(request, '主頁', locals())
+
 # -------------------------
 # 收物帖查詢 - user_id
 # -------------------------
 @user_exists_required
 def wantByUserId_many(request, user):
-    wants = wantInformation_many(Want.objects.filter(owner=user))
-    # 看別人的只顯示公開
+    wants = Want.objects.filter(owner=user)
     if not request.user.is_authenticated or request.user != user:
         wants = wants.filter(permission__id=1)
+
+        if request.user.is_authenticated:
+            recommended = personalized_want_recommendation(request.user, want_queryset=wants)
+        else:
+            recommended = get_hot_wants(limit=20)
+            recommended = [w for w in recommended if w.user_id == user.id]
+
+        wants = wantInformation_many(recommended)
         return render(request, '別人收物帖', locals())
+    
+    wants = wantInformation_many(wants)
     return render(request, 'want_detail.html', locals())
+
 # -------------------------
 # 收物帖查詢 - want_id
 # -------------------------
@@ -60,6 +74,7 @@ def wantById_one(request, want):
         )
     
     return render(request, '別人收物帖', locals())
+
 # -------------------------
 # 收物帖查詢 - search
 # -------------------------
@@ -69,42 +84,52 @@ def wantBySearch(request):
 
     if not kw:
         messages.warning(request, "請輸入關鍵字")
-        return redirect('home') 
+        return redirect('home')
 
-    SearchHistory.objects.update_or_create(
-        user=request.user if request.user.is_authenticated else None,
-        keyword=kw,
-        searched_at=timezone.now()
-    )
-    want_ids_by_tag = WantTag.objects.filter(tag__name__icontains=kw).values_list('want_id', flat=True)
+    if request.user.is_authenticated:
+        SearchHistory.objects.update_or_create(
+            user=request.user,
+            keyword=kw,
+            searched_at=timezone.now()
+        )
 
-    wants = Want.objects.filter(
-        Q(title__icontains=kw) | (Q(id__in=want_ids_by_tag) & Q(permission__id=1))
-    ).distinct()
+    if request.user.is_authenticated:
+        wants = personalized_want_recommendation(
+            user=request.user,
+            keywords=[kw],
+            exclude_seen=False,
+            limit=100
+        )
+    else:
+        wants = get_hot_wants(limit=100, keyword=kw)
 
-    # 排序方式處理
-    if sort == 'new':
-        wants = wants.order_by('-update')
-    elif sort == 'old':
+    # 排序
+    if sort == 'old':
         wants = wants.order_by('update')
     else:
-        messages.warning(request, "不支援的排序方式，已使用預設排序")
         wants = wants.order_by('-update')
 
     wants = wantInformation_many(wants)
     return render(request, '搜尋結果界面', locals())
+
 # -------------------------
 # 收物帖查詢 - tag_id
 # -------------------------
 @tag_exists_required
 def wantByTag(request, tag):
-    want_ids = WantTag.objects.filter(tag=tag).values_list('want_id', flat=True)
-
-    wants = want.objects.filter(id__in=want_ids, permission__id=1)
+    if request.user.is_authenticated:
+        wants = personalized_want_recommendation(
+            user=request.user,
+            tags=[tag.name],
+            exclude_seen=False,
+            limit=100
+        )
+    else:
+        wants = get_hot_wants(limit=100, tag=tag)
 
     wants = wantInformation_many(wants)
-
     return render(request, '搜尋結果界面', locals())
+
 # -------------------------
 # 收物帖查詢 - permission_id
 # -------------------------
