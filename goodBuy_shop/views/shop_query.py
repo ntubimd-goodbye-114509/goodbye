@@ -16,7 +16,20 @@ from ..shop_utils import *
 from ..time_utils import *
 
 # -------------------------
-# 主頁商店推送（待加入演算法）
+# 點擊的商店是否為推薦，做推送記錄
+# -------------------------
+def record_shop_click(request, shop):
+    filters = Q(shop=shop)
+    if request.user.is_authenticated:
+        filters &= Q(user=request.user)
+    else:
+        if not request.session.session_key:
+            request.session.save()
+        filters &= Q(session_key=request.session.session_key)
+    ShopRecommendationHistory.objects.filter(filters).update(clicked=True)
+
+# -------------------------
+# 主頁商店推送
 # -------------------------
 def homepage(request):
     if request.user.is_authenticated:
@@ -61,6 +74,9 @@ def shopByUserId_many(request, user):
 # -------------------------
 @shop_exists_and_not_blacklisted()
 def shopById_one(request, shop):
+    # 記錄點擊是否為推薦，做推送記錄
+    record_shop_click(request, shop)
+
     is_rush_buy = shop.purchase_priority_id in [2, 3]
 
     products = list(Product.objects.filter(shop=shop))
