@@ -10,8 +10,23 @@ from goodBuy_web.models import SearchHistory
 from ..want_utils import *
 from utils import *
 
-from weighting import *
-from hot_rank import *
+from ..weighting import *
+from ..hot_rank import *
+
+# -------------------------
+# 點擊的收物帖是否為推薦，做推送記錄
+# -------------------------
+def record_want_click(request, want):
+    filters = Q(want=want)
+    if request.user.is_authenticated:
+        filters &= Q(user=request.user)
+    else:
+        if not request.session.session_key:
+            request.session.save()
+        filters &= Q(session_key=request.session.session_key)
+
+    WantRecommendationHistory.objects.filter(filters).update(clicked=True)
+
 # -------------------------
 # 收物帖主頁推送
 # -------------------------
@@ -45,6 +60,9 @@ def wantByUserId_many(request, user):
 # -------------------------
 @want_exists_and_not_blacklisted()
 def wantById_one(request, want):
+    # 記錄點擊是否為推薦，做推送記錄
+    record_want_click(request, want)
+
     if request.user.is_authenticated and request.user == want.user:
         backs = ( WantBack.objects.filter(want=want).select_related('user', 'shop').order_by('-date'))
         return render(request, 'want_detail.html', locals())

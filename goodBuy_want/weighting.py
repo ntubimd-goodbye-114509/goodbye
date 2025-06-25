@@ -1,5 +1,3 @@
-# goodBuy_want/recommendation.py
-
 from collections import defaultdict
 from datetime import timedelta
 from django.db.models import Q, Count, Case, When, IntegerField
@@ -7,9 +5,9 @@ from django.utils import timezone
 from goodBuy_want.models import Want, WantTag, WantFootprints, WantBack, WantRecommendationHistory
 from goodBuy_web.models import SearchHistory
 from goodBuy_want.recommend_config import (
-    WANT_HOT_WEIGHTS, WANT_PERSONAL_WEIGHTS, WANT_KEYWORD_SCORES,
+    HOT_WEIGHTS, PERSONAL_WEIGHTS, KEYWORD_SCORES,
     RECOMMENDED_WANT_WEIGHT_MULTIPLIER,
-    WANT_SEARCH_HISTORY_DAYS, WANT_VIEW_DAYS, WANT_REPLY_DAYS
+    SEARCH_HISTORY_DAYS, VIEW_DAYS, REPLY_DAYS
 )
 from django.contrib.auth import get_user_model
 
@@ -47,11 +45,11 @@ def score_wants_by_keywords(keywords, want_queryset=None):
         score = 0
         for kw in keywords:
             if kw in (want.title or ''):
-                score += WANT_KEYWORD_SCORES.get('title', 0)
+                score += KEYWORD_SCORES.get('title', 0)
             elif kw in (want.post_text or ''):
-                score += WANT_KEYWORD_SCORES.get('post_text', 0)
+                score += KEYWORD_SCORES.get('post_text', 0)
             elif WantTag.objects.filter(want=want, tag__name__icontains=kw).exists():
-                score += WANT_KEYWORD_SCORES.get('tags', 0)
+                score += KEYWORD_SCORES.get('tags', 0)
         scores[want.id] += score
     return scores
 
@@ -74,7 +72,7 @@ def compute_want_scores(user, want_queryset=None):
     )
     kw_scores = score_wants_by_keywords(keywords, want_queryset)
     for wid, score in kw_scores.items():
-        _add_score(wid, score + WANT_PERSONAL_WEIGHTS['search_keyword'])
+        _add_score(wid, score + PERSONAL_WEIGHTS['search_keyword'])
 
     # 看過的 want
     viewed_ids = WantFootprints.objects.filter(user=user, date__gte=now - timedelta(days=WANT_VIEW_DAYS))
@@ -82,7 +80,7 @@ def compute_want_scores(user, want_queryset=None):
     viewed_keywords = extract_keywords_from_wants(viewed_wants)
     viewed_scores = score_wants_by_keywords(viewed_keywords, want_queryset)
     for wid, score in viewed_scores.items():
-        _add_score(wid, score * WANT_PERSONAL_WEIGHTS['viewed_related_multiplier'])
+        _add_score(wid, score * PERSONAL_WEIGHTS['viewed_related_multiplier'])
 
     # 回覆過的 want
     replied_ids = WantBack.objects.filter(user=user, date__gte=now - timedelta(days=WANT_REPLY_DAYS))
@@ -90,7 +88,7 @@ def compute_want_scores(user, want_queryset=None):
     replied_keywords = extract_keywords_from_wants(replied_wants)
     reply_scores = score_wants_by_keywords(replied_keywords, want_queryset)
     for wid, score in reply_scores.items():
-        _add_score(wid, score + WANT_PERSONAL_WEIGHTS['replied_related_bonus'])
+        _add_score(wid, score + PERSONAL_WEIGHTS['replied_related_bonus'])
 
     return scores
 
