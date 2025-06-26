@@ -129,10 +129,8 @@ def shopById_one(request, shop):
 # -------------------------
 # 商店查詢 - search
 # -------------------------
-from goodBuy_shop.weighting import personalized_shop_recommendation
-from django.utils import timezone
-
-def shopBySearch(request):
+@user_exists_required
+def shopBySearch(request, user=None):
     kw = request.GET.get('keyWord')
     sort = request.GET.get('sort', 'new')
 
@@ -147,22 +145,29 @@ def shopBySearch(request):
             searched_at=timezone.now()
         )
 
+    # 準備查詢集
+    base_queryset = Shop.objects.filter(permission__id=1)
+    if user:
+        base_queryset = base_queryset.filter(owner=user)
+
     if request.user.is_authenticated:
         shops = personalized_shop_recommendation(
             user=request.user,
             keywords=[kw],
-            exclude_seen=False,  # 看過的商店依舊可出現
+            shop_queryset=base_queryset,
+            exclude_seen=False,
             limit=100
         )
     else:
-        # 未登入使用者提供kw內熱門商店
         shops = get_hot_shops(limit=100, keyword=kw)
+        if user:
+            shops = [s for s in shops if s.owner_id == user.id]
 
     # 排序
     if sort == 'old':
-        shops = shops.order_by('update')
+        shops = sorted(shops, key=lambda s: s.update)
     else:
-        shops = shops.order_by('-update')
+        shops = sorted(shops, key=lambda s: s.update, reverse=True)
 
     shops = shopInformation_many(shops)
     return render(request, '搜尋結果界面', locals())
