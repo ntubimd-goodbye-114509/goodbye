@@ -96,7 +96,8 @@ def wantById_one(request, want):
 # -------------------------
 # 收物帖查詢 - search
 # -------------------------
-def wantBySearch(request):
+@user_exists_required
+def wantBySearch(request, user=None):
     kw = request.GET.get('keyWord')
     sort = request.GET.get('sort', 'new')
 
@@ -104,28 +105,37 @@ def wantBySearch(request):
         messages.warning(request, "請輸入關鍵字")
         return redirect('home')
 
-    if request.user.is_authenticated:
+    if request.user.is_authenticated and kw:
         SearchHistory.objects.update_or_create(
             user=request.user,
             keyword=kw,
             searched_at=timezone.now()
         )
 
+    # 準備查詢集
+    base_queryset = Want.objects.filter(permission__id=1)
+    if user:
+        base_queryset = base_queryset.filter(owner=user)
+
+    # 推薦邏輯
     if request.user.is_authenticated:
         wants = personalized_want_recommendation(
             user=request.user,
-            keywords=[kw],
+            keywords=[kw] if kw else None,
+            want_queryset=base_queryset,
             exclude_seen=False,
             limit=100
         )
     else:
         wants = get_hot_wants(limit=100, keyword=kw)
+        if user:
+            wants = [w for w in wants if w.owner_id == user.id]
 
     # 排序
     if sort == 'old':
-        wants = wants.order_by('update')
+        wants = sorted(wants, key=lambda w: w.update)
     else:
-        wants = wants.order_by('-update')
+        wants = sorted(wants, key=lambda w: w.update, reverse=True)
 
     wants = wantInformation_many(wants)
     return render(request, '搜尋結果界面', locals())
