@@ -67,7 +67,7 @@ def compute_want_scores(user, want_queryset=None):
 
     # 搜尋紀錄
     keywords = list(
-        SearchHistory.objects.filter(user=user, searched_at__gte=now - timedelta(days=WANT_SEARCH_HISTORY_DAYS))
+        SearchHistory.objects.filter(user=user, searched_at__gte=now - timedelta(days=SEARCH_HISTORY_DAYS))
         .order_by('-searched_at').values_list('keyword', flat=True)[:3]
     )
     kw_scores = score_wants_by_keywords(keywords, want_queryset)
@@ -75,7 +75,7 @@ def compute_want_scores(user, want_queryset=None):
         _add_score(wid, score + PERSONAL_WEIGHTS['search_keyword'])
 
     # 看過的 want
-    viewed_ids = WantFootprints.objects.filter(user=user, date__gte=now - timedelta(days=WANT_VIEW_DAYS))
+    viewed_ids = WantFootprints.objects.filter(user=user, date__gte=now - timedelta(days=VIEW_DAYS))
     viewed_wants = Want.objects.filter(id__in=viewed_ids.values_list('want_id', flat=True))
     viewed_keywords = extract_keywords_from_wants(viewed_wants)
     viewed_scores = score_wants_by_keywords(viewed_keywords, want_queryset)
@@ -83,7 +83,7 @@ def compute_want_scores(user, want_queryset=None):
         _add_score(wid, score * PERSONAL_WEIGHTS['viewed_related_multiplier'])
 
     # 回覆過的 want
-    replied_ids = WantBack.objects.filter(user=user, date__gte=now - timedelta(days=WANT_REPLY_DAYS))
+    replied_ids = WantBack.objects.filter(user=user, date__gte=now - timedelta(days=REPLY_DAYS))
     replied_wants = Want.objects.filter(id__in=replied_ids.values_list('want_id', flat=True))
     replied_keywords = extract_keywords_from_wants(replied_wants)
     reply_scores = score_wants_by_keywords(replied_keywords, want_queryset)
