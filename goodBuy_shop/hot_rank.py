@@ -9,7 +9,7 @@ from goodBuy_shop.recommend_config import HOT_WEIGHTS
 from goodBuy_shop.shop_utils import shop_is_active
 
 
-def get_hot_shops(limit=20, days=7, owner=None, keyword=None, tag=None, user=None, request=None, source='hot_rank'):
+def get_hot_shops(limit=None, days=7, owner=None, keyword=None, tag=None, user=None, request=None, source='hot_rank'):
     now = timezone.now()
     recent = now - timedelta(days=days)
     scores = defaultdict(int)
@@ -83,7 +83,11 @@ def get_hot_shops(limit=20, days=7, owner=None, keyword=None, tag=None, user=Non
             tagged_ids = ShopTag.objects.filter(tag=tag).values_list('shop_id', flat=True)
             fallback_qs = fallback_qs.filter(id__in=tagged_ids)
 
-        result_qs = fallback_qs.order_by('-update')[:limit]
+        
+        if limit:
+            result_qs = fallback_qs.order_by('-update')[:limit]
+        else:
+            result_qs = fallback_qs.order_by('-update')
 
     # 寫入推薦紀錄
     recommended_at = timezone.now()

@@ -7,7 +7,7 @@ from goodBuy_want.models import Want, WantFootprints, WantBack, WantRecommendati
 from goodBuy_want.recommend_config import HOT_WEIGHTS
 
 
-def get_hot_wants(limit=20, days=7, keyword=None, tag=None, user=None, request=None, source='hot_rank'):
+def get_hot_wants(limit=None, days=7, keyword=None, tag=None, user=None, request=None, source='hot_rank'):
     now = timezone.now()
     recent = now - timedelta(days=days)
     scores = defaultdict(int)
@@ -44,7 +44,10 @@ def get_hot_wants(limit=20, days=7, keyword=None, tag=None, user=None, request=N
         *[When(id=wid, then=pos) for pos, wid in enumerate(top_ids)],
         output_field=IntegerField()
     )
-    result_qs = qs.order_by(preserved_order)[:limit]
+    if limit:
+        result_qs = qs.order_by(preserved_order)[:limit]
+    else:
+        result_qs = qs.order_by(preserved_order)
 
     # 無符合結果處理
     if not result_qs.exists():

@@ -2,9 +2,10 @@ from collections import defaultdict
 from django.utils import timezone
 from datetime import timedelta
 from django.db.models import Q
-from goodBuy_shop.models import Shop, Product, ShopFootprints, ShopCollect, ShopRecommendationHistory
-from goodBuy_order.models.order import Order
-from goodBuy_web.models import SearchHistory, Blacklist
+from goodBuy_shop.models import *
+from goodBuy_order.models import *
+from goodBuy_web.models import *
+from django.db.models import Prefetch
 
 import random
 
@@ -22,9 +23,11 @@ from goodBuy_shop.recommend_config import (
 # -------------------------
 def get_active_shop_ids():
     now = timezone.now()
-    recent_updated_ids = Shop.objects.filter(updated_at__gte=now - timedelta(days=60)).values_list('id', flat=True)
-    recent_traded_pids = Order.objects.filter(created_at__gte=now - timedelta(days=7), 
-                                              order_state__id__in=[4, 5, 6]).values_list('product_id', flat=True)
+    recent_updated_ids = Shop.objects.filter(update__gte=now - timedelta(days=60)).values_list('id', flat=True)
+    recent_traded_pids = ProductOrder.objects.filter(
+        order__date__gte=now - timedelta(days=7),
+        order__order_state_id__in=[4, 5, 6]
+    ).values_list('product_id', flat=True).distinct()
     recent_traded_shop_ids = Product.objects.filter(id__in=recent_traded_pids).values_list('shop_id', flat=True)
     return set(recent_updated_ids) | set(recent_traded_shop_ids), set(recent_traded_shop_ids)
 
@@ -32,14 +35,23 @@ def get_active_shop_ids():
 # 商店資訊抓取關鍵資料
 # -------------------------
 def extract_keywords_from_shops(shop_qs):
+    shop_qs = shop_qs.prefetch_related(
+        Prefetch('shoptag_set', queryset=ShopTag.objects.select_related('tag'))
+    ).only('name', 'introduce')
+
     keywords = set()
-    for shop in shop_qs.only('tags', 'name', 'introduce'):
-        if shop.tags:
-            keywords.update(shop.tags.split(','))
+
+    for shop in shop_qs:
+        for shop_tag in shop.shoptag_set.all():
+            if shop_tag.tag and shop_tag.tag.name:
+                keywords.update(shop_tag.tag.name.split())
+
         if shop.name:
             keywords.update(shop.name.split())
+
         if shop.introduce:
             keywords.update(shop.introduce.split())
+
     return keywords
 
 # -------------------------
@@ -94,8 +106,19 @@ def compute_shop_scores(user, shop_queryset=None):
 
     # 收藏 / 曾購買商品 ➜ 擷取商店關鍵字加分
     cooldown = now - timedelta(days=COLLECT_DAYS)
-    collect_pids = ShopCollect.objects.filter(user=user, created_at__lt=cooldown).values_list('product_id', flat=True)
-    bought_pids = Order.objects.filter(user=user).values_list('product_id', flat=True)
+    collected_shop_ids = ShopCollect.objects.filter(
+        user=user,
+        date__lt=cooldown
+    ).values_list('shop_id', flat=True)
+
+    # 從這些店鋪抓出商品 ID（排除已刪除的商品）
+    collect_pids = Product.objects.filter(
+        shop_id__in=collected_shop_ids,
+        is_delete=False
+    ).values_list('id', flat=True)
+    bought_pids = ProductOrder.objects.filter(
+        order__user=user
+    ).values_list('product_id', flat=True).distinct()
 
     related_shop_ids = Product.objects.filter(
         id__in=list(collect_pids) + list(bought_pids)
@@ -143,9 +166,9 @@ def personalized_shop_recommendation(
 
     # 黑名單排除
     blocked_ids = set(
-        Blacklist.objects.filter(blocker=user).values_list('blocked_id', flat=True)
+        Blacklist.objects.filter(black_user=user).values_list('user_id', flat=True)
     ) | set(
-        Blacklist.objects.filter(blocked=user).values_list('blocker_id', flat=True)
+        Blacklist.objects.filter(user=user).values_list('user_id', flat=True)
     )
     excluded_owner_ids = blocked_ids | {user.id}
 
