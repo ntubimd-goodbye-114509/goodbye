@@ -158,51 +158,6 @@ def shop_detail(request, shop):
         'selected_tags': shop.shoptag_set.values_list('tag__name', flat=True),
     })
 
-# @login_required(login_url='login')
-# def edit_shop(request, shop):
-#     form = ShopForm(request.POST or None, request.FILES or None, instance=shop, user=request.user)
-    
-#     if request.method == 'POST':
-#         if form.is_valid():
-#             shop = form.save(commit=False)
-#             shop.update = timezone.now()
-#             shop.save()
-
-#             shop.images.all().delete()
-
-#             images = request.FILES.getlist('images')
-#             cover_index_raw = request.POST.get('cover_index')
-#             cover_index = int(cover_index_raw) if cover_index_raw and cover_index_raw.isdigit() else -1
-#             order_str = request.POST.get('image_order')
-
-#             if order_str and images:
-#                 order_list = list(map(int, order_str.split(',')))
-#                 sorted_images = [images[i] for i in order_list if i < len(images)]
-#             else:
-#                 sorted_images = images
-
-#             for idx, img in enumerate(sorted_images):
-#                 ShopImg.objects.create(
-#                     shop=shop,
-#                     img=img,
-#                     is_cover=(cover_index != -1 and idx == cover_index),
-#                     position=idx
-#                 )
-
-#             messages.success(request, '商店資訊修改成功')
-#             return redirect('shop_detail', shop_id=shop.id)
-#         else:
-#             messages.error(request, '表單資料有誤')
-
-#     return render(request, 'shop_detail.html', {
-#     'form': form,
-#     'shop': shop,
-#     'predefined_tags': Tag.objects.values_list('name', flat=True),
-#     'selected_tags': shop.shoptag_set.values_list('tag__name', flat=True),
-#     'products': shop.product_set.filter(is_delete=False),
-#     'shop_images': shop.images.all(),
-# })
-
 # -------------------------
 # 刪除商店（軟刪除）
 # -------------------------
@@ -239,3 +194,11 @@ def set_cover_image(request, shop, image_id):
     ShopImg.objects.filter(id=image_id, shop=shop).update(is_cover=True)
     messages.success(request, '封面已更新')
     return redirect('shop_edit', shop_id=shop.id)
+
+# -------------------------
+# 圖片自動切割
+# -------------------------
+@login_required(login_url='login')
+@shop_owner_required
+def img_cut():
+    return JsonResponse({'status': 'success', 'message': '圖片切割功能尚未實作'})
