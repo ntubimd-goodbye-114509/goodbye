@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container py-4">
+  <h2 class="mb-3">發布商店公告</h2>
+  <form method="POST">
+    {% csrf_token %}
+    <div class="mb-3">
+      {{ form.title.label_tag }}
+      {{ form.title }}
+    </div>
+    <div class="mb-3">
+      {{ form.announcement.label_tag }}
+      {{ form.announcement }}
+    </div>
+    <button type="submit" class="btn btn-success">發布公告</button>
+  </form>
+</div>
+{% endblock %}
