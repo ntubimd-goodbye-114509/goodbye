@@ -26,7 +26,7 @@ def shop_collect_toggle(request, shop):
             ShopCollect.objects.create(user=request.user, shop=shop, date=timezone.now())
             messages.success(request, '收藏成功')
 
-    return redirect('商店界面', shop_id=shop.id)
+    return redirect('shop_detail', shop_id=shop.id)
 # -------------------------
 # 查看收藏的商店
 # -------------------------

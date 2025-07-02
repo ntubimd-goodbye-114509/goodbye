@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container py-4">
+  <h2 class="mb-3">商店搜尋</h2>
+  <form method="get" action="{% url 'shop_search' %}" class="mb-4">
+    <div class="input-group">
+      <input type="text" name="q" class="form-control" placeholder="輸入關鍵字搜尋商店...">
+      <button type="submit" class="btn btn-primary">搜尋</button>
+    </div>
+  </form>
+
+  <div class="row">
+    {% for shop in shops %}
+      <div class="col-md-4 mb-4">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">{{ shop.name }}</h5>
+            <p class="card-text">{{ shop.introduce|truncatechars:50 }}</p>
+            <a href="{% url 'shop_detail' shop.id %}" class="btn btn-outline-primary">查看商店</a>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <p>找不到您查詢的商店！</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

@@ -6,7 +6,6 @@
     <title>{{ shop.name }} - 賣場詳情</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/shop_detail.css' %}">
-    {% include 'common/header.html' %}
 </head>
 <body>
 
@@ -17,6 +16,20 @@
                 <div class="d-flex align-items-center mb-3">
                     <img src="{{ shop_images.first.img.url }}" alt="主圖" class="img-thumbnail me-3" style="width: 100px; height: 100px;">
 
+                    <!-- 收藏按鈕 -->
+                    {% if user.is_authenticated %}
+                        {% if shop.is_collected %}
+                            <a href="{% url 'shop_collect_toggle' shop.id %}" class="btn btn-warning">取消收藏</a>
+                        {% else %}
+                            <a href="{% url 'shop_collect_toggle' shop.id %}" class="btn btn-primary">收藏</a>
+                        {% endif %}
+                    {% endif %}
+
+                    <!-- 發出公告 -->
+                    {% if user == shop.owner %}
+                        <a href="{% url 'add_announcement' shop.id %}" class="btn btn-outline-secondary btn-sm">＋ 新增公告</a>
+                    {% endif %}
+
                     <div>
                         <h5>{{ shop.name }}</h5>
                         <small class="text-muted">{{ shop.update|date:"Y/m/d H:i" }}</small>
@@ -26,7 +39,8 @@
                         </div>
                         {% endif %}
                     </div>
-<!-- 刪除賣場 -->
+                    
+                    <!-- 刪除賣場 -->
                     {% if user == shop.owner %}
                         <form method="post" action="{% url 'shop_delete' shop.id %}" onsubmit="return confirm('確定要刪除這個商店嗎？');">
                             {% csrf_token %}

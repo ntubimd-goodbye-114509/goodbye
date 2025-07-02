@@ -1,3 +1,4 @@
+
 {% load static %}
 <!DOCTYPE html>
 <html lang="zh-TW">
@@ -120,8 +121,12 @@
             {{ form.tag_names }}
           </div>
           <div class="mb-3">
-            <label class="form-label">付款方式</label>
-            {{ form.payment_ids }}
+            <label class="form-label">可接受匯款帳號</label>
+            {% for account in form.payment_ids %}
+              <div class="form-check">
+                {{ account.tag }} {{ account.choice_label }}
+              </div>
+            {% endfor %}
           </div>
           <div class="d-flex justify-content-end gap-2 mt-4">
             <a class="btn btn-outline-pink-text" href="{% url 'home' %}">取消</a>

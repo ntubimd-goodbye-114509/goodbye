@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container py-4 text-center">
+  {% if collected %}
+    <h4>你已收藏此商店</h4>
+    <a href="{% url 'shop_collect_toggle' shop.id %}" class="btn btn-warning">取消收藏</a>
+  {% else %}
+    <h4>你尚未收藏此商店</h4>
+    <a href="{% url 'shop_collect_toggle' shop.id %}" class="btn btn-primary">收藏</a>
+  {% endif %}
+</div>
+{% endblock %}
