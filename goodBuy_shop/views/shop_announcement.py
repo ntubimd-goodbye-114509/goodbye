@@ -14,7 +14,7 @@ from ..shop_forms import *
 @shop_exists_and_not_blacklisted()
 def showShopAnnouncement_many(request, shop):
     announcements = shop.shopAnnouncement_set.all().order_by('-update')
-    return render(request, '顯示公告頁面', locals())
+    return render(request, 'goodBuy_shop/announcement_list.html', locals())
 
 @announcement_exists_and_shop_visible()
 def showShopAnnouncement_one(request, shop, announcement_id):
@@ -23,7 +23,7 @@ def showShopAnnouncement_one(request, shop, announcement_id):
     except ShopAnnouncement.DoesNotExist:
         messages.error(request, '查無此公告')
         return redirect('shop_detail', shop_id=shop.id)
-    return render(request, '顯示單一公告頁面', locals())
+    return render(request, 'goodBuy_shop/announcement_detail.html', locals())
 # -------------------------
 # 新增商店公告
 # -------------------------
@@ -38,7 +38,8 @@ def addAnnouncement(request, shop):
                 announcement.update = timezone.now()
                 announcement.save()
                 messages.success(request, '公告新增成功')
-                return redirect('shop_list', shop_id=shop.id)
+                # return redirect('shop_list', shop_id=shop.id)
+                return redirect('shop_detail', shop_id=shop.id)
             except Exception as e:
                 messages.error(request, f'公告新增失敗{e}')
         else:
