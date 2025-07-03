@@ -10,6 +10,8 @@ from .time_utils import timeFormatChange_now, timeFormatChange_longtime
 class MultipleClearableFileInput(ClearableFileInput):
     allow_multiple_selected = True
 
+class ImageUploadForm(forms.Form):
+    image = forms.ImageField()
 
 class ShopForm(forms.ModelForm):
     tag_names = forms.CharField(required=False, widget=forms.HiddenInput())
@@ -111,7 +113,6 @@ class ShopForm(forms.ModelForm):
                 ShopTag.objects.get_or_create(shop=shop, tag=tag)
 
         return shop
-
 
 class ShopImgForm(forms.ModelForm):
     class Meta:
