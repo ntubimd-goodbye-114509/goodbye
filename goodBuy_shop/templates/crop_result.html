@@ -1,0 +1,63 @@
+<h2>上傳圖片裁切工具</h2>
+
+<!-- 🔼 上傳圖片表單 -->
+<form method="post" enctype="multipart/form-data" style="margin-bottom: 30px;">
+  {% csrf_token %}
+  <input type="file" name="image" accept="image/*" required>
+  <button type="submit">開始裁切</button>
+</form>
+
+<!-- 🔁 清空按鈕 -->
+<form method="get">
+  <button type="submit" name="clear" value="1" style="background-color: red; color: white;">
+    🔄 清空所有已上傳與已裁切圖片
+  </button>
+</form>
+
+<!-- ✅ 清除成功訊息 -->
+{% if message %}
+  <p style="color: green; font-weight: bold;">{{ message }}</p>
+{% endif %}
+
+<!-- 🖼️ 顯示上傳的圖片 -->
+{% if uploaded_image %}
+  <h3>你上傳的圖片：</h3>
+  <div style="margin-bottom: 20px;">
+    <img src="/upload/{{ uploaded_image }}" width="400">
+  </div>
+{% endif %}
+
+<!-- ✂️ 裁切結果與刪除按鈕 -->
+{% if cropped_images %}
+  <h3>裁切結果：</h3>
+  <div id="cropped-images">
+    {% for img in cropped_images %}
+      <div class="cropped-img" id="img-{{ forloop.counter }}" style="display:inline-block; margin:10px;">
+        <img src="/upload/{{ img }}" width="200"><br>
+        <button type="button" onclick="deleteImage('{{ img }}', 'img-{{ forloop.counter }}')" style="color: red;">❌ 刪除</button>
+        <p style="font-size: 12px;">{{ img }}</p>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<!-- 🔧 AJAX 刪除圖片 -->
+<script>
+function deleteImage(imgPath, elementId) {
+  fetch("{% url 'delete_cropped_image' %}", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-CSRFToken": "{{ csrf_token }}",
+    },
+    body: JSON.stringify({ img: imgPath })
+  })
+  .then(response => {
+    if (response.ok) {
+      document.getElementById(elementId).remove();
+    } else {
+      alert("刪除失敗");
+    }
+  });
+}
+</script>
