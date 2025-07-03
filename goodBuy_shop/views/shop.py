@@ -1,15 +1,20 @@
+import os
+import uuid
+
 from django.db.models import *
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import *
 from django.utils import timezone
 from django.http import JsonResponse
+from django.conf import settings
 
 from goodBuy_shop.models import *
 from goodBuy_web.models import *
 from utils import *
 from ..shop_forms import *
 from goodBuy_tag.models import Tag
+from ..yolo_models.yolo_detect  import crop_detected_objects
 
 # -------------------------
 # 新增商店
@@ -148,6 +153,7 @@ def edit_shop(request, shop):
         'products': shop.product_set.filter(is_delete=False),
         'shop_images': shop.images.all(),
     })
+
 @shop_owner_required
 def shop_detail(request, shop):
     return render(request, 'shop_detail.html', {
@@ -198,7 +204,107 @@ def set_cover_image(request, shop, image_id):
 # -------------------------
 # 圖片自動切割
 # -------------------------
+import shutil
+def clear_folder(folder_path):
+    """安全刪除並重建資料夾（防錯、防權限）"""
+    def handle_remove_readonly(func, path, exc):
+        import stat
+        os.chmod(path, stat.S_IWRITE)
+        func(path)
+
+    if os.path.exists(folder_path):
+        try:
+            shutil.rmtree(folder_path, onerror=handle_remove_readonly)
+        except Exception as e:
+            print(f"[警告] 無法刪除 {folder_path}: {e}")
+    os.makedirs(folder_path, exist_ok=True)
+
 @login_required(login_url='login')
-@shop_owner_required
-def img_cut():
-    return JsonResponse({'status': 'success', 'message': '圖片切割功能尚未實作'})
+# @shop_owner_required
+def shop_crop_view(request):
+    # ✅ 使用者專屬子資料夾名稱
+    user_folder = f"user_{request.user.id}"
+    crop_folder = os.path.join(settings.MEDIA_ROOT, 'crop', user_folder)
+    cropped_folder = os.path.join(settings.MEDIA_ROOT, 'cropped', user_folder)
+
+    # ✅ 清空裁切資料夾並清除 session（只清除自己的）
+    if request.GET.get('clear') == '1':
+        clear_folder(crop_folder)
+        clear_folder(cropped_folder)
+
+        request.session.pop('uploaded_image', None)
+        request.session.pop('cropped_images', None)
+
+        return redirect('shop_crop_view')
+
+    # ✅ 上傳圖片並裁切（只在 POST 執行一次）
+    if request.method == 'POST' and request.FILES.get('image'):
+        image = request.FILES['image']
+
+        # 🔥 上傳前先清空使用者資料夾（防止上一次殘留）
+        clear_folder(crop_folder)
+        clear_folder(cropped_folder)
+
+        os.makedirs(crop_folder, exist_ok=True)
+        os.makedirs(cropped_folder, exist_ok=True)
+
+        # 儲存圖片到 crop/user_xx/
+        ext = os.path.splitext(image.name)[1]
+        filename = f"{uuid.uuid4().hex[:8]}{ext}"
+        image_path = os.path.join(crop_folder, filename)
+
+        with open(image_path, 'wb+') as f:
+            for chunk in image.chunks():
+                f.write(chunk)
+
+        # 裁切處理，結果儲存在 cropped/user_xx/
+        cropped_images = crop_detected_objects(image_path, cropped_folder)
+
+        # 儲存相對路徑到 session（給前端使用）
+        uploaded_image = os.path.join('crop', user_folder, filename).replace('\\', '/')
+        cropped_images = [os.path.join('cropped', user_folder, os.path.basename(img)).replace('\\', '/') for img in cropped_images]
+
+        request.session['uploaded_image'] = uploaded_image
+        request.session['cropped_images'] = cropped_images
+
+        return redirect('shop_crop_view')  # 重導向避免重複裁切
+
+    # ✅ GET 請求：讀取 session 中結果
+    uploaded_image = request.session.get('uploaded_image')
+    cropped_images = request.session.get('cropped_images', [])
+
+    return render(request, 'crop_result.html', {
+        'uploaded_image': uploaded_image,
+        'cropped_images': cropped_images
+    })
+
+
+# -------------------------
+# 圖片自動切割 - 刪除不需要的
+# -------------------------
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+import json
+@csrf_exempt
+def delete_cropped_image(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        img_path = data.get('img')
+
+        if not img_path:
+            return JsonResponse({'error': '缺少圖片路徑'}, status=400)
+
+        # 刪除實體檔案
+        abs_path = os.path.join(settings.MEDIA_ROOT, img_path.replace('/', os.sep))
+        if os.path.exists(abs_path):
+            os.remove(abs_path)
+
+        # 從 session 中移除
+        cropped_images = request.session.get('cropped_images', [])
+        if img_path in cropped_images:
+            cropped_images.remove(img_path)
+            request.session['cropped_images'] = cropped_images
+
+        return JsonResponse({'success': True})
+
+    return JsonResponse({'error': '只接受 POST'}, status=405)
