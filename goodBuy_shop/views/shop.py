@@ -22,6 +22,7 @@ from ..yolo_models.yolo_detect  import crop_detected_objects
 @login_required(login_url='login')
 def add_shop(request):
     form = ShopForm(request.POST or None, request.FILES or None, user=request.user)
+    selected_images = request.session.get('final_selected_images', [])
     if request.method == 'POST':
         if form.is_valid():
             shop = form.save()
@@ -44,6 +45,18 @@ def add_shop(request):
             for idx, img in enumerate(sorted_images):
                 ShopImg.objects.create(shop=shop, img=img, is_cover=(idx == cover_index), position=idx)
 
+            for img_path in request.POST.getlist('selected_images'):
+                src_path = os.path.join(settings.MEDIA_ROOT, img_path.replace('/', os.sep))
+                filename = os.path.basename(img_path)
+                target_rel_path = os.path.join('product', filename)
+                dst_path = os.path.join(settings.MEDIA_ROOT, target_rel_path)
+
+                os.makedirs(os.path.dirname(dst_path), exist_ok=True)
+
+                if os.path.exists(src_path):
+                    shutil.move(src_path, dst_path)
+                    ShopImg.objects.create(shop=shop, img=target_rel_path)
+                
             # 商品處理
             names = request.POST.getlist('product_name[]')
             prices = request.POST.getlist('product_price[]')
@@ -66,13 +79,14 @@ def add_shop(request):
                     success_count += 1
                 except Exception as e:
                     print(f"商品新增失敗（第 {i+1} 筆）：{e}")
-
+            
+            request.session.pop('final_selected_images', None)
             messages.success(request, f'商店已建立，{success_count} 個商品成功新增。')
             return redirect('shop_detail', shop_id=shop.id)
         else:
             print('表單驗證失敗:', form.errors)
             messages.error(request, '表單資料有誤')
-    return render(request, 'add_shop.html', {'form': form})
+    return render(request, 'add_shop.html', {'form': form, 'selected_images': selected_images})
 # -------------------------
 # 修改商店資訊（多個）
 # -------------------------
@@ -222,12 +236,12 @@ def clear_folder(folder_path):
 @login_required(login_url='login')
 # @shop_owner_required
 def shop_crop_view(request):
-    # ✅ 使用者專屬子資料夾名稱
+    # 使用者專屬子資料夾名稱
     user_folder = f"user_{request.user.id}"
     crop_folder = os.path.join(settings.MEDIA_ROOT, 'crop', user_folder)
     cropped_folder = os.path.join(settings.MEDIA_ROOT, 'cropped', user_folder)
 
-    # ✅ 清空裁切資料夾並清除 session（只清除自己的）
+    # 清空裁切資料夾並清除 session（只清除自己的）
     if request.GET.get('clear') == '1':
         clear_folder(crop_folder)
         clear_folder(cropped_folder)
@@ -237,11 +251,11 @@ def shop_crop_view(request):
 
         return redirect('shop_crop_view')
 
-    # ✅ 上傳圖片並裁切（只在 POST 執行一次）
+    # 上傳圖片並裁切（只在 POST 執行一次）
     if request.method == 'POST' and request.FILES.get('image'):
         image = request.FILES['image']
 
-        # 🔥 上傳前先清空使用者資料夾（防止上一次殘留）
+        # 上傳前先清空使用者資料夾（防止上一次殘留）
         clear_folder(crop_folder)
         clear_folder(cropped_folder)
 
@@ -278,7 +292,6 @@ def shop_crop_view(request):
         'cropped_images': cropped_images
     })
 
-
 # -------------------------
 # 圖片自動切割 - 刪除不需要的
 # -------------------------
@@ -308,3 +321,22 @@ def delete_cropped_image(request):
         return JsonResponse({'success': True})
 
     return JsonResponse({'error': '只接受 POST'}, status=405)
+
+# -------------------------
+# 圖片自動切割 - 取得裁切圖片
+# -------------------------
+@csrf_exempt
+def select_cropped_images(request):
+    if request.method == 'POST':
+        selected = request.POST.getlist('selected_images')
+
+        request.session['final_selected_images'] = selected
+
+        request.session.pop('uploaded_image', None)
+        request.session.pop('cropped_images', None)
+
+        return redirect('add_shop') 
+
+    return redirect('shop_crop_view')
+
+# -------------------------

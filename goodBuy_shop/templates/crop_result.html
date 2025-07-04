@@ -1,25 +1,29 @@
 <h2>上傳圖片裁切工具</h2>
 
-<!-- 🔼 上傳圖片表單 -->
+<!-- 上傳圖片表單 -->
 <form method="post" enctype="multipart/form-data" style="margin-bottom: 30px;">
   {% csrf_token %}
   <input type="file" name="image" accept="image/*" required>
   <button type="submit">開始裁切</button>
 </form>
 
-<!-- 🔁 清空按鈕 -->
+<!-- 清空按鈕 -->
 <form method="get">
   <button type="submit" name="clear" value="1" style="background-color: red; color: white;">
     🔄 清空所有已上傳與已裁切圖片
   </button>
 </form>
 
-<!-- ✅ 清除成功訊息 -->
-{% if message %}
-  <p style="color: green; font-weight: bold;">{{ message }}</p>
-{% endif %}
+<!-- 下一步 -->
+<form method="post" action="{% url 'select_cropped_images' %}">
+  {% csrf_token %}
+  {% for img in cropped_images %}
+    <input type="hidden" name="selected_images" value="{{ img }}">
+  {% endfor %}
+  <button type="submit" class="btn btn-success mt-3">下一步：新增商品</button>
+</form>
 
-<!-- 🖼️ 顯示上傳的圖片 -->
+<!-- 顯示上傳的圖片 -->
 {% if uploaded_image %}
   <h3>你上傳的圖片：</h3>
   <div style="margin-bottom: 20px;">
@@ -27,7 +31,7 @@
   </div>
 {% endif %}
 
-<!-- ✂️ 裁切結果與刪除按鈕 -->
+<!-- 裁切結果與刪除按鈕 -->
 {% if cropped_images %}
   <h3>裁切結果：</h3>
   <div id="cropped-images">
@@ -41,7 +45,7 @@
   </div>
 {% endif %}
 
-<!-- 🔧 AJAX 刪除圖片 -->
+<!-- 刪除圖片 -->
 <script>
 function deleteImage(imgPath, elementId) {
   fetch("{% url 'delete_cropped_image' %}", {
