@@ -20,7 +20,7 @@
 /* 隱藏的側邊欄 */
 .menu {
     position: fixed;
-    top:200px ;
+    top:120px ;
     left: -550px; /* 初始位置在視窗外 */
     width: 400px; /* 側邊欄寬度 */
     height: 100%; /* 側邊欄全屏高度 */
