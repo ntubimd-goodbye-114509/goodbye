@@ -30,11 +30,13 @@ echo "                                      //.-~~~--\)                         
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block content %}GoodBuy{% endblock %}</title>
-    <link rel="stylesheet" href="/static/css/home.css/">
+    <title>GoodBuy</title>
+    <link rel="stylesheet" href="/static/css/base.css/">
     {% include 'common/header.html' %}
 </head>
 <body>
-    
+    {% block content %}
+    <!--各內容block-->
+    {% endblock %}
 </body>
 </html>

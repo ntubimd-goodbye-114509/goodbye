@@ -1,6 +1,7 @@
-.body {
-    background-color: #FDF7EC;
+.container{
+  background-color: #FDF7EC;
 }
+
 .mb-4 {
     margin-top: 50px; /* 或你想要的距離 */
 }
