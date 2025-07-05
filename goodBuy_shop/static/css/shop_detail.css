@@ -5,6 +5,7 @@ body {
     font-family: Arial, sans-serif;
     background-color: #f8f9fa;
     color: #333;
+    margin-top: 150px; /* 调整顶部间距 */
 }
 
 /* 容器样式 */
@@ -70,4 +71,38 @@ h5 {
 
 .text-muted {
     color: #6c757d !important;
+}
+/* shop_detail.css */
+
+/* 總體排版微調 */
+body {
+  background-color: #f9f9f9;
+}
+
+/* 卡片內距、陰影 */
+.card {
+  border-radius: 8px;
+  box-shadow: 0 0 8px rgba(0,0,0,0.05);
+}
+
+/* 商品圖片縮圖統一高度 */
+.img-thumbnail {
+  object-fit: cover;
+}
+
+/* 商品名稱區塊間距 */
+.row.align-items-center > div {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+/* 公告留言區 */
+.border.p-2.mb-2 {
+  border-radius: 4px;
+  background-color: #fff;
+}
+
+/* 按鈕微調 */
+.btn {
+  margin-left: 4px;
 }
