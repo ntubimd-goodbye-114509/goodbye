@@ -20,13 +20,16 @@
         <form method="post" enctype="multipart/form-data">
           {% csrf_token %}
           
-          <!-- ⚡ 圖片上傳區移到 form 裡 -->
+          <!-- 圖片上傳區移到 form 裡 -->
           <div class="image-upload-wrapper mb-2">
             <div id="image-upload-box" class="image-upload-box" style="cursor:pointer;">
               <span id="image-upload-placeholder">＋ 新增圖片</span>
+              <input type="hidden" name="cover_index">
+              <input type="hidden" name="image_order">
               <input type="file" id="image-upload-box-input" name="images" accept="image/*" multiple style="display:none">
             </div>
           </div>
+
           <label class="form-label fw-bold mt-2">商品圖片（可多張）</label>
           <div class="form-check my-2">
             <input class="form-check-input" type="radio" name="auto_cut" id="autoCutOn" value="1">
@@ -36,6 +39,7 @@
           <div id="product-area"></div>
           <button type="button" class="btn btn-outline-pink w-100 mt-2" onclick="addProduct()">＋ 新增商品</button>
       </div>
+      
       <!-- 右側 -->
       <div class="col-md-7 px-4 py-4 right-panel">
           <div class="mb-3">
@@ -96,10 +100,10 @@
             <a class="btn btn-outline-pink-text" href="{% url 'home' %}">取消</a>
             <button type="submit" class="btn btn-pink">確認</button>
           </div>
-        </form> <!-- ⚡ 注意：form 結尾移到這裡 -->
+        </form>
       </div>
     </div>
   </div>
-  <script src="{% static 'js/shop_from.js' %}"></script>
+  <script src="{% static 'js/shop_form.js' %}"></script>
 </body>
 </html>
