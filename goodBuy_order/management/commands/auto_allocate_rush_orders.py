@@ -4,7 +4,7 @@ from goodBuy_shop.models import Shop
 from goodBuy_order.models import Order, ProductOrder
 from django.db import transaction
 from collections import defaultdict
-from .rush_utils import *
+from ...rush_utils import *
 
 class Command(BaseCommand):
     help = "自動分配搶購商店的訂單（截團）"
