@@ -26,6 +26,18 @@ tagInput.addEventListener("keydown", function(e) {
   }
 });
 
+// 圖片上傳 input
+document.addEventListener("DOMContentLoaded", function () {
+  const uploadBox = document.getElementById("image-upload-box");
+  const uploadInput = document.getElementById("image-upload-box-input");
+
+  if (uploadBox && uploadInput) {
+    uploadBox.addEventListener("click", function () {
+      uploadInput.click();
+    });
+  }
+});
+
 document.querySelectorAll(".tag-option").forEach(btn => {
   btn.addEventListener("click", () => {
     const val = btn.textContent.trim();
@@ -37,7 +49,10 @@ document.querySelectorAll(".tag-option").forEach(btn => {
   });
 });
 
+
 // 動態新增商品欄位
+let productIndex = document.querySelectorAll('#product-area .card').length || 0;
+
 function addProduct() {
   const area = document.getElementById("product-area");
   if (!area) return;
@@ -45,25 +60,27 @@ function addProduct() {
   const div = document.createElement("div");
   div.className = "card p-3 mb-3 position-relative";
   div.innerHTML = `
-    <img src="/static/img/x.png" class="position-absolute end-0 top-0 m-2" role="button" style="width: 20px; height: 20px;" onclick="this.parentElement.remove()">
-
-    <div class="mb-2"><label class="form-label">商品名稱</label>
+    <img src="/static/img/x.png" class="position-absolute end-0 top-0 m-2" role="button" onclick="this.parentElement.remove()" style="width:20px;height:20px;">
+    <div class="mb-2">
+      <label class="form-label">商品名稱</label>
       <input type="text" name="product_name[]" class="form-control" required>
     </div>
-    <div class="mb-2"><label class="form-label">價格</label>
+    <div class="mb-2">
+      <label class="form-label">價格</label>
       <input type="number" name="product_price[]" class="form-control" required>
     </div>
-    <div class="mb-2"><label class="form-label">數量</label>
+    <div class="mb-2">
+      <label class="form-label">數量</label>
       <input type="number" name="product_qty[]" class="form-control" required>
     </div>
-    <div class="mb-2"><label class="form-label">商品圖片（可更換）</label>
+    <div class="mb-2">
+      <label class="form-label">商品圖片（可更換）</label>
       <div class="image-preview mb-2"></div>
-      <input type="file" name="product_image" class="form-control product-img-input" accept="image/*">
+      <input type="file" name="product_image_${productIndex}" class="form-control product-img-input" accept="image/*">
     </div>
   `;
   area.appendChild(div);
 
-  // 啟用剛剛新增的圖片預覽功能
   const fileInput = div.querySelector('.product-img-input');
   const previewDiv = div.querySelector('.image-preview');
   fileInput.addEventListener('change', function () {
@@ -73,7 +90,10 @@ function addProduct() {
       previewDiv.innerHTML = `<img src="${url}" style="width:100px;height:100px;object-fit:cover;">`;
     }
   });
+
+  productIndex += 1;
 }
+
 
 
 // 切換「開始時間」顯示（僅限現貨）
@@ -92,7 +112,7 @@ const imageInput = document.querySelector('input[name="images"]');
 const coverIndexInput = document.querySelector('input[name="cover_index"]');
 const imageOrderInput = document.querySelector('input[name="image_order"]');
 
-if (imageInput && coverIndexInput && imageOrderInput) {
+if (imageInput) {
   const imagePreviewArea = document.createElement('div');
   imagePreviewArea.className = 'image-preview-area d-flex flex-wrap gap-2 mt-2';
   imageInput.parentNode.insertBefore(imagePreviewArea, imageInput.nextSibling);
@@ -101,26 +121,35 @@ if (imageInput && coverIndexInput && imageOrderInput) {
 
   function updateImagePreviews() {
     imagePreviewArea.innerHTML = '';
+
     Array.from(imageInput.files).forEach((file, idx) => {
-      imagePreviewArea.innerHTML += `
-        <div class='position-relative'>
-          <img src='${URL.createObjectURL(file)}' class='img-thumbnail' style='width:100px;height:100px;object-fit:cover;'>
-          <div class='position-absolute top-0 end-0'>
-            <input type='radio' name='cover_choice' value='${idx}' class='btn-check' id='cover_${idx}' ${idx === 0 ? 'checked' : ''}>
-            <label class='btn btn-sm btn-outline-primary' for='cover_${idx}'>封面</label>
-          </div>
-        </div>`;
+      const url = URL.createObjectURL(file);
+      const block = document.createElement('div');
+      block.className = 'position-relative';
+
+      block.innerHTML = `
+        <img src="${url}" class="img-thumbnail" style="width:100px;height:100px;object-fit:cover;">
+        <div class='position-absolute top-0 end-0'>
+          <input type='radio' name='cover_choice' value='${idx}' class='btn-check' id='cover_${idx}' ${idx === 0 ? 'checked' : ''}>
+          <label class='btn btn-sm btn-outline-primary' for='cover_${idx}'>封面</label>
+        </div>
+      `;
+
+      imagePreviewArea.appendChild(block);
     });
+
     updateCoverAndOrder();
   }
 
   function updateCoverAndOrder() {
     const coverRadio = document.querySelector('input[name="cover_choice"]:checked');
     const coverIndex = coverRadio ? coverRadio.value : '0';
-    coverIndexInput.value = coverIndex;
+    if (coverIndexInput) coverIndexInput.value = coverIndex;
 
     const fileCount = imageInput.files.length;
-    imageOrderInput.value = Array.from({ length: fileCount }, (_, i) => i).join(',');
+    if (imageOrderInput) {
+      imageOrderInput.value = Array.from({ length: fileCount }, (_, i) => i).join(',');
+    }
   }
 
   imagePreviewArea.addEventListener('change', (e) => {
@@ -129,4 +158,5 @@ if (imageInput && coverIndexInput && imageOrderInput) {
     }
   });
 }
+
 
