@@ -7,13 +7,6 @@
   <button type="submit">開始裁切</button>
 </form>
 
-<!-- 清空按鈕 -->
-<form method="get">
-  <button type="submit" name="clear" value="1" style="background-color: red; color: white;">
-    🔄 清空所有已上傳與已裁切圖片
-  </button>
-</form>
-
 <!-- 下一步 -->
 <form method="post" action="{% url 'select_cropped_images' %}">
   {% csrf_token %}

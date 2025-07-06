@@ -224,21 +224,6 @@ def set_cover_image(request, shop, image_id):
 # -------------------------
 # 圖片自動切割
 # -------------------------
-import shutil
-def clear_folder(folder_path):
-    """安全刪除並重建資料夾（防錯、防權限）"""
-    def handle_remove_readonly(func, path, exc):
-        import stat
-        os.chmod(path, stat.S_IWRITE)
-        func(path)
-
-    if os.path.exists(folder_path):
-        try:
-            shutil.rmtree(folder_path, onerror=handle_remove_readonly)
-        except Exception as e:
-            print(f"[警告] 無法刪除 {folder_path}: {e}")
-    os.makedirs(folder_path, exist_ok=True)
-
 @login_required(login_url='login')
 # @shop_owner_required
 def shop_crop_view(request):
@@ -247,23 +232,9 @@ def shop_crop_view(request):
     crop_folder = os.path.join(settings.MEDIA_ROOT, 'crop', user_folder)
     cropped_folder = os.path.join(settings.MEDIA_ROOT, 'cropped', user_folder)
 
-    # 清空裁切資料夾並清除 session（只清除自己的）
-    if request.GET.get('clear') == '1':
-        clear_folder(crop_folder)
-        clear_folder(cropped_folder)
-
-        request.session.pop('uploaded_image', None)
-        request.session.pop('cropped_images', None)
-
-        return redirect('shop_crop_view')
-
     # 上傳圖片並裁切（只在 POST 執行一次）
     if request.method == 'POST' and request.FILES.get('image'):
         image = request.FILES['image']
-
-        # 上傳前先清空使用者資料夾（防止上一次殘留）
-        clear_folder(crop_folder)
-        clear_folder(cropped_folder)
 
         os.makedirs(crop_folder, exist_ok=True)
         os.makedirs(cropped_folder, exist_ok=True)
@@ -289,7 +260,7 @@ def shop_crop_view(request):
 
         return redirect('shop_crop_view')  # 重導向避免重複裁切
 
-    # ✅ GET 請求：讀取 session 中結果
+    # GET 請求：讀取 session 中結果
     uploaded_image = request.session.get('uploaded_image')
     cropped_images = request.session.get('cropped_images', [])
 
@@ -341,7 +312,8 @@ def select_cropped_images(request):
         request.session.pop('uploaded_image', None)
         request.session.pop('cropped_images', None)
 
-        return redirect('add_shop') 
+        return render(request, 'test.html', {'final_selected_images':selected})
+        # return redirect('add_shop') 
 
     return redirect('shop_crop_view')
 
