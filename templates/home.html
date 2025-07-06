@@ -1,4 +1,5 @@
 {% load static %}
+{% load extras %}
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -26,12 +27,13 @@
 
               <!-- 圖片連結 -->
               <a href="{% url 'shop_detail' shop.id %}" class="text-decoration-none text-dark">
-              {% if shop.images.all|length > 0 and shop.images.all.0.img %}
-                <img src="{{ shop.images.all.0.img.url }}" class="card-img-top">
-              {% else %}
-              <div>找不到圖片</div>
-                <img src="{% static 'images/no-image.png' %}" class="card-img-top">
-              {% endif %}
+              {% with shop.images.all|get_cover as cover_img %}
+                {% if cover_img %}
+                  <img src="{{ cover_img.img.url }}" class="card-img-top">
+                {% else %}
+                  <img src="{% static 'images/no-image.png' %}" class="card-img-top">
+                {% endif %}
+              {% endwith %}
             
                 <div class="card-body">
                   <h5 class="card-title fw-bold">{{ shop.name }}</h5>
