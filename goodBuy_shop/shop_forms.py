@@ -56,7 +56,7 @@ class ShopForm(forms.ModelForm):
         self.fields['permission'].queryset = Permission.objects.filter(id__in=[1, 2])
 
         if self.user:
-            user_accounts = PaymentAccount.objects.filter(user=self.user)
+            user_accounts = PaymentAccount.objects.filter(user=self.user, is_delete=False)
 
             if self.is_edit:
                 shop_account_ids = ShopPayment.objects.filter(shop=self.instance).values_list('payment_account_id', flat=True)

@@ -61,7 +61,10 @@ def add_shop(request):
             names = request.POST.getlist('product_name[]')
             prices = request.POST.getlist('product_price[]')
             qtys = request.POST.getlist('product_qty[]')
-            product_images = request.FILES.getlist('product_image')
+            
+            product_images = []
+            for i in range(len(names)):
+                product_images.append(request.FILES.get(f'product_image_{i}'))
 
             success_count = 0
             for i in range(len(names)):
@@ -107,7 +110,7 @@ def edit_shop(request, shop):
                 shop.images.all().delete()
 
                 cover_index_raw = request.POST.get('cover_index')
-                cover_index = int(cover_index_raw) if cover_index_raw and cover_index_raw.isdigit() else -1
+                cover_index = int(cover_index_raw) if cover_index_raw and cover_index_raw.isdigit() else 0
                 order_str = request.POST.get('image_order')
                 if order_str:
                     order_list = list(map(int, order_str.split(',')))
@@ -127,7 +130,10 @@ def edit_shop(request, shop):
             names = request.POST.getlist('product_name[]')
             prices = request.POST.getlist('product_price[]')
             qtys = request.POST.getlist('product_qty[]')
-            product_images = request.FILES.getlist('product_image')
+            
+            product_images = []
+            for i in range(len(names)):
+                product_images.append(request.FILES.get(f'product_image_{i}'))
 
             old_products = list(shop.product_set.filter(is_delete=False))
             shop.product_set.filter(is_delete=False).update(is_delete=True)
