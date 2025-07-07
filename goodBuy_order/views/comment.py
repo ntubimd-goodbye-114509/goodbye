@@ -1,8 +1,8 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, redirect
 from django.db.models import Avg
 from django.contrib import messages
-from goodBuy_order.models import Order, Comment
+from goodBuy_order.models import Comment
 from ..forms import CommentForm
 from utils import *
 # -------------------------

@@ -1,12 +1,8 @@
 from django.shortcuts import *
 from goodBuy_web.models import *
 from django.contrib.auth import  authenticate,login,logout
-from django.contrib.auth.hashers import check_password
-import re
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db import models
-
 #登入
 def logins(request):
     if request.user.is_active:

@@ -1,7 +1,7 @@
 from django.db.models import *
 from django.contrib import messages
 from django.shortcuts import *
-from datetime import timezone
+from django.utils import timezone
 
 from ..models import *
 from goodBuy_web.models import *
