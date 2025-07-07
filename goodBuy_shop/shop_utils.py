@@ -1,6 +1,5 @@
 from django.db.models import *
 from goodBuy_shop.models import *
-from django.utils import timezone
 from django.db.models.functions import Coalesce
 # -------------------------
 # shop回傳fk串接
