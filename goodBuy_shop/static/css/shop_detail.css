@@ -1,41 +1,44 @@
 /* shop_detail.css */
 
-/* 全局样式 */
+/* 全局樣式 / Global styles */
 body {
     font-family: Arial, sans-serif;
-    background-color: #f8f9fa;
+    background-color: #f9f9f9;
     color: #333;
-    margin-top: 150px; /* 调整顶部间距 */
+    margin-top: 150px; /* 調整頂部間距 */
 }
 
-/* 容器样式 */
+/* 容器樣式 */
 .container {
     margin-top: 20px;
 }
 
-/* 卡片样式 */
+/* 卡片樣式 */
 .card {
     background-color: #fff;
     border: 1px solid #ddd;
-    border-radius: 5px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    box-shadow: 0 0 8px rgba(0,0,0,0.05);
     padding: 20px;
-    margin-bottom: 20px;
+    width: 100%;
+    min-width: 0;
+    margin-bottom: 24px;
 }
 
-/* 图片样式 */
+/* 商品圖片縮圖統一高度 */
 .img-thumbnail {
     border: none;
-    border-radius: 5px;
+    border-radius: 10px;
+    object-fit: cover;
 }
 
-/* 标题样式 */
+/* 標題樣式 */
 h5 {
     margin: 0;
     font-size: 1.25rem;
 }
 
-/* 按钮样式 */
+/* 按鈕樣式 */
 .btn-outline-secondary {
     margin-right: 10px;
 }
@@ -44,14 +47,19 @@ h5 {
     margin-top: 10px;
 }
 
-/* 表单样式 */
+.btn {
+    margin-left: 4px;
+}
+
+/* 表單樣式 */
 .input-group {
     max-width: 150px;
 }
 
-/* 商品列表样式 */
+/* 商品列表樣式 */
 .row {
     margin-bottom: 10px;
+    width: 100%;
 }
 
 .border-bottom {
@@ -62,47 +70,120 @@ h5 {
     color: #dc3545 !important;
 }
 
-/* 留言样式 */
+.text-muted {
+    color: #6c757d !important;
+}
+
+/* 留言樣式 */
 .border {
     border: 1px solid #ddd;
     border-radius: 5px;
     padding: 10px;
 }
 
-.text-muted {
-    color: #6c757d !important;
-}
-/* shop_detail.css */
-
-/* 總體排版微調 */
-body {
-  background-color: #f9f9f9;
-}
-
-/* 卡片內距、陰影 */
-.card {
-  border-radius: 8px;
-  box-shadow: 0 0 8px rgba(0,0,0,0.05);
-}
-
-/* 商品圖片縮圖統一高度 */
-.img-thumbnail {
-  object-fit: cover;
-}
-
 /* 商品名稱區塊間距 */
 .row.align-items-center > div {
-  padding-top: 4px;
-  padding-bottom: 4px;
+    padding-top: 4px;
+    padding-bottom: 4px;
 }
 
-/* 公告留言區 */
+/* 公告留言區背景 */
 .border.p-2.mb-2 {
-  border-radius: 4px;
-  background-color: #fff;
+    border-radius: 4px;
+    background-color: #fff;
 }
 
-/* 按鈕微調 */
-.btn {
-  margin-left: 4px;
+/* 排版調整 */
+.col-md-8 {
+    max-width: 80% !important;
+    flex: 0 0 100% !important;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* 商品區靠右 */
+.product-wrapper {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.product-wrapper .card {
+    width: 100%; /* 可自行調整想要的寬度 */
+    box-shadow: 0 0 0 rgba(0, 0, 0, 0.1);
+}
+
+/* icon 容器寬度佔滿 */
+.icon {
+    width: 100%;
+}
+.main-img {
+    width: 400px;
+    height: 400px;
+    object-fit: cover;
+}
+
+.icon-small {
+    width: 20px;
+    height: 20px;
+    margin-right: 5px;
+}
+
+.avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 8px;
+}
+
+.product-wrapper .card {
+    background-color: #f9f9f9;
+}
+
+.btn-outline-danger img,
+.btn-outline-secondary img {
+    width: 16px;
+    height: 16px;
+}
+
+.collect-btn {
+    background-color: #ffecec;
+    color: #d00;
+    border: 1px solid #d00;
+    padding: 5px 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+@media (max-width: 768px) {
+    .main-img {
+        width: 100%;
+        height: auto;
+    }
+
+    .product-wrapper .row {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+
+.shop-header-right {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    margin-top: 20px;
+}
+
+.shop-header-left{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-left: 0;
+}
+
+.img-fluid {
+    max-width: 100%;
+    height: auto;
 }
