@@ -1,6 +1,6 @@
 from collections import defaultdict
 from datetime import timedelta
-from django.db.models import Q, Count, Case, When, IntegerField
+from django.db.models import Q
 from django.utils import timezone
 from goodBuy_want.models import Want, WantTag, WantFootprints, WantBack, WantRecommendationHistory
 from goodBuy_web.models import SearchHistory

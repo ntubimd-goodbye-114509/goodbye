@@ -2,8 +2,6 @@ from functools import wraps
 from django.shortcuts import redirect
 from django.contrib import messages
 from django.utils import timezone
-from django.utils import timezone
-
 
 from goodBuy_shop.models import Product,Shop
 from goodBuy_order.models import *

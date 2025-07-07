@@ -2,7 +2,6 @@ from django.db.models import *
 from django.contrib import messages
 from django.shortcuts import *
 from django.contrib.auth.decorators import login_required
-from datetime import timezone
 
 from ..models import *
 from goodBuy_web.models import *

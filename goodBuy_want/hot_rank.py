@@ -6,7 +6,6 @@ from django.utils import timezone
 from goodBuy_want.models import Want, WantFootprints, WantBack, WantRecommendationHistory, WantTag
 from goodBuy_want.recommend_config import HOT_WEIGHTS
 
-
 def get_hot_wants(limit=None, days=7, keyword=None, tag=None, user=None, request=None, source='hot_rank'):
     now = timezone.now()
     recent = now - timedelta(days=days)

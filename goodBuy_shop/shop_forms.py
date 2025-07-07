@@ -127,7 +127,7 @@ class AnnouncementForm(forms.ModelForm):
         model = ShopAnnouncement
         fields = ['title', 'announcement']
         widgets = {
-            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '公告標題'}),
+            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '想要公告什麼事嗎...? 點我開始輸入'}),
             'announcement': forms.Textarea(attrs={'class': 'form-control', 'rows': 5, 'placeholder': '公告內容'}),
         }
         labels = {

@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db import transaction
@@ -10,6 +10,7 @@ from .rush_view import maybe_extend_rush
 from ..models import *
 from ..forms import *
 from ..utils import *
+from utils.decorators_shortcuts import *
 
 # -------------------------
 # 單商品下單
@@ -112,10 +113,13 @@ def purchase_single_product(request, product):
     else:
         form = OrderForm(user=request.user, shop=shop)
 
-    return render(request, 'quick_purchase.html', locals())
+    return render(request, 'quick_purchase.html', {'form': form})
+
 # -------------------------
 # 買家選擇付款方式
 # -------------------------
+@login_required(login_url='login')
+@order_buyer_required
 def choose_payment_method(order, request=None):
     if order.order_state_id != 1:
         messages.error(request, '訂單狀態錯誤，無法選擇付款方式')
@@ -163,11 +167,14 @@ def choose_payment_method(order, request=None):
         messages.success(request, '付款方式已選擇')
         return redirect('buyer_order_detail', order_id=order.id)
 
-    return render(request, 'order/payment_choice.html', locals())
+    return render(request, 'payment_choice.html', {'available_payment_methods': available_payment_methods,
+                                                'remittance_accounts': remittance_accounts,})
 # -------------------------
 # 買家上傳付款憑證
 # -------------------------
-def upload_payment_proof(order, request=None):
+@login_required(login_url='login')
+@order_buyer_required
+def upload_payment_proof(request, order):
     if order.payment_category != 'remittance':
         messages.error(request, '此訂單不需匯款，無法上傳憑證')
         return redirect('buyer_order_detail', order_id=order.id)
@@ -207,4 +214,6 @@ def upload_payment_proof(order, request=None):
     else:
         form = OrderPaymentForm()
 
-    return render(request, 'order/upload_payment.html', locals())
+    return render(request, 'upload_payment.html', {'remit_accounts':remit_accounts,
+                                                    'form': form,
+                                                    'order': order})

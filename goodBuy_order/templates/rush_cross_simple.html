@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>搶購統計總覽 - 交叉表</h2>
+
+<table class="table table-striped text-center">
+    <thead>
+        <tr>
+            <th>用戶</th>
+            <th>總件數</th>
+            <th>總金額</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for entry in cross_table %}
+            <tr>
+                <td>
+                    {% if entry.user.id == request.user.id %}
+                        <strong style="color:green;">{{ entry.user.username }}（你）</strong>
+                    {% else %}
+                        {{ entry.user.username }}
+                    {% endif %}
+                </td>
+                <td>{{ entry.total_quantity }}</td>
+                <td>${{ entry.total_price }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

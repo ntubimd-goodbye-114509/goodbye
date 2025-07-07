@@ -2,7 +2,6 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from goodBuy_order.models import Order, OrderPayment
-from goodBuy_shop.models import ShopPayment
 from django.shortcuts import redirect, render
 
 from ..forms import OrderPaymentForm

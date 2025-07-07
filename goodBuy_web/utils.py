@@ -2,7 +2,6 @@ from django.shortcuts import redirect
 from functools import wraps
 from django.contrib import messages
 from django.db.models import *
-from django.contrib import messages
 from django.shortcuts import *
 
 from .models import *

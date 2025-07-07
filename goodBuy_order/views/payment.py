@@ -28,7 +28,8 @@ def view_order_payment_history(request, order):
 
     latest_payment = payments.first() if payments.exists() else None
 
-    return render(request, 'view_payment_proofs.html', locals())
+    return render(request, 'view_payment_proofs.html', {'payments': payments,
+                                                        'lastest_payment': latest_payment})
 # -------------------------
 # 查看付款憑證 - 多筆 - 可商店查詢
 # -------------------------
@@ -80,7 +81,9 @@ def list_related_payments(request):
         id=Subquery(latest_payment_per_order.values('id')[:1])
     ).order_by('-pay_time')
 
-    return render(request, 'payment_list_all.html', locals())
+    return render(request, 'payment_list_all.html', {'payments': payments,
+                                                    'confirmed_total': confirmed_total,
+                                                    'waiting_total': waiting_total})
 # -------------------------
 # 賣家確認/拒絕付款憑證
 # -------------------------
@@ -158,4 +161,4 @@ def set_second_supplement(request, order):
     else:
         form = SecondSupplementForm(initial={'second_supplement': order.second_supplement or 0})
 
-    return render(request, 'set_second_supplement.html', locals())
+    return render(request, 'set_second_supplement.html', {'form': form})

@@ -50,7 +50,7 @@ def order_list(request):
     else:
         title = '全部'
 
-    return render(request, 'order_list.html', locals())
+    return render(request, 'order_list.html', {'title': title, 'orders': orders, 'shop': shop})
 # -------------------------
 # 訂單顯示 - 單一
 # -------------------------
@@ -75,7 +75,10 @@ def order_detail(request, order):
         deposit_amount = order.total * deposit_ratio // 100
         tail_amount = (order.total - deposit_amount) + (order.second_supplement or 0)
 
-    return render(request, 'order_detail.html', locals())
+    return render(request, 'order_detail.html', {'product_orders': product_orders, 
+                                                'payment':payments,
+                                                'deposit_amount':deposit_amount,
+                                                'tail_amount':tail_amount})
 # -------------------------
 # 待付款&付款記錄顯示 - 僅買家
 # -------------------------
@@ -88,8 +91,12 @@ def my_payment_records(request):
     wait_confirmed = payments.filter(seller_state='wait confirmed')
     confirmed = payments.filter(seller_state='confirmed')
     returned = payments.filter(seller_state='returned')
+    overdue = payments.filter(seller_state='overdue')
 
-    return render(request, 'payment_records.html',locals())
+    return render(request, 'payment_records.html', {'wait_confirmed': wait_confirmed,
+                                                    'confirmed': confirmed,
+                                                    'returned': returned,
+                                                    'overdue': overdue})
 # -------------------------
 # 多帶進行中 - 買家
 # -------------------------
@@ -132,5 +139,13 @@ def my_rush_status_in_intent(request, shop, intent):
 
     product_list.sort(key=lambda x: (not x['is_successful'], x['product'].id))
 
-    return render(request, 'my_rush_status_in_shop.html', locals())
+    # 顯示格式需要再測試確認
+    return render(request, 'my_rush_status_in_shop.html', {'shop': shop,
+                                                            'intent': intent,
+                                                            'remaining_seconds': remaining_seconds,
+                                                            'product_list': product_list,
+                                                            'total_quantity': total_quantity,
+                                                            'total_price': total_price,
+                                                            'target_summary': target_summary
+                                                            })
 
