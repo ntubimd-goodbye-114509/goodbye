@@ -26,18 +26,6 @@ tagInput.addEventListener("keydown", function(e) {
   }
 });
 
-// 圖片上傳 input
-document.addEventListener("DOMContentLoaded", function () {
-  const uploadBox = document.getElementById("image-upload-box");
-  const uploadInput = document.getElementById("image-upload-box-input");
-
-  if (uploadBox && uploadInput) {
-    uploadBox.addEventListener("click", function () {
-      uploadInput.click();
-    });
-  }
-});
-
 document.querySelectorAll(".tag-option").forEach(btn => {
   btn.addEventListener("click", () => {
     const val = btn.textContent.trim();
@@ -108,55 +96,82 @@ if (shopStateField && startTimeGroup) {
 }
 
 // 圖片預覽與封面選取
-const imageInput = document.querySelector('input[name="images"]');
+const uploadBox = document.getElementById('image-upload-box');
+const uploadInput = document.getElementById('image-upload-box-input');
+const mainImagePreview = document.getElementById('main-image-preview');
+const imagePreviewArea = document.getElementById('image-preview-area');
 const coverIndexInput = document.querySelector('input[name="cover_index"]');
 const imageOrderInput = document.querySelector('input[name="image_order"]');
 
-if (imageInput) {
-  const imagePreviewArea = document.createElement('div');
-  imagePreviewArea.className = 'image-preview-area d-flex flex-wrap gap-2 mt-2';
-  imageInput.parentNode.insertBefore(imagePreviewArea, imageInput.nextSibling);
-
-  imageInput.addEventListener('change', updateImagePreviews);
-
-  function updateImagePreviews() {
-    imagePreviewArea.innerHTML = '';
-
-    Array.from(imageInput.files).forEach((file, idx) => {
-      const url = URL.createObjectURL(file);
-      const block = document.createElement('div');
-      block.className = 'position-relative';
-
-      block.innerHTML = `
-        <img src="${url}" class="img-thumbnail" style="width:100px;height:100px;object-fit:cover;">
-        <div class='position-absolute top-0 end-0'>
-          <input type='radio' name='cover_choice' value='${idx}' class='btn-check' id='cover_${idx}' ${idx === 0 ? 'checked' : ''}>
-          <label class='btn btn-sm btn-outline-primary' for='cover_${idx}'>封面</label>
-        </div>
-      `;
-
-      imagePreviewArea.appendChild(block);
-    });
-
-    updateCoverAndOrder();
-  }
-
-  function updateCoverAndOrder() {
-    const coverRadio = document.querySelector('input[name="cover_choice"]:checked');
-    const coverIndex = coverRadio ? coverRadio.value : '0';
-    if (coverIndexInput) coverIndexInput.value = coverIndex;
-
-    const fileCount = imageInput.files.length;
-    if (imageOrderInput) {
-      imageOrderInput.value = Array.from({ length: fileCount }, (_, i) => i).join(',');
-    }
-  }
-
-  imagePreviewArea.addEventListener('change', (e) => {
-    if (e.target.name === 'cover_choice') {
-      updateCoverAndOrder();
+if (uploadBox && uploadInput) {
+  uploadBox.addEventListener('click', function (e) {
+    // 避免點擊小圖時也觸發
+    if (
+      e.target === uploadBox ||
+      e.target.classList.contains('main-image-placeholder') ||
+      e.target.id === 'main-image-preview' ||
+      mainImagePreview.contains(e.target)
+    ) {
+      uploadInput.click();
     }
   });
 }
 
+function updateImagePreviews(selectedCoverIdx = 0) {
+  const files = Array.from(uploadInput.files);
+  imagePreviewArea.innerHTML = '';
+  mainImagePreview.innerHTML = '';
+
+  if (files.length === 0) {
+    mainImagePreview.innerHTML = '<span class="main-image-placeholder text-secondary">＋ 新增圖片</span>';
+    if (coverIndexInput) coverIndexInput.value = '';
+    if (imageOrderInput) imageOrderInput.value = '';
+    return;
+  }
+
+  // 主圖（封面）
+  let coverIdx = Number(selectedCoverIdx);
+  if (isNaN(coverIdx) || coverIdx < 0 || coverIdx >= files.length) coverIdx = 0;
+  const coverFile = files[coverIdx];
+  const coverReader = new FileReader();
+  coverReader.onload = function(e) {
+    mainImagePreview.innerHTML = `<img src="${e.target.result}" style="max-height:220px;max-width:100%;object-fit:contain;border-radius:10px;">`;
+  };
+  coverReader.readAsDataURL(coverFile);
+
+  // 小圖預覽
+  files.forEach((file, idx) => {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'position-relative preview-item me-2 mb-2';
+      wrapper.style.cursor = 'pointer';
+      wrapper.innerHTML = `
+        <img src="${e.target.result}" class="img-thumbnail" style="width:80px;height:80px;object-fit:cover;">
+        <div class="position-absolute top-0 end-0">
+          <input type="radio" name="cover_choice" value="${idx}" class="btn-check" id="cover_${idx}" ${idx === coverIdx ? 'checked' : ''}>
+          <label class="btn btn-sm btn-outline-primary" for="cover_${idx}">封面</label>
+        </div>
+      `;
+      // 點小圖或 radio 都可切換主圖
+      wrapper.querySelector('img').addEventListener('click', function() {
+        updateImagePreviews(idx);
+      });
+      wrapper.querySelector('input[type="radio"]').addEventListener('change', function(e) {
+        e.stopPropagation();
+        updateImagePreviews(idx);
+      });
+      imagePreviewArea.appendChild(wrapper);
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // 更新隱藏欄位
+  if (coverIndexInput) coverIndexInput.value = coverIdx;
+  if (imageOrderInput) imageOrderInput.value = files.map((_, i) => i).join(',');
+}
+
+if (uploadInput && imagePreviewArea && mainImagePreview) {
+  uploadInput.addEventListener('change', () => updateImagePreviews(0));
+}
 
