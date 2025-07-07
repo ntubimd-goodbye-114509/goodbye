@@ -59,9 +59,9 @@ class OrderForm(forms.ModelForm):
             if not has_non_rush:
                 self.fields['address'].widget = forms.HiddenInput()
                 self.fields['address'].required = False
-                self.files['payment_method'].widget = forms.HiddenInput()
+                self.fields['payment_method'].widget = forms.HiddenInput()
                 self.fields['payment_method'].required = False
-                self.files['payment_mode'].widget = forms.HiddenInput()
+                self.fields['payment_mode'].widget = forms.HiddenInput()
                 self.fields['payment_mode'].required = False
 
         elif shop:
@@ -105,6 +105,7 @@ class OrderPaymentForm(forms.ModelForm):
         if amount is not None and amount <= 0:
             raise forms.ValidationError('金額必須大於 0')
         return amount
+
 # -------------------------
 # 二次補款金額設定
 # -------------------------
