@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>搶購結果 - 流水表（依搶到順序）</h2>
+
+<table class="table table-bordered text-center">
+    <thead>
+        <tr>
+            {% for product in all_products %}
+                <th>{{ product.name }}<br>（庫存：{{ product.stock }}）</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in allocation_rows %}
+            <tr>
+                {% for product in all_products %}
+                    {% if product.id in row %}
+                        <td>
+                            {% if row[product.id].is_self %}
+                                <strong style="color:green;">{{ row[product.id].username }}（你）</strong>
+                            {% else %}
+                                {{ row[product.id].username }}
+                            {% endif %}
+                        </td>
+                    {% else %}
+                        <td>-</td>
+                    {% endif %}
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
