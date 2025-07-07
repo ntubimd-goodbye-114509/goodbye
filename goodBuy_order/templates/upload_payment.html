@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>上傳匯款憑證</h2>
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div class="mb-3">
+        <label>匯款帳戶</label>
+        <select name="payment_account_id" class="form-control" required>
+            {% for account in remit_accounts %}
+                <option value="{{ account.id }}">{{ account.payment_account.bank_name }} - {{ account.payment_account.account_number }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="mb-3">
+        {{ form.amount.label_tag }}
+        {{ form.amount }}
+    </div>
+
+    <div class="mb-3">
+        {{ form.pay_proof.label_tag }}
+        {{ form.pay_proof }}
+    </div>
+
+    <div class="mb-3">
+        {{ form.remark.label_tag }}
+        {{ form.remark }}
+    </div>
+
+    <button type="submit" class="btn btn-primary">上傳憑證</button>
+</form>
+{% endblock %}
