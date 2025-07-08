@@ -14,6 +14,7 @@ from goodBuy_shop.hot_rank import get_hot_shops
 from utils import *
 from ..shop_utils import *
 from ..time_utils import *
+from ..shop_forms import *
 
 # -------------------------
 # 點擊的商店是否為推薦，做推送記錄
@@ -99,14 +100,30 @@ def shopById_one(request, shop):
             product.is_out_of_stock = 1 if product.stock <= 0 else 0
 
     products.sort(key=lambda p: (p.is_out_of_stock, p.id))
+    announcements = ShopAnnouncement.objects.filter(shop=shop).order_by('-update')
 
+    # shop擁有者
     if request.user.is_authenticated and request.user.id == shop.owner.id:
-        announcements = shop.shop_announcement_set.all().order_by('-date')
-        return render(request, '自己賣場', locals())
+        form = AnnouncementForm(request.POST or None)
+
+        if request.method == 'POST' and form.is_valid():
+            announcement = form.save(commit=False)
+            announcement.shop = shop
+            announcement.update = timezone.now()
+            announcement.save()
+            messages.success(request, '公告發布成功')
+            return redirect('shop', shop_id=shop.id)
+    
+        shop_images = shop.images.all()
+        return render(request, 'shop_detail.html', {'form': form, 
+                                                    'shop': shop, 
+                                                    'products': products, 
+                                                    'announcements': announcements,
+                                                    'shop_images': shop_images})
 
     if shop.permission.id != 1:
         messages.error(request, '當前賣場不公開')
-        return redirect('error')
+        return redirect('home')
 
     if request.user.is_authenticated:
         ShopFootprints.objects.update_or_create(
@@ -124,8 +141,9 @@ def shopById_one(request, shop):
             defaults={'date': timezone.now()}
         )
 
-    announcements = ShopAnnouncement.objects.filter(shop=shop).order_by('-date')
-    return render(request, '別人賣場', locals())
+    announcements = ShopAnnouncement.objects.filter(shop=shop).order_by('-update')
+    shop_images = shop.images.all()
+    return render(request, 'shop_detail.html', locals())
 # -------------------------
 # 商店查詢 - search
 # -------------------------

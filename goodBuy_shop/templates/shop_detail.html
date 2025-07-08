@@ -1,7 +1,7 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="zh-TW">
-<head> <!-- 賣場詳情 -->
+<head>
     <meta charset="UTF-8">
     <title>{{ shop.name }} - 賣場詳情</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -16,7 +16,10 @@
                 <div class="d-flex align-items-center mb-3">
                     <img src="{{ shop_images.first.img.url }}" alt="主圖" class="img-thumbnail me-3" style="width: 100px; height: 100px;">
 
-                    <!-- 收藏按鈕 -->
+                    <!-- =========================================================================== -->
+                    <!-- ================================收藏======================================== -->
+                    <!-- =========================================================================== -->
+
                     {% if user.is_authenticated %}
                         {% if shop.is_collected %}
                             <a href="{% url 'shop_collect_toggle' shop.id %}" class="btn btn-warning">取消收藏</a>
@@ -30,24 +33,49 @@
                         <small class="text-muted">{{ shop.update|date:"Y/m/d H:i" }}</small>
                         {% if user == shop.owner %}
                         <div class="mt-2">
-                            <a href="{% url 'shop_edit' shop.id %}" class="btn btn-sm btn-outline-secondary">編輯賣場</a>
+                            <a href="{% url 'shop_edit' shop.id %}" class="btn btn-sm btn-outline-secondary"><img src="/static/img/edit-text.png" alt="icon" /></a>
                         </div>
                         {% endif %}
                     </div>
                     
-                    <!-- 刪除賣場 -->
+                    <!-- =========================================================================== -->
+                    <!-- ================================刪除賣場==================================== -->
+                    <!-- =========================================================================== -->
+
                     {% if user == shop.owner %}
                         <form method="post" action="{% url 'shop_delete' shop.id %}" onsubmit="return confirm('確定要刪除這個商店嗎？');">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-sm btn-outline-danger"><img src="/static/img/x.png/" alt="icon" /></button>
+                            <button type="submit" class="btn btn-sm btn-outline-danger"><img src="/static/img/delete.png" alt="icon" /></button>
                         </form>
                     {% endif %}
                     
                 </div>
-                <p>{{ shop.introduce|linebreaksbr }}</p>
-                <p><strong>開始時間：</strong>{{ shop.start_time|date:"Y/m/d" }} <strong>結束時間：</strong>{{ shop.end_time|date:"Y/m/d" }}</p>
-                <p><strong>分配優先：</strong>{{ shop.purchase_priority.name }}</p>
+
+                    <!-- =========================================================================== -->
+                    <!-- ===============================商品內容===================================== -->
+                    <!-- =========================================================================== -->
+                <div class="details">
+                    <p><strong>商品介紹：</strong>{{ shop.introduce|linebreaksbr }}</a></p>
+                    <strong>支援的付款方式：</strong>
+                        <ul>
+                        {% for sp in shop.shoppayment_set.all %}
+                            <li>
+                            <strong>{{ sp.payment_account.payment.name }}</strong>
+                            （帳號：{{ sp.payment_account.account }}）
+                            </li>
+                        {% empty %}
+                            <li class="text-muted">尚未設定付款方式</li>
+                        {% endfor %}
+                        </ul>
+                    <p><strong>商品狀態：</strong>{{ shop.shop_state.name }}</a></p>
+                    <p><strong>開始時間：</strong>{{ shop.start_time|date:"Y/m/d" }} <strong>結束時間：</strong>{{ shop.end_time|date:"Y/m/d" }}</p>
+                    <p><strong>分配優先：</strong>{{ shop.purchase_priority.name }}</p>
+                </div>
             </div>
+
+                    <!-- =========================================================================== -->
+                    <!-- =================================商品====================================== -->
+                    <!-- =========================================================================== -->
 
             <div class="card mt-4 p-3">
                 <h6 class="mb-3">商品選擇</h6>
@@ -79,7 +107,10 @@
             </div>
         </div>
 
-    <!-- 公告 -->
+                    <!-- =========================================================================== -->
+                    <!-- ===============================公告======================================== -->
+                    <!-- =========================================================================== -->
+
     <div class="card p-3 mb-3">
     <h6 class="d-flex justify-content-between align-items-center">
         賣家通知公告&留言訊息
@@ -108,8 +139,8 @@
             </div>
             {% if user == shop.owner %}
             <div class="btn-group btn-group-sm">
-                <a href="{% url 'edit_announcement' a.id %}" class="btn btn-outline-secondary"><img src="/static/img/send.png/" alt="icon" /></a>
-                <a href="{% url 'delete_announcement' a.id %}" class="btn btn-outline-danger" onclick="return confirm('確定要刪除這則公告嗎？');"><img src="/static/img/x.png/" alt="icon" /></a>
+                <!-- 編輯有點問題 <a href="{% url 'edit_announcement' a.id %}" class="btn btn-outline-secondary"><img src="/static/img/edit-text.png" alt="icon" /></a> -->
+                <a href="{% url 'delete_announcement' a.id %}" class="btn btn-outline-danger" onclick="return confirm('確定要刪除這則公告嗎？');"><img src="/static/img/delete.png" alt="icon" /></a>
             </div>
             {% endif %}
             </div>

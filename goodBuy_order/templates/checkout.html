@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>結帳頁面</h2>
+<form method="post" enctype="multipart/form-data">
+{% csrf_token %}
+{% for shop, items in shop_groups.items %}
+    <div class="card mb-4">
+    <div class="card-header">
+        <h4>{{ shop.name }}</h4>
+    </div>
+    <div class="card-body">
+        <table class="table">
+        <thead>
+            <tr>
+            <th>商品圖片</th>
+            <th>商品名稱</th>
+            <th>單價</th>
+            <th>數量</th>
+            <th>小計</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+            <tr>
+                <td>
+                {% if item.product.cover_image %}
+                    <img src="{{ item.product.cover_image.url }}" alt="{{ item.product.name }}" style="width: 80px; height: 80px; object-fit: cover;">
+                {% else %}
+                    <span class="text-muted">無圖片</span>
+                {% endif %}
+                </td>
+                <td>{{ item.product.name }}</td>
+                <td>${{ item.product.price }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>${{ item.product.price|multiply:item.quantity }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        </table>
+
+        <p class="fw-bold">商店總金額：
+        ${{ items|map(attribute='product.price')|zip(items|map(attribute='quantity'))|map('sum')|sum }}</p>
+
+        <h5>收件與付款資訊</h5>
+        <div class="form-group">
+        {{ form_by_shop[shop].address.label_tag }}
+        {{ form_by_shop[shop].address }}
+        </div>
+
+        <div class="form-group">
+        {{ form_by_shop[shop].payment_method.label_tag }}
+        {{ form_by_shop[shop].payment_method }}
+        </div>
+
+        <div class="form-group">
+        {{ form_by_shop[shop].payment_mode.label_tag }}
+        {{ form_by_shop[shop].payment_mode }}
+        </div>
+    </div>
+    </div>
+{% endfor %}
+
+<div class="text-end">
+    <button type="submit" class="btn btn-primary">提交訂單</button>
+</div>
+</form>
+{% endblock %}

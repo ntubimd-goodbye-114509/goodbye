@@ -2,7 +2,6 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-  <!-- 新增賣場 -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>新增賣場</title>
@@ -19,17 +18,17 @@
       <div class="col-md-5 px-4 py-4 left-panel d-flex flex-column">
         <form method="post" enctype="multipart/form-data">
           {% csrf_token %}
-          
-          <!-- 圖片上傳區移到 form 裡 -->
           <div class="image-upload-wrapper mb-2">
-            <div id="image-upload-box" class="image-upload-box" style="cursor:pointer;">
-              <span id="image-upload-placeholder">＋ 新增圖片</span>
+            <div id="image-upload-box" class="image-upload-box">
+              <div id="main-image-preview" class="main-image-preview">
+                <span class="main-image-placeholder text-secondary">＋ 新增圖片</span>
+              </div>
+              <input type="file" id="image-upload-box-input" name="images" accept="image/*" multiple style="display:none">
               <input type="hidden" name="cover_index">
               <input type="hidden" name="image_order">
-              <input type="file" id="image-upload-box-input" name="images" accept="image/*" multiple style="display:none">
             </div>
+            <div id="image-preview-area" class="image-preview-area d-flex flex-wrap gap-2 mt-2"></div>
           </div>
-
           <label class="form-label fw-bold mt-2">商品圖片（可多張）</label>
           <div class="form-check my-2">
             <input class="form-check-input" type="radio" name="auto_cut" id="autoCutOn" value="1">
@@ -42,65 +41,65 @@
       
       <!-- 右側 -->
       <div class="col-md-7 px-4 py-4 right-panel">
-          <div class="mb-3">
-            <label class="form-label">賣場名稱</label>
-            {{ form.name }}
-          </div>
-          <div class="mb-3">
-            <label class="form-label">商品介紹</label>
-            {{ form.introduce }}
-          </div>
-          <div class="mb-3">
-            <label class="form-label">狀態</label>
-            {{ form.shop_state }}
-          </div>
-          <div class="mb-3">
-            <label class="form-label">分配優先</label>
-            {{ form.purchase_priority }}
-          </div>
-          <div class="mb-3">
-            <label class="form-label">開始日期</label>
-            {{ form.start_time }}
-          </div>
-          <div class="mb-3">
-            <label class="form-label">結束時間（結單日）</label>
-            {{ form.end_time }}
-          </div>
-          <div class="mb-3">
-            <label class="form-label">權限</label>
-            {{ form.permission }}
-          </div>
-          <div class="mb-3">
-            <label class="form-label">啟用訂金</label>
-            {{ form.deposit }}
-          </div>
-          <div class="mb-3">
-            <label class="form-label">訂金比例 (%)</label>
-            {{ form.deposit_ratio }}
-          </div>
-          <div class="mb-3">
-            <label class="form-label">標籤（可新增）</label>
-            <div class="d-flex flex-wrap gap-2 mb-2">
-              {% for tag in predefined_tags %}
-                <button type="button" class="btn btn-outline-primary btn-sm tag-option">{{ tag }}</button>
-              {% endfor %}
-            </div>
-            <input type="text" id="tag-input" class="form-control mb-2" placeholder="輸入標籤並按 Enter">
-            {{ form.tag_names }}
-          </div>
-          <div class="mb-3">
-            <label class="form-label">可接受匯款帳號</label>
-            {% for account in form.payment_ids %}
-              <div class="form-check">
-                {{ account.tag }} {{ account.choice_label }}
-              </div>
+        <div class="mb-3">
+          <label class="form-label">賣場名稱</label>
+          {{ form.name }}
+        </div>
+        <div class="mb-3">
+          <label class="form-label">商品介紹</label>
+          {{ form.introduce }}
+        </div>
+        <div class="mb-3">
+          <label class="form-label">商品狀態</label>
+          {{ form.shop_state }}
+        </div>
+        <div class="mb-3">
+          <label class="form-label">分配優先</label>
+          {{ form.purchase_priority }}
+        </div>
+        <div class="mb-3">
+          <label class="form-label">開始日期</label>
+          {{ form.start_time }}
+        </div>
+        <div class="mb-3">
+          <label class="form-label">結束時間（結單日）</label>
+          {{ form.end_time }}
+        </div>
+        <div class="mb-3">
+          <label class="form-label">權限</label>
+          {{ form.permission }}
+        </div>
+        <div class="mb-3">
+          <label class="form-label">啟用訂金</label>
+          {{ form.deposit }}
+        </div>
+        <div class="mb-3">
+          <label class="form-label">訂金比例 (%)</label>
+          {{ form.deposit_ratio }}
+        </div>
+        <div class="mb-3">
+          <label class="form-label">標籤（可新增）</label>
+          <div class="d-flex flex-wrap gap-2 mb-2">
+            {% for tag in predefined_tags %}
+              <button type="button" class="btn btn-outline-primary btn-sm tag-option">{{ tag }}</button>
             {% endfor %}
           </div>
-          <div class="d-flex justify-content-end gap-2 mt-4">
-            <a class="btn btn-outline-pink-text" href="{% url 'home' %}">取消</a>
-            <button type="submit" class="btn btn-pink">確認</button>
-          </div>
-        </form>
+          <input type="text" id="tag-input" class="form-control mb-2" placeholder="輸入標籤並按 Enter">
+          {{ form.tag_names }}
+        </div>
+        <div class="mb-3">
+          <label class="form-label">可接受匯款帳號</label>
+          {% for account in form.payment_ids %}
+            <div class="form-check">
+              {{ account.tag }} {{ account.choice_label }}
+            </div>
+          {% endfor %}
+        </div>
+        <div class="d-flex justify-content-end gap-2 mt-4">
+          <a class="btn btn-outline-pink-text" href="{% url 'home' %}">取消</a>
+          <button type="submit" class="btn btn-pink">確認</button>
+        </div>
+      </form>
       </div>
     </div>
   </div>

@@ -87,7 +87,7 @@ def add_shop(request):
             
             request.session.pop('final_selected_images', None)
             messages.success(request, f'商店已建立，{success_count} 個商品成功新增。')
-            return redirect('shop_detail', shop_id=shop.id)
+            return redirect('shop', shop_id=shop.id)
         else:
             print('表單驗證失敗:', form.errors)
             messages.error(request, '表單資料有誤')
@@ -163,7 +163,7 @@ def edit_shop(request, shop):
                     print(f"商品第 {i+1} 筆新增失敗：{e}")
 
             messages.success(request, '商店資訊修改成功')
-            return redirect('shop_detail', shop_id=shop.id)
+            return redirect('shop', shop_id=shop.id)
         else:
             messages.error(request, '表單資料有誤')
 
@@ -175,38 +175,6 @@ def edit_shop(request, shop):
         'products': shop.product_set.filter(is_delete=False),
         'shop_images': shop.images.all(),
     })
-
-@shop_owner_required
-def shop_detail(request, shop):
-    form = AnnouncementForm(request.POST or None)
-
-    if request.method == 'POST' and form.is_valid():
-        announcement = form.save(commit=False)
-        announcement.shop = shop
-        announcement.update = timezone.now()
-        announcement.save()
-        messages.success(request, '公告發布成功')
-        return redirect('shop_detail', shop_id=shop.id)
-
-    return render(request, 'shop_detail.html', {
-        'shop': shop,
-        'form': form,
-        'products': shop.product_set.filter(is_delete=False),
-        'shop_images': shop.images.all(),
-        'predefined_tags': Tag.objects.values_list('name', flat=True),
-        'selected_tags': shop.shoptag_set.values_list('tag__name', flat=True),
-        'announcements': shop.shopannouncement_set.all().order_by('-update'),
-    })
-
-# def shop_detail(request, shop):
-#     return render(request, 'shop_detail.html', {
-#         'shop': shop,
-#         'products': shop.product_set.filter(is_delete=False),
-#         'shop_images': shop.images.all(),
-#         'predefined_tags': Tag.objects.values_list('name', flat=True),
-#         'selected_tags': shop.shoptag_set.values_list('tag__name', flat=True),
-#         'announcements': shop.shopannouncement_set.all().order_by('-update'),
-#     })
 
 # -------------------------
 # 刪除商店（軟刪除）
