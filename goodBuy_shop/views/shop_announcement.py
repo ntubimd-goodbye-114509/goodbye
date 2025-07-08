@@ -9,22 +9,6 @@ from utils import *
 from ..shop_forms import *
 
 # -------------------------
-# 顯示商店公告
-# -------------------------
-@shop_exists_and_not_blacklisted()
-def showShopAnnouncement_many(request, shop):
-    announcements = shop.shopAnnouncement_set.all().order_by('-update')
-    return render(request, 'goodBuy_shop/announcement_list.html', locals())
-
-@announcement_exists_and_shop_visible()
-def showShopAnnouncement_one(request, shop, announcement_id):
-    try:
-        announcement = ShopAnnouncement.objects.get(id=announcement_id, shop=shop)
-    except ShopAnnouncement.DoesNotExist:
-        messages.error(request, '查無此公告')
-        return redirect('shop_detail', shop_id=shop.id)
-    return render(request, 'goodBuy_shop/announcement_detail.html', locals())
-# -------------------------
 # 新增商店公告
 # -------------------------
 @shop_owner_required
