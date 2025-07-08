@@ -87,7 +87,7 @@ def add_shop(request):
             
             request.session.pop('final_selected_images', None)
             messages.success(request, f'商店已建立，{success_count} 個商品成功新增。')
-            return redirect('shop_detail', shop_id=shop.id)
+            return redirect('shop', shop_id=shop.id)
         else:
             print('表單驗證失敗:', form.errors)
             messages.error(request, '表單資料有誤')
