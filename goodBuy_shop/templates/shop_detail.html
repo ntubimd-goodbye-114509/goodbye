@@ -21,12 +21,6 @@
 
             <!-- 🔶 賣場卡片：包含圖片、收藏按鈕、基本資料、商品選項 -->
             <div class="card p-3">
-                <div class="row">
-
-                    <!-- 🔸 左半部：主圖 & 收藏按鈕 -->
-                    <div class="shop-header-left col-md-6">
-                        <img src="{{ shop_images.first.img.url }}" alt="主圖" class="img-thumbnail mb-3 main-img">
-
                         {% if user.is_authenticated %}
                             {% if shop.is_collected %}
                                 <!-- 已收藏：顯示取消收藏按鈕 -->
@@ -107,14 +101,6 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- 🔸 賣場介紹與其他資訊 -->
-                <p class="mt-3">{{ shop.introduce|linebreaksbr }}</p>
-                <p>
-                    <strong>開始時間：</strong>{{ shop.start_time|date:"Y/m/d" }}
-                    <strong>結束時間：</strong>{{ shop.end_time|date:"Y/m/d" }}
-                </p>
-                <p><strong>分配優先：</strong>{{ shop.purchase_priority.name }}</p>
             </div>
 
             <!-- 🔶 公告區（留言與店主發佈訊息） -->
