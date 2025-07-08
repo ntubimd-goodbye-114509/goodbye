@@ -26,7 +26,7 @@
               {% endif %}
 
               <!-- 圖片連結 -->
-              <a href="{% url 'shop_detail' shop.id %}" class="text-decoration-none text-dark">
+              <a href="{% url 'shop' shop.id %}" class="text-decoration-none text-dark">
               {% with shop.images.all|get_cover as cover_img %}
                 {% if cover_img %}
                   <img src="{{ cover_img.img.url }}" class="card-img-top">

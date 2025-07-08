@@ -104,11 +104,22 @@ def shopById_one(request, shop):
 
     # shop擁有者
     if request.user.is_authenticated and request.user.id == shop.owner.id:
-        form = AnnouncementForm()
+        form = AnnouncementForm(request.POST or None)
+
+        if request.method == 'POST' and form.is_valid():
+            announcement = form.save(commit=False)
+            announcement.shop = shop
+            announcement.update = timezone.now()
+            announcement.save()
+            messages.success(request, '公告發布成功')
+            return redirect('shop', shop_id=shop.id)
+    
+        shop_images = shop.images.all()
         return render(request, 'shop_detail.html', {'form': form, 
                                                     'shop': shop, 
                                                     'products': products, 
-                                                    'announcements': announcements})
+                                                    'announcements': announcements,
+                                                    'shop_images': shop_images})
 
     if shop.permission.id != 1:
         messages.error(request, '當前賣場不公開')
@@ -131,6 +142,7 @@ def shopById_one(request, shop):
         )
 
     announcements = ShopAnnouncement.objects.filter(shop=shop).order_by('-update')
+    shop_images = shop.images.all()
     return render(request, 'shop_detail.html', locals())
 # -------------------------
 # 商店查詢 - search
