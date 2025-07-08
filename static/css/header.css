@@ -20,22 +20,24 @@
 /* 隱藏的側邊欄 */
 .menu {
     position: fixed;
-    top:120px ;
-    left: -550px; /* 初始位置在視窗外 */
-    width: 400px; /* 側邊欄寬度 */
-    height: 100%; /* 側邊欄全屏高度 */
+    top: 120px;
+    left: -550px;
+    width: 400px;
+    height: calc(100vh - 120px); /* 扣掉 header 高度 */
     overflow-y: auto;
-    background-color: rgba(219, 232, 242, 0.8); /* 使用半透明背景 */
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1); /* 添加陰影 */
-    transition: left 0.3s ease; /* 滑動動畫 */
-    z-index: 50; /* 確保在功能列後方但不遮擋 */
+    background-color: rgba(219, 232, 242, 0.8);
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    transition: left 0.3s ease;
+    z-index: 50;
     padding: 20px;
+    display: flex;            /* 新增這行！ */
+    flex-direction: column;   /* 新增這行！ */
 }
 
 /* 側邊欄滑出樣式 */
 .menu.active {
     left: 0; /* 將側邊欄滑出 */
-    top:120px
+
 }
 
 /* 側邊欄內部樣式 */
@@ -217,13 +219,15 @@
     padding-bottom: 100px; /* 預留底下告訴系統不要被遮住 */
 }
 
-.tellme {
+.tellme1, .tellme {
+    margin-top: auto;      /* 這是 flex 黏底的關鍵！ */
     text-align: center;
     font-size: 14px;
     color: #0e3e5d;
-    padding: 20px;
-    margin-top: 135%;
+    padding: 20px 0 18px 0;
+    background: none;
 }
+
   
 .social-icons {
     display: flex;
@@ -368,7 +372,7 @@
     .search-bar button {
         border-left: none;
     }
-} */
+} */ 
 
 @media (min-width: 1330px) and (max-width: 1330px) {
     .menu {
@@ -489,13 +493,6 @@
     white-space: nowrap;
 }
 
-.tellme1{
-    text-align: center;
-    font-size: 14px;
-    color: #0e3e5d;
-    padding: 20px;
-    margin-top: 93%;
-}
 
 .user-target{
     font-style: semi-bold;
