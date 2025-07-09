@@ -34,7 +34,7 @@ def add_want(request):
     else:
         form = WantForm(user=request.user)
 
-    return render(request, 'want_form.html', locals())
+    return render(request, 'add_want.html', locals())
 # -------------------------
 # 編輯收物帖
 # -------------------------
@@ -63,7 +63,7 @@ def edit_want(request, want):
             return redirect('want_detail', want_id=want.id)
         else:
             messages.error(request, '表單資料有誤')
-    return render(request, 'want_form.html', {
+    return render(request, 'edit_want.html', {
     'form': form,
     'want': want,  
 })
