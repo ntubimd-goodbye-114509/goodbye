@@ -86,7 +86,7 @@ def delete_want_image(request, want, image_id):
     image = get_object_or_404(WantImg, id=image_id, want=want)
     image.delete()
     messages.success(request, '圖片已刪除')
-    return redirect('want_edit', want_id=want.id)
+    return redirect('edit_want', want_id=want.id)
 # -------------------------
 # 收物帖圖片設定封面
 # -------------------------
@@ -96,4 +96,4 @@ def set_cover_image(request, want, image_id):
     WantImg.objects.filter(want=want).update(is_cover=False)
     WantImg.objects.filter(id=image_id, want=want).update(is_cover=True)
     messages.success(request, '封面已更新')
-    return redirect('want_edit', want_id=want.id)
+    return redirect('edit_want', want_id=want.id)
