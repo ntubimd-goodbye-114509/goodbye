@@ -70,13 +70,13 @@
                                         <div class="col">{{ product.name }}</div>
                                         <div class="col-md-2 text-danger">{{ product.price }}$</div>
                                         <div class="col-md-2">庫存：{{ product.stock }}</div>
+                                          <!-- <input type="number" name="quantity" class="form-control form-control-sm" min="1" value="1">-->
                                         <div class="col-md-2">
                                             {% if user != shop.owner %}
                                                 <form action="{% url 'add_to_cart' product.id %}" method="post">
                                                     {% csrf_token %}
-                                                    <div class="input-group">
-                                                        <input type="number" name="quantity" class="form-control form-control-sm" min="1" value="1">
-                                                        <button class="btn btn-outline-primary btn-sm" type="submit">加入購物車</button>
+                                                    <div class="input-group flex-nowrap">
+                                                        <button class="scb btn btn-outline-primary btn-sm" type="submit">加入購物車</button>
                                                     </div>
                                                 </form>
                                             {% endif %}
@@ -91,6 +91,10 @@
                 <!-- 底部 ：商品內容 -->
                 <div class="card-footer mt-4 bg-white border-top pt-3">
                     <p><strong>商品介紹：</strong>{{ shop.introduce|linebreaksbr }}</p>
+                    <p><strong>分配優先：</strong>{{ shop.purchase_priority.name }}</p>
+                    <p><strong>商品狀態：</strong>{{ shop.shop_state.name }}</p>
+                    <p><strong>開始時間：</strong>{{ shop.start_time|date:"Y/m/d" }}</p>
+                    <p><strong>結束時間：</strong>{{ shop.end_time|date:"Y/m/d" }}</p>
                     <strong>支援的付款方式：</strong>
                     <ul>
                         {% for sp in shop.shoppayment_set.all %}
@@ -101,10 +105,6 @@
                             <li class="text-muted">尚未設定付款方式</li>
                         {% endfor %}
                     </ul>
-                    <p><strong>商品狀態：</strong>{{ shop.shop_state.name }}</p>
-                    <p><strong>開始時間：</strong>{{ shop.start_time|date:"Y/m/d" }}</p>
-                     <p><strong>結束時間：</strong>{{ shop.end_time|date:"Y/m/d" }}</p>
-                    <p><strong>分配優先：</strong>{{ shop.purchase_priority.name }}</p>
                 </div>
             </div>
 
