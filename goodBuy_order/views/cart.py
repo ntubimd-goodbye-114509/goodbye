@@ -23,9 +23,6 @@ def view_cart(request):
         Cart.objects
         .filter(user=request.user)
         .select_related('product__shop')
-        .prefetch_related(
-            Prefetch('product__images', queryset=ShopImg.objects.filter(is_cover=True))
-        )
     )
     cart_data = []
     shop_latest_update = {}
@@ -73,21 +70,21 @@ def view_cart(request):
 def add_to_cart(request, product):
     if product.shop.is_end:
         messages.error(request, "該商店已截止")
-        return redirect('shop_by_id', shop_id=product.shop.id)
+        return redirect('shop', shop_id=product.shop.id)
     try:
         quantity = int(request.POST.get('quantity', 1))
         if quantity < 1:
             messages.error(request, "數量必須大於0")
-            return redirect('shop_by_id', shop_id=product.shop.id)
+            return redirect('shop', shop_id=product.shop.id)
     except ValueError as e:
         messages.error(request, str(e))
-        return redirect('shop_by_id', shop_id=product.shop.id)
+        return redirect('shop', shop_id=product.shop.id)
 
     cart = Cart(user=request.user)
     cart.add_or_update_product(product, quantity)
     messages.success(request, f'成功將 {product.name} 加入購物車')
 
-    return redirect('shop_by_id', shop_id=product.shop.id)
+    return redirect('shop', shop_id=product.shop.id)
 
 # -------------------------
 # 移除購物車
