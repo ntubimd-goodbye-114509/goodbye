@@ -21,7 +21,7 @@
                         <h5 class="mb-0">收物帖詳情</h5>
                         {% if request.user == want.user %}
                         <div>
-                            <a href="{% url 'edit_want' post_id=want.id %}" class="btn btn-sm btn-outline-secondary">編輯</a>
+                            <a href="{% url 'edit_want' want_id=want.id %}" class="btn btn-sm btn-outline-secondary">編輯</a>
                             <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
                                 刪除
                             </button>
@@ -133,7 +133,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                    <a href="{% url 'delete_want' post_id=want.id %}" class="btn btn-danger">確認刪除</a>
+                    <a href="{% url 'delete_want' want_id=want.id %}" class="btn btn-danger">確認刪除</a>
                 </div>
             </div>
         </div>
