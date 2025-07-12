@@ -107,7 +107,7 @@ product_owner_required = object_owner_required(
 # -------------------------
 want_owner_required = object_owner_required(
     model=Want,
-    arg_name='post_id',
+    arg_name='want_id',
     owner_field='user',
     context_name='want',
     not_found_msg='找不到這篇收物帖',
