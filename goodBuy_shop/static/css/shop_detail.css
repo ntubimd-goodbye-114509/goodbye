@@ -108,6 +108,7 @@ h5 {
 
 .text-muted {
     color: #6c757d !important;
+   
 }
 
 /* 商品名稱與欄位內間距 */
@@ -221,28 +222,45 @@ h5 {
 /* Footer 區塊：商品說明 */
 .card-footer {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.9rem;
-  align-items: flex-start;   /* 頂部對齊 */
-  font-size: 1rem;
-  line-height: 1.2;
-  max-height: 150px;
+  flex-wrap: wrap;       /* 允許換行 */
+  gap: 0.5rem 1.5rem;    /* 行間距與欄間距 */
 }
 
 .card-footer > p,
 .card-footer > ul {
+  display: flex;
+  align-items: flex-start;
+  flex: 0 0 calc(25% - 1.5rem); /* 四欄，每欄寬度大約 25% 減掉欄間距 */
   margin: 0;
-  flex: 1 1 200px;   /* 可伸縮，起始寬度200px */
-  min-width: 100px;  /* 最小寬度150px */
-  margin-right: 1.25rem;
 }
 
-.card-footer p strong {
+.card-footer > p strong,
+.card-footer > ul strong {
   display: inline-block;
-  width: 80px;  /* 你可依需要調整這個寬度 */
+  width: 80px;           /* 左邊 label 固定寬度，可依需求調整 */
+  flex-shrink: 0;
   text-align: left;
 }
 
+/* optional: 如果 ul 要靠右內容排好 */
+.card-footer > ul {
+  padding-left: 0;
+  list-style: none;
+}
+
+.card-footer > ul li {
+  margin-bottom: 0.25rem;
+}
+
+.card-footer .text-muted {
+  margin-left: -1.5rem !important;
+}
+
+/* 商品名稱與欄位內間距 */
+.row.align-items-center > div {
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
 
 /* 公告列表中的使用者資料對齊 */
 .list-group-item img.avatar {
@@ -308,4 +326,10 @@ h5 {
   justify-content: center;
   align-items: center;
   padding: 0;
+}
+
+.scb{
+    width: 100px !important; 
+    height: 32px; 
+    font-size: 0.8rem;
 }
