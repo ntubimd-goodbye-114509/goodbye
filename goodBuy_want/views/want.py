@@ -41,7 +41,18 @@ def add_want(request):
 @login_required(login_url='login')
 @want_owner_required
 def edit_want(request, want):
-    form = WantForm(request.POST or None, request.FILES or None, instance=want)
+    form = WantForm(request.POST or None, request.FILES or None, instance=want, user=request.user)
+
+    #處理圖片封面更新
+    if request.method == 'POST' and 'cover_set_id' in request.POST:
+        set_id = request.POST.get('cover_set_id')
+        if set_id and set_id.isdigit():
+            WantImg.objects.filter(want=want).update(is_cover=False)
+            WantImg.objects.filter(id=int(set_id), want=want).update(is_cover=True)
+            messages.success(request, '封面已更新')
+        return redirect('edit_want', want_id=want.id)
+    #==============================================================================
+
     if request.method == 'POST':
         if form.is_valid():
             want = form.save()
@@ -56,6 +67,11 @@ def edit_want(request, want):
             else:
                 sorted_images = images
 
+            # 更新封面圖片防呆
+            if cover_index >= 0:
+                WantImg.objects.filter(want=want).update(is_cover=False)
+            #===========================================================
+            
             for idx, img in enumerate(sorted_images):
                 WantImg.objects.create(want=want, img=img, is_cover=(idx == cover_index), position=idx + want.images.count())
 
