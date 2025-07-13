@@ -27,6 +27,7 @@ body {
 .main-image {
     width: 100%;
     height: 100%;
+    max-height: 400px !important;
     max-width: 400px;  /* 最大寬度 */
     border-radius: 6px;
     object-fit: cover;
@@ -88,8 +89,11 @@ h5 {
 }
 
 /* 表單輸入區 */
-.input-group {
-    max-width: 150px;
+.input-group{
+    max-width: 120px;
+}
+.input-group .form-control {
+    width: 60px !important;
 }
 
 /* 商品列表 */
@@ -108,7 +112,6 @@ h5 {
 
 .text-muted {
     color: #6c757d !important;
-   
 }
 
 /* 商品名稱與欄位內間距 */
@@ -206,10 +209,10 @@ h5 {
 }
 
 /* 商品欄文字微調 */
-.card .card .text-muted {
+/* 僅針對商品卡片中的 .text-muted 套用大字體 */
+.product-card .text-muted {
     font-size: 10rem;
 }
-
 /* Avatar 大頭貼 */
 .avatar {
     width: 32px;
@@ -221,39 +224,47 @@ h5 {
 
 /* Footer 區塊：商品說明 */
 .card-footer {
-  display: flex;
-  flex-wrap: wrap;       /* 允許換行 */
-  gap: 0.5rem 1.5rem;    /* 行間距與欄間距 */
+    display: flex;
+    flex-wrap: wrap;
 }
 
-.card-footer > p,
-.card-footer > ul {
-  display: flex;
-  align-items: flex-start;
-  flex: 0 0 calc(25% - 1.5rem); /* 四欄，每欄寬度大約 25% 減掉欄間距 */
-  margin: 0;
+.footer-left,
+.footer-right {
+    flex: 1;
+    min-width: 280px; /* 避免太窄時壓縮內容 */
 }
 
-.card-footer > p strong,
-.card-footer > ul strong {
-  display: inline-block;
-  width: 80px;           /* 左邊 label 固定寬度，可依需求調整 */
-  flex-shrink: 0;
-  text-align: left;
+.footer-right p {
+    display: inline-block;
+    width: 48%;  /* 差不多一半寬 */
+    margin-bottom: 0.5rem;
+    white-space: nowrap;
 }
 
-/* optional: 如果 ul 要靠右內容排好 */
-.card-footer > ul {
-  padding-left: 0;
-  list-style: none;
+.footer-right p:nth-child(2n) {
+    margin-right: 0; /* 第二個不要右邊距 */
 }
 
-.card-footer > ul li {
-  margin-bottom: 0.25rem;
+.footer-right p:nth-child(3n+1) {
+    clear: left; /* 每兩個換行 */
 }
 
-.card-footer .text-muted {
-  margin-left: -1.5rem !important;
+/* 取消 ul 左側內距與點點 */
+.footer-right ul {
+    padding-left: 0;
+    list-style: none;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px 16px;
+}
+
+/* li 不要 margin/padding，避免自動換行 */
+.footer-right ul li {
+    margin: 0;
+    padding: 0;
+    white-space: nowrap; /* 避免項目文字過長自動換行 */
+    color: #6c757d; /* 讓 text-muted 類別保持灰色 */
 }
 
 /* 商品名稱與欄位內間距 */
@@ -330,6 +341,67 @@ h5 {
 
 .scb{
     width: 100px !important; 
-    height: 32px; 
+    height: 40px; 
     font-size: 0.8rem;
+    margin-right: 10px;
+    height: 32px;           /* 統一高度 */
+    font-size: 0.8rem;      /* 統一文字大小 */
+    padding: 0 8px;         /* 控制左右間距 */
+    box-sizing: border-box; /* 避免因 padding 撐大 */
+}
+.quantity-wrapper {
+    max-width: 120px;
+}
+
+/* 左邊按鈕：只保留左圓角 */
+.quantity-wrapper .minus-btn {
+    border-top-left-radius: 4px !important;
+    border-bottom-left-radius: 4px !important;
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+
+/* 中間 input：不要圓角 */
+.quantity-wrapper .quantity-input {
+    border-radius: 0 !important;
+    height: 32px;
+    text-align: center;
+    padding: 0;
+}
+
+/* 右邊按鈕：只保留右圓角 */
+.quantity-wrapper .plus-btn {
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+    border-top-right-radius: 4px !important;
+    border-bottom-right-radius: 4px !important;
+}
+
+/* 調整高度與內距讓三個一致 */
+.quantity-wrapper .btn {
+    height: 32px;
+    padding: 0 8px;
+    margin: 0 !important;
+}
+
+.quantity-input::-webkit-inner-spin-button,
+.quantity-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.quantity-input {
+  appearance: textfield; /* 也移除大部分樣式 */
+}
+
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Firefox */
+input[type="number"] {
+    -moz-appearance: textfield;
 }
