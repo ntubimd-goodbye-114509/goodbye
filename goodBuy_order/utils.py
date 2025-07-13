@@ -28,9 +28,9 @@ def product_exists_and_not_own_shop_required(view_func):
 # -------------------------
 def cart_exists_required(view_func):
     @wraps(view_func)
-    def _wrapped_view(request, cart_id, *args, **kwargs):
+    def _wrapped_view(request, cart_item, *args, **kwargs):
         try:
-            cart_item = Cart.objects.get(id=cart_id)
+            cart_item = Cart.objects.get(id=cart_item)
         except:
             messages.error(request, '購物車沒有這個商品呢')
             return redirect('home')

@@ -186,7 +186,7 @@ def deleteShop(request, shop):
 
     if has_unfinished_orders:
         messages.error(request, '賣場有未完成訂單，無法刪除。請先當前訂單。')
-        return redirect('shop_detail', shop_id=shop.id)
+        return redirect('shop', shop_id=shop.id)
 
     shop.permission = Permission.objects.get(id=3)
     shop.save()
