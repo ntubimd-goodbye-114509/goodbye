@@ -131,8 +131,8 @@
                             <li class="list-group-item">
                                 <div class="d-flex justify-content-between">
                                     <div>
-                                        <img src="{{ user.profile.avatar.url }}" class="avatar">
-                                        <a>{{ request.user.username }}</a>
+                                        <img src="{{ shop.owner.profile.avatar.url }}" class="avatar">
+                                        <a>{{ shop.owner.username }}</a>
                                         <small class="text-muted">{{ a.update|date:"Y/m/d H:i" }}</small>
                                         <strong>{{ a.title }}</strong><br>
                                         <div>{{ a.announcement|linebreaksbr }}</div>
