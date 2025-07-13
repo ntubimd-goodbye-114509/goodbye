@@ -35,7 +35,7 @@ def my_shops_collected(request):
     shop_ids = ShopCollect.objects.filter(user=request.user).values_list('shop_id', flat=True)
 
     shops = shopInformation_many(Shop.objects.filter(id__in=shop_ids).order_by('-date'))
-    return render(request, '收藏瀏覽頁面', locals())
+    return render(request, 'shop_collects.html', locals())
 # -------------------------
 # 商店足跡
 # -------------------------
@@ -43,4 +43,4 @@ def my_shops_collected(request):
 def my_shop_footprints(request):
     shop_ids = ShopFootprints.objects.filter(user=request.user).values_list('shop_id', flat=True)
     shops = shopInformation_many(Shop.objects.filter(id__in=shop_ids).order_by('-date'))
-    return render(request, '足跡頁面', locals())
+    return render(request, 'shop_footprints.html', locals())
