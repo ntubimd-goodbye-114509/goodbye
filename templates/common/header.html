@@ -35,7 +35,7 @@
           {% endif %}
           <div class="name-edit">
             <h3>{{ request.user.username }}</h3>
-            <a href="/editprofile/">點擊編輯個人資料></a>
+            <a href="/user/editprofile/">點擊編輯個人資料></a>
           </div>
         </div>
         <div class="user-info2">
@@ -43,7 +43,7 @@
             <a href="{% url 'home' %}" class="Options">回首頁</a>
             <a href="/want/add/" class="Options">發布收物帖</a>
             <a href="/shop/add/" class="Options">新增賣場</a>
-            <a href="/payment_accounts/" class="Options">管理付款方式</a>
+            <a href="/user/payment_accounts/" class="Options">管理付款方式</a>
             <a href="#" class="Options">團務管理</a>
             <a href="#" class="Options">去記帳 $</a>
             <a href="#" class="Options">我的黑名單</a>
