@@ -8,6 +8,7 @@ from goodBuy_web.views import *
 urlpatterns = [
     # 共同頁面
     path('', include('goodBuy_web.urls.web')),
+    path('user/', include('goodBuy_web.urls.user')),
 
     path('shop/', include('goodBuy_shop.urls.shop')),
     path('shop/action/', include('goodBuy_shop.urls.shop_action')),
