@@ -4,10 +4,11 @@ from django.conf import settings
 from django.conf.urls.static import static
 from goodBuy_web.views.user_login_register import *
 from goodBuy_web.views import *
+from goodBuy_shop.views import my_shops_collected
 
 urlpatterns = [
     # 共同頁面
-    path('', include('goodBuy_web.urls.web')),
+    path('', include('goodBuy_web.urls')),
     path('user/', include('goodBuy_web.urls.user')),
 
     path('shop/', include('goodBuy_shop.urls.shop')),
