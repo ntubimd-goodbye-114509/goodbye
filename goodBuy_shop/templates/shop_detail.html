@@ -21,15 +21,17 @@
                     <div class="left-box d-flex flex-column align-items-center me-4">
                         <img src="{{ shop_images.first.img.url }}" alt="主圖" class="main-image mb-2">
                         {% if user.is_authenticated %}
+                            <a href="{% url 'shop_collect_toggle' shop.id %}" class="btn btn-collect">
                             {% if shop.is_collected %}
-                                <a href="{% url 'shop_collect_toggle' shop.id %}" class="btn btn-warning">取消收藏</a>
+                                <img src="{% static 'img/full_heart.png' %}" alt="icon" class="icon-heart" />
+                                取消收藏
                             {% else %}
-                                <a href="{% url 'shop_collect_toggle' shop.id %}" class="btn">
-                                    <img src="/static/img/heart.png/" alt="icon" class="icon-heart"  /> 收藏
-                                </a>
+                                <img src="{% static 'img/heart.png' %}" alt="icon" class="icon-heart" />
+                                收藏
                             {% endif %}
+                            </a>
                         {% endif %}
-                    </div>
+                        </div>
 
                     <!-- 右側：上是編輯與刪除，下是商品 -->
                     <div class="right-box">

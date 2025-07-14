@@ -39,6 +39,9 @@ body {
     height: 20px !important;
     margin-right: 6px;
     vertical-align: middle;
+    position: relative;
+    top: -1px;
+    left: 2px;
 }
 
 .img-fluid {
