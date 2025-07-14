@@ -1,0 +1,10 @@
+.collecttile {
+  font-size: 1.5rem;     /* 1rem = 預設 16px，1.5rem = 24px */
+  font-weight: bold;   
+  margin-top: 5%;
+  margin-right: 200px;     /* 向左靠一點（你可以調整） */
+  margin-bottom: -200px;      
+  display: inline-block; /* 讓 margin-top 生效 */
+  position: relative;
+  top: 30px;
+}
