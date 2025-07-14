@@ -34,7 +34,8 @@ def shop_collect_toggle(request, shop):
 def my_shops_collected(request):
     shop_ids = ShopCollect.objects.filter(user=request.user).values_list('shop_id', flat=True)
 
-    shops = shopInformation_many(Shop.objects.filter(id__in=shop_ids).order_by('-date'))
+    #shops = shopInformation_many(Shop.objects.filter(id__in=shop_ids).order_by('-date'))
+    shops = shopInformation_many(Shop.objects.filter(id__in=shop_ids).order_by('-update'))
     return render(request, 'shop_collects.html', locals())
 # -------------------------
 # 商店足跡
@@ -42,5 +43,6 @@ def my_shops_collected(request):
 @login_required(login_url='login')
 def my_shop_footprints(request):
     shop_ids = ShopFootprints.objects.filter(user=request.user).values_list('shop_id', flat=True)
-    shops = shopInformation_many(Shop.objects.filter(id__in=shop_ids).order_by('-date'))
+    #shops = shopInformation_many(Shop.objects.filter(id__in=shop_ids).order_by('-date'))
+    shops = shopInformation_many(Shop.objects.filter(id__in=shop_ids).order_by('-update'))
     return render(request, 'shop_footprints.html', locals())

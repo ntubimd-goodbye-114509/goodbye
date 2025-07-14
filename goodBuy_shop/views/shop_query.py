@@ -102,6 +102,12 @@ def shopById_one(request, shop):
     products.sort(key=lambda p: (p.is_out_of_stock, p.id))
     announcements = ShopAnnouncement.objects.filter(shop=shop).order_by('-update')
 
+    # 判斷是否已收藏 ->前端 收藏按鈕切換
+    if request.user.is_authenticated:
+        shop.is_collected = ShopCollect.objects.filter(shop=shop, user=request.user).exists()
+    else:
+        shop.is_collected = False
+    
     # shop擁有者
     if request.user.is_authenticated and request.user.id == shop.owner.id:
         form = AnnouncementForm(request.POST or None)
