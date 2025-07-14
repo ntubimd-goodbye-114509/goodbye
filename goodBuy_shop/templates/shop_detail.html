@@ -14,11 +14,22 @@
         <div class="col-md-8">
             <!-- 主卡片 -->
             <div class="card p-3 d-flex flex-column">
-
                 <!-- 上半部：左右結構 -->
                 <div class="d-flex flex-row">
                     <!-- 左：主圖＋收藏 -->
-                    <div class="left-box d-flex flex-column align-items-center me-4">
+                    <div style="max-height: 300px; overflow-y: auto;">
+                        <div class="d-flex flex-column gap-2 mt-2">
+                        {% for image in shop_images %}
+                            {% if not image.is_cover %}
+                                <div class="position-relative" style="width: 100px; height: 100px;">
+                                    <img src="{{ image.img.url }}" class="img-thumbnail" style="width: 100%; height: 100px;">
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="left-box d-flex flex-column align-items-center me-4" style="width: 400px;">
                         <img src="{{ shop_images.first.img.url }}" alt="主圖" class="main-image mb-2">
                         {% if user.is_authenticated %}
                             <a href="{% url 'shop_collect_toggle' shop.id %}" class="btn btn-collect">
@@ -62,16 +73,16 @@
                             {% for product in products %}
                                 <div class="card mb-3 p-2">
                                     <div class="row align-items-center py-2">
-                                        <div class="col-auto pe-3">
+                                        <div class="col-auto pe-3"style="width: 200px;">
                                             {% if product.img %}
                                                 <img src="{{ product.img.url }}" alt="{{ product.name }}" class="product-img">
                                             {% else %}
-                                                <div class="text-muted" style="width: 100; height: 50;">無圖片</div>
+                                                <div class="text-muted" style="width: 100%; height: 100px;">暫無圖片</div>
                                             {% endif %}
                                         </div>
                                         <div class="col">{{ product.name }}</div>
-                                        <div class="col-md-3 text-danger">{{ product.price }}$</div>
-                                        <div class="col-md-3">庫存：{{ product.stock }}</div>
+                                        <div class="col-md-4 text-danger">{{ product.price }}$</div>
+                                        <div class="col-md-4">庫存：{{ product.stock }}</div>
                                         <div class="col d-flex justify-content-end">
                                             {% if user != shop.owner %}
                                                 <form action="{% url 'add_to_cart' product.id %}" method="post">
