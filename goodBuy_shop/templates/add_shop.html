@@ -76,6 +76,8 @@
           <label class="form-label">訂金比例 (%)</label>
           {{ form.deposit_ratio }}
         </div>
+
+        <!-- 標籤功能 -->
         <div class="mb-3">
           <label class="form-label">標籤（可新增）</label>
           <div class="d-flex flex-wrap gap-2 mb-2">
@@ -83,9 +85,20 @@
               <button type="button" class="btn btn-outline-primary btn-sm tag-option">{{ tag }}</button>
             {% endfor %}
           </div>
+
+          <!-- 輸入欄 -->
           <input type="text" id="tag-input" class="form-control mb-2" placeholder="輸入標籤並按 Enter">
+
+          <!-- 建議內容 -->
+          <ul id="tag-suggestions" class="list-group position-absolute w-100 z-3"></ul>
+
+          <!-- 顯示已加入的標籤 -->
+          <div id="tag-list" class="d-flex flex-wrap gap-1 mb-2"></div>
+          
+          <!-- 隱藏欄位（送出用） -->
           {{ form.tag_names }}
         </div>
+
         <div class="mb-3">
           <label class="form-label">可接受匯款帳號</label>
           {% for account in form.payment_ids %}

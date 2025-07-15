@@ -62,15 +62,15 @@
                                 <div class="d-flex flex-wrap gap-2 mb-2" id="tag-area">
                                     {% if want %}
                                         {% for tag_rel in want.want_tag_set.all %}
-                                            <span class="badge bg-primary tag-badge" data-tag="{{ tag_rel.tag.name }}">
-                                                {{ tag_rel.tag.name }}
-                                                <span class="ms-1" style="cursor:pointer;">&times;</span>
+                                            <span class="badge bg-light text-dark tag-badge me-1" data-tag="{{ tag_rel.tag.name }}">{{ tag_rel.tag.name }}
+                                                <img src="{% static 'img/x.png' %}" alt="刪除" class="ms-1" style="cursor:pointer; width:12px; height:12px;">
                                             </span>
                                         {% endfor %}
                                     {% endif %}
                                 </div>
                                 {{ form.tag_names }}
                             </div>
+                            
                         </div>
                     </div>
                     <!-- 下方最大文字輸入框與小圖預覽 -->
@@ -91,5 +91,6 @@
         </div>
     </div>
     <script src="{% static 'js/add_want.js' %}"></script>
+    <script src="{% static 'js/tag_input.js' %}"></script>
 </body>
 </html>

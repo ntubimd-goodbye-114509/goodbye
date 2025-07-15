@@ -21,7 +21,6 @@
                 {% csrf_token %}
                 {{ form.cover_index }}
                 {{ form.image_order }}
-                {{ form.tag_names }}
 
                 <!-- 已上傳圖片-->
                 <div class="row">
@@ -55,7 +54,7 @@
 
                     <!-- 右側：標題 權限 標籤 -->
                     <div class="col-md-7">
-                        <div class="mb-3">
+                    <div class="mb-3">
                             <label for="id_title" class="form-label">標題：</label>
                             {{ form.title }}
                             {% if form.title.errors %}
@@ -69,26 +68,29 @@
                                 <div class="text-danger">{{ form.permission.errors }}</div>
                             {% endif %}
                         </div>
+
                         <div class="mb-3">
                             <label class="form-label">標籤（可新增）</label>
-                            <div class="d-flex flex-wrap gap-2 mb-2" id="predefined-tags">
-                                {% if predefined_tags %}
-                                    {% for tag in predefined_tags %}
-                                        <button type="button" class="btn btn-outline-primary btn-sm tag-option">{{ tag }}</button>
-                                    {% endfor %}
-                                {% endif %}
-                            </div>
+
+                            <!-- 輸入標籤 -->
                             <input type="text" id="tag-input" class="form-control mb-2" placeholder="輸入標籤並按 Enter">
+
+                            <!-- JS 提示標籤 -->
+                            <ul id="tag-suggestions" class="list-group position-absolute z-3"></ul>
+
+                            <!-- 顯示已加入的標籤 -->
                             <div class="d-flex flex-wrap gap-2 mb-2" id="tag-area">
                                 {% if want %}
                                     {% for tag_rel in want.want_tag_set.all %}
-                                        <span class="badge bg-primary tag-badge" data-tag="{{ tag_rel.tag.name }}">
-                                            {{ tag_rel.tag.name }}
-                                            <span class="ms-1" style="cursor:pointer;">&times;</span>
+                                        <span class="badge bg-light text-dark tag-badge me-1" data-tag="{{ tag_rel.tag.name }}">{{ tag_rel.tag.name }}
+                                            <img src="{% static 'img/x.png' %}" alt="刪除" class="ms-1" style="cursor:pointer; width:12px; height:12px;">
                                         </span>
                                     {% endfor %}
                                 {% endif %}
                             </div>
+
+                            <!-- 隱藏欄位：用來送出標籤字串 -->
+                            <input type="hidden" name="tag_names" id="tag-names"value="{% for tag_rel in want.want_tag_set.all %}{{ tag_rel.tag.name }}{% if not forloop.last %},{% endif %}{% endfor %}">
                         </div>
                     </div>
                 </div>
@@ -108,11 +110,13 @@
                     <a href="{% url 'want_detail' want.id %}" class="btn btn-secondary">取消</a>
                     <button type="submit" class="btn btn-primary">確認</button>
                 </div>
+
             </form>
         </div>
     </div>
 </div>
 
 <script src="{% static 'js/edit_want.js' %}"></script>
+<script src="{% static 'js/tag_input.js' %}"></script>
 </body>
 </html>

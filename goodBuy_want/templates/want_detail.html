@@ -32,7 +32,6 @@
                         
                         <!-- 收物帖標題 -->
                         <h4>{{ want.title }}</h4>
-                        
                         <div class="d-flex justify-content-between">
                             <p class="text-muted mb-2">
                                 <small>發布者: {{ want.user.username }} | 更新於: {{ want.update|date:"Y/m/d H:i" }}</small>
@@ -41,9 +40,13 @@
                         
                         <!-- 標籤 -->
                         <div class="mb-3">
-                            {% for tag_rel in want.want_tag_set.all %}
-                                <span class="tag-badge"># {{ tag_rel.tag.name }}</span>
-                            {% endfor %}
+                            <div class="d-flex flex-wrap gap-2">
+                                {% for tag in tags %}
+                                    <span class="badge bg-light text-dark">#{{ tag.name }}</span>
+                                {% empty %}
+                                    <span class="text-muted">尚未設定標籤</span>
+                                {% endfor %}
+                            </div>
                         </div>
                         
                         <!-- 圖片區域 -->
@@ -53,7 +56,8 @@
                                     <img src="{{ img.img.url }}" alt="{{ want.title }}" class="cover-image img-fluid mb-3" id="main-image">
                                 {% endif %}
                             {% endfor %}
-                            
+
+                            <!-- 縮圖區域 -->
                             <div class="image-gallery">
                                 {% for img in want.images.all|dictsort:"position" %}
                                     <div class="gallery-item {% if img.is_cover %}active{% endif %}" data-src="{{ img.img.url }}">
@@ -70,6 +74,7 @@
                                 {{ want.post_text|linebreaksbr }}
                             </div>
                         </div>
+                        
                     </div>
                 </div>
             </div>
@@ -129,7 +134,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    此操作無法復原。
+                    此操作無法復原
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
