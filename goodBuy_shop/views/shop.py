@@ -128,6 +128,7 @@ def edit_shop(request, shop):
                     tag_obj, _ = Tag.objects.get_or_create(name=name)
                     ShopTag.objects.get_or_create(shop=shop, tag=tag_obj)
             #===
+            
             # 封面圖片處理（只有有上傳才刪掉重建）
             images = request.FILES.getlist('images')
             if images:
