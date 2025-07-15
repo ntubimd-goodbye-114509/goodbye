@@ -56,6 +56,7 @@ head {
   border-radius: 8px;
 }
 
+
 .right-panel {
   min-height: 300px;
   background-color: #fff;
@@ -226,3 +227,13 @@ head {
   width: 16px;
   height: 16px;
 }
+
+/* 限制主圖最大尺寸，防止爆開 */
+.main-image {
+  width: 300px;
+  height: 300px !important;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid #eee;
+}
+
