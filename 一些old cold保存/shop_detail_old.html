@@ -17,19 +17,19 @@
                 <!-- 上半部：左右結構 -->
                 <div class="d-flex flex-row">
                     <!-- 左：主圖＋收藏 -->
-                    <div class="image-scroll-box">
+                    <div style="max-height: 300px; overflow-y: auto;">
                         <div class="d-flex flex-column gap-2 mt-2">
                         {% for image in shop_images %}
                             {% if not image.is_cover %}
-                                <div class="position-relative thumbnail-box">
-                                    <img src="{{ image.img.url }}" class="img-thumbnail thumbnail-img">
-                                </div>
+                                <div class="position-relative" style="width: 100px; height: 100px;">
+                                    <img src="{{ image.img.url }}" class="img-thumbnail" style="width: 100%; height: 100px;">
+                            </div>
                             {% endif %}
                         {% endfor %}
                         </div>
                     </div>
 
-                    <div class="left-box d-flex flex-column align-items-center me-4 main-left-box">
+                    <div class="left-box d-flex flex-column align-items-center me-4" style="width: 400px;">
                         <img src="{{ shop_images.first.img.url }}" alt="主圖" class="main-image mb-2">
                         {% if user.is_authenticated %}
                             <a href="{% url 'shop_collect_toggle' shop.id %}" class="btn btn-collect">
@@ -42,7 +42,7 @@
                             {% endif %}
                             </a>
                         {% endif %}
-                    </div>
+                        </div>
 
                     <!-- 右側：上是編輯與刪除，下是商品 -->
                     <div class="right-box">
@@ -73,11 +73,11 @@
                             {% for product in products %}
                                 <div class="card mb-3 p-2">
                                     <div class="row align-items-center py-2">
-                                        <div class="col-auto pe-3 product-img-box">
+                                        <div class="col-auto pe-3"style="width: 200px;">
                                             {% if product.img %}
                                                 <img src="{{ product.img.url }}" alt="{{ product.name }}" class="product-img">
                                             {% else %}
-                                                <div class="text-muted no-image-placeholder">暫無圖片</div>
+                                                <div class="text-muted" style="width: 100%; height: 100px;">暫無圖片</div>
                                             {% endif %}
                                         </div>
                                         <div class="col">{{ product.name }}</div>
@@ -108,12 +108,12 @@
                 <!-- 底部 ：商品內容（左右兩欄新版） -->
                 <div class="card-footer mt-4 bg-white border-top pt-3 d-flex flex-wrap gap-4">
                     <!-- 左側：商品介紹 -->
-                    <div class="footer-left flex-grow-1 footer-col">
+                    <div class="footer-left flex-grow-1" style="min-width: 200px;">
                         <p><strong>商品介紹：</strong>{{ shop.introduce|linebreaksbr }}</p>
                     </div>
 
                     <!-- 右側：其餘資訊 -->
-                    <div class="footer-right flex-grow-1 footer-col">
+                    <div class="footer-right flex-grow-1" style="min-width: 200px;">
                         <p><strong>分配優先：</strong>{{ shop.purchase_priority.name }}</p>
                         <p><strong>商品狀態：</strong>{{ shop.shop_state.name }}</p>
                         <p><strong>開始時間：</strong>{{ shop.start_time|date:"Y/m/d" }}</p>
@@ -167,6 +167,7 @@
                                     </div>
                                     {% if user == shop.owner %}
                                     <div class="btn-group btn-group-sm">
+                                        <!-- 編輯有點問題 <a href="{% url 'edit_announcement' a.id %}" class="btn btn-outline-secondary"><img src="/static/img/edit-text.png" alt="icon" /></a> -->
                                         <a href="{% url 'delete_announcement' a.id %}" class="btn btn-outline-danger announcementdeletbtn" onclick="return confirm('確定要刪除這則公告嗎？');">
                                             <img src="/static/img/delete.png" alt="icon" />
                                         </a>
