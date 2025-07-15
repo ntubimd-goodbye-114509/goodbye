@@ -77,7 +77,7 @@ def shopByUserId_many(request, user):
 def shopById_one(request, shop):
     #TAG
     tags = Tag.objects.filter(shoptag__shop=shop) 
-    #==
+    #===
     # 記錄點擊是否為推薦，做推送記錄
     record_shop_click(request, shop)
 
