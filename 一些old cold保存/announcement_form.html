@@ -1,0 +1,20 @@
+<!-- (不需寫)原公告介面現在可以直接shop_detail使用 -->
+{% block content %}
+<div class="container py-4">
+  <h2 class="mb-3">發布商店公告</h2>
+  <form method="POST">
+    {% csrf_token %}
+    <div class="mb-3">
+      {{ form.title }}
+    </div>
+      <a href="{% url 'shop_detail' shop.id %}" class="btn btn-secondary">取消</a>
+      <button type="submit" class="cancel">發布公告</button>
+  </form>
+</div>
+{% endblock %}
+
+    <!-- 發布公告的訊息
+    <div class="mb-3">
+      {{ form.announcement.label_tag }}
+      {{ form.announcement }}
+    </div> -->

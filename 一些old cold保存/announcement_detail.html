@@ -1,0 +1,18 @@
+<!--(不需寫)原公告介面現在可以直接shop_detail使用 -->
+
+{% extends 'base.html' %}
+{% block content %}
+<div class="container py-4">
+  <h2 class="mb-3">{{ announcement.title }}</h2>
+  <p class="text-muted">發布於 {{ announcement.update|date:"Y/m/d H:i" }}</p>
+  <hr>
+  <p style="white-space: pre-line;">{{ announcement.announcement }}</p>
+
+  {% if user == shop.owner %}
+    <div class="mt-4">
+      <a href="{% url 'edit_announcement' announcement.id %}" class="btn btn-outline-secondary">編輯公告</a>
+      <a href="{% url 'delete_announcement' announcement.id %}" class="btn btn-outline-danger" onclick="return confirm('確定要刪除這則公告嗎？');">刪除</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
