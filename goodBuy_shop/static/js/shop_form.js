@@ -7,37 +7,6 @@ window.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-// 標籤輸入與點擊選取邏輯
-const tagInput = document.getElementById("tag-input");
-const tagHidden = document.querySelector("input[name='tag_names']");
-const tagList = document.getElementById("tag-list");
-let tagSet = new Set();
-
-tagInput.addEventListener("keydown", function(e) {
-  if (e.key === "Enter") {
-    e.preventDefault();
-    const val = this.value.trim();
-    if (val && !tagSet.has(val)) {
-      tagSet.add(val);
-      tagList.innerHTML += `<span class='badge bg-info text-dark me-1'>${val}</span>`;
-      tagHidden.value = [...tagSet].join(",");
-    }
-    this.value = "";
-  }
-});
-
-document.querySelectorAll(".tag-option").forEach(btn => {
-  btn.addEventListener("click", () => {
-    const val = btn.textContent.trim();
-    if (!tagSet.has(val)) {
-      tagSet.add(val);
-      tagList.innerHTML += `<span class='badge bg-info text-dark me-1'>${val}</span>`;
-      tagHidden.value = [...tagSet].join(",");
-    }
-  });
-});
-
-
 // 動態新增商品欄位
 let productIndex = document.querySelectorAll('#product-area .card').length || 0;
 
@@ -175,3 +144,164 @@ if (uploadInput && imagePreviewArea && mainImagePreview) {
   uploadInput.addEventListener('change', () => updateImagePreviews(0));
 }
 
+
+// 標籤輸入 與 建議功能
+document.addEventListener("DOMContentLoaded", function () {
+  const tagInput = document.getElementById("tag-input");
+  const tagHidden = document.querySelector("input[name='tag_names']");
+  const tagList = document.getElementById("tag-list");
+  const suggestions = document.getElementById("tag-suggestions");
+  const tagSet = new Set();
+
+  // 初始化標籤集合
+  document.querySelector("form").addEventListener("submit", () => {
+  tagHidden.value = [...tagSet].join(",");
+  });
+
+  const tagDataElement = document.getElementById("initial-tag-data");
+  if (tagDataElement) {
+    const tagDataString = tagDataElement.dataset.tags || '';
+    const initialTags = tagDataString.split(',').map(t => t.trim()).filter(t => t);
+    initialTags.forEach(tag => addTag(tag));
+  }
+
+  // 顯示所有已選標籤（帶 x.png 刪除圖）
+  function renderTags() {
+    tagList.innerHTML = "";
+    tagSet.forEach(tag => {
+      const span = document.createElement("span");
+      span.className = "badge bg-light text-dark d-flex align-items-center me-1 position-relative";
+      span.setAttribute("data-tag", tag);
+
+      span.innerHTML = `
+        <img src="/static/img/x.png"
+             style="width:16px;height:16px;cursor:pointer;"
+             class="me-1"
+             onclick="this.parentElement.remove(); updateTags()">
+        ${tag}
+      `;
+
+      tagList.appendChild(span);
+    });
+    tagHidden.value = [...tagSet].join(",");
+  }
+
+  // 點刪除後更新資料
+  window.updateTags = function () {
+    tagSet.clear();
+    document.querySelectorAll('#tag-list span[data-tag]').forEach(span => {
+      tagSet.add(span.getAttribute('data-tag'));
+    });
+    tagHidden.value = [...tagSet].join(",");
+  };
+
+  function addTag(tag) {
+    tag = tag.trim();
+    if (tag && !tagSet.has(tag)) {
+      tagSet.add(tag);
+      renderTags();
+    }
+  }
+
+  // 按 Enter 加標籤
+  tagInput.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      addTag(this.value);
+      this.value = "";
+      suggestions.innerHTML = "";
+    }
+    // 按 Tab 選建議標籤
+    if (e.key === "Tab" && suggestions.firstChild) {
+      e.preventDefault();
+      tagInput.value = suggestions.firstChild.textContent.replace(/^#/, '');
+      addTag(tagInput.value);
+      tagInput.value = "";
+      suggestions.innerHTML = "";
+    }
+  });
+
+  // 預設按鈕加入
+  document.querySelectorAll(".tag-option").forEach(btn => {
+    btn.addEventListener("click", () => {
+      addTag(btn.textContent.trim());
+    });
+  });
+
+  // 自動補全
+  let debounceTimer;
+  tagInput.addEventListener("input", function () {
+    clearTimeout(debounceTimer);
+    const query = this.value.trim();
+    if (!query) {
+      suggestions.innerHTML = "";
+      return;
+    }
+    debounceTimer = setTimeout(() => {
+      fetch(`/tag/api/search?q=${encodeURIComponent(query)}`)
+        .then(res => res.json())
+        .then(data => {
+          suggestions.innerHTML = "";
+          data.forEach(item => {
+            const li = document.createElement("li");
+            li.textContent = `#${item.name}`;
+            li.classList.add("list-group-item");
+            li.style.cursor = "pointer";
+            li.addEventListener("click", () => {
+              addTag(item.name);
+              tagInput.value = "";
+              suggestions.innerHTML = "";
+            });
+            suggestions.appendChild(li);
+          });
+        });
+    }, 300);
+  });
+
+    // ✅ 表單送出前更新 tag_names
+  document.querySelector("form").addEventListener("submit", () => {
+    tagHidden.value = [...tagSet].join(",");
+  });
+
+  // ✅ 編輯頁初始化舊標籤
+  if (window.initialTags) {
+    window.initialTags.forEach(t => addTag(t));
+  }
+
+  // 點其他地方關閉提示
+  document.addEventListener("click", function (e) {
+    if (!suggestions.contains(e.target) && e.target !== tagInput) {
+      suggestions.innerHTML = "";
+    }
+  });
+});
+
+// // 標籤輸入與點擊選取邏輯
+// const tagInput = document.getElementById("tag-input");
+// const tagHidden = document.querySelector("input[name='tag_names']");
+// const tagList = document.getElementById("tag-list");
+// let tagSet = new Set();
+
+// tagInput.addEventListener("keydown", function(e) {
+//   if (e.key === "Enter") {
+//     e.preventDefault();
+//     const val = this.value.trim();
+//     if (val && !tagSet.has(val)) {
+//       tagSet.add(val);
+//       tagList.innerHTML += `<span class='badge bg-info text-dark me-1'>${val}</span>`;
+//       tagHidden.value = [...tagSet].join(",");
+//     }
+//     this.value = "";
+//   }
+// });
+
+// document.querySelectorAll(".tag-option").forEach(btn => {
+//   btn.addEventListener("click", () => {
+//     const val = btn.textContent.trim();
+//     if (!tagSet.has(val)) {
+//       tagSet.add(val);
+//       tagList.innerHTML += `<span class='badge bg-info text-dark me-1'>${val}</span>`;
+//       tagHidden.value = [...tagSet].join(",");
+//     }
+//   });
+// });

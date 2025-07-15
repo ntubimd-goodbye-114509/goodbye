@@ -14,6 +14,15 @@ def add_want(request):
         form = WantForm(request.POST, request.FILES, user=request.user)
         if form.is_valid():
             want = form.save()
+
+            # 標籤儲存邏輯
+            tag_names = request.POST.get('tag_names', '')
+            for name in tag_names.split(','):
+                name = name.strip()
+                if name:
+                    tag_obj, _ = Tag.objects.get_or_create(name=name)
+                    WantTag.objects.get_or_create(want=want, tag=tag_obj)
+
             images = request.FILES.getlist('images')
             cover_index = int(request.POST.get('cover_index') or -1)
             order_str = request.POST.get('image_order')
@@ -33,7 +42,8 @@ def add_want(request):
             messages.error(request, '表單資料有誤')
     else:
         form = WantForm(user=request.user)
-
+        
+    predefined_tags = Tag.objects.values_list('name', flat=True).distinct()
     return render(request, 'add_want.html', locals())
 # -------------------------
 # 編輯收物帖
@@ -42,7 +52,6 @@ def add_want(request):
 @want_owner_required
 def edit_want(request, want):
     form = WantForm(request.POST or None, request.FILES or None, instance=want, user=request.user)
-
     #處理圖片封面更新
     if request.method == 'POST' and 'cover_set_id' in request.POST:
         set_id = request.POST.get('cover_set_id')
@@ -79,9 +88,11 @@ def edit_want(request, want):
             return redirect('want_detail', want_id=want.id)
         else:
             messages.error(request, '表單資料有誤')
+    predefined_tags = Tag.objects.values_list('name', flat=True).distinct()
     return render(request, 'edit_want.html', {
     'form': form,
-    'want': want,  
+    'want': want,
+    'predefined_tags': predefined_tags,
 })
 # -------------------------
 # 刪除收物帖

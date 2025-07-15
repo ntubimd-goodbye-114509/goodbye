@@ -65,6 +65,7 @@ def wantById_one(request, want):
 
     if request.user.is_authenticated and request.user == want.user:
         backs = ( WantBack.objects.filter(want=want).select_related('user', 'shop').order_by('-date'))
+        tags = [t.tag for t in WantTag.objects.filter(want=want)]
         return render(request, 'want_detail.html', locals())
 
     if want.permission.id == 2 and request.user != want.owner:

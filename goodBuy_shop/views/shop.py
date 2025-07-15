@@ -29,6 +29,16 @@ def add_shop(request):
         if form.is_valid():
             shop = form.save()
 
+            #TAG
+            #儲存標籤
+            tag_names = request.POST.get('tag_names', '')
+            for name in tag_names.split(','):
+                name = name.strip()
+                if name:
+                    tag_obj, _ = Tag.objects.get_or_create(name=name)
+                    ShopTag.objects.get_or_create(shop=shop, tag=tag_obj)
+            #===
+
             # 封面圖片處理
             print("上傳圖片檔案們：", request.FILES.getlist('images'))
             images = request.FILES.getlist('images')
@@ -106,6 +116,18 @@ def edit_shop(request, shop):
             shop.update = timezone.now()
             shop.save()
 
+            #TAG
+            # 清除原有的標籤
+            ShopTag.objects.filter(shop=shop).delete()
+
+            # 重新儲存選擇的標籤
+            tag_names = request.POST.get('tag_names', '')
+            for name in tag_names.split(','):
+                name = name.strip()
+                if name:
+                    tag_obj, _ = Tag.objects.get_or_create(name=name)
+                    ShopTag.objects.get_or_create(shop=shop, tag=tag_obj)
+            #===
             # 封面圖片處理（只有有上傳才刪掉重建）
             images = request.FILES.getlist('images')
             if images:

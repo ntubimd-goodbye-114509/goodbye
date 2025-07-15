@@ -75,13 +75,16 @@ def shopByUserId_many(request, user):
 # -------------------------
 @shop_exists_and_not_blacklisted()
 def shopById_one(request, shop):
+    #TAG
+    tags = Tag.objects.filter(shoptag__shop=shop) 
+    #==
     # 記錄點擊是否為推薦，做推送記錄
     record_shop_click(request, shop)
 
     is_rush_buy = shop.purchase_priority_id in [2, 3]
 
     products = list(Product.objects.filter(shop=shop))
-
+    
     if is_rush_buy and request.user.is_authenticated:
         for product in products:
             user_claimed = IntentProduct.objects.filter(
@@ -125,7 +128,8 @@ def shopById_one(request, shop):
                                                     'shop': shop, 
                                                     'products': products, 
                                                     'announcements': announcements,
-                                                    'shop_images': shop_images})
+                                                    'shop_images': shop_images,
+                                                    'tags': tags})
 
     if shop.permission.id != 1:
         messages.error(request, '當前賣場不公開')
