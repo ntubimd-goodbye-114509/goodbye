@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
   const tagInput = document.getElementById("tag-input");
-  const tagHidden = document.getElementById("tag-names");
+  // 要使用Djano Forms tag name 前面要加id
+  const tagHidden = document.getElementById("id_tag_names");
   const tagList = document.getElementById("tag-area");
   const suggestionBox = document.getElementById("tag-suggestions");
   const tagSet = new Set();
@@ -11,6 +12,8 @@ document.addEventListener("DOMContentLoaded", function () {
   });
   tagHidden.value = [...tagSet].join(",");
 
+  //==============
+  // 渲染標籤列
   function renderTags() {
     tagList.innerHTML = "";
     tagSet.forEach(tag => {
@@ -24,8 +27,17 @@ document.addEventListener("DOMContentLoaded", function () {
       });
       tagList.appendChild(span);
     });
+    // 更新 隱藏input
     tagHidden.value = [...tagSet].join(",");
   }
+
+  // 顯示初始標籤
+  document.querySelectorAll("#tag-area .tag-badge").forEach(el => {
+  tagSet.add(el.getAttribute("data-tag"));
+  });
+  tagHidden.value = [...tagSet].join(",");
+  renderTags();
+  //==============
 
   tagInput.addEventListener("keydown", function (e) {
     if (e.key === "Enter") {
@@ -50,6 +62,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
+  // 搜尋建議
   tagInput.addEventListener("input", function () {
     const query = this.value.trim();
     if (!query) {

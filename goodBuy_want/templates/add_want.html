@@ -50,15 +50,14 @@
                                 {% endif %}
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">標籤（可新增）</label>
-                                <div class="d-flex flex-wrap gap-2 mb-2" id="predefined-tags">
-                                    {% if predefined_tags %}
-                                        {% for tag in predefined_tags %}
-                                            <button type="button" class="btn btn-outline-primary btn-sm tag-option">{{ tag }}</button>
-                                        {% endfor %}
-                                    {% endif %}
+                                <label class="form-label">標籤（可自行新增）</label>
+
+                                <div style="position: relative;">
+                                    <input type="text" id="tag-input" class="form-control mb-2" placeholder="輸入標籤並按 Enter">
+                                    <!-- 標籤提示 -->
+                                    <ul id="tag-suggestions" class="list-group position-absolute w-100" style="top: 100%; z-index: 999;"></ul>
                                 </div>
-                                <input type="text" id="tag-input" class="form-control mb-2" placeholder="輸入標籤並按 Enter">
+
                                 <div class="d-flex flex-wrap gap-2 mb-2" id="tag-area">
                                     {% if want %}
                                         {% for tag_rel in want.want_tag_set.all %}
