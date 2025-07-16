@@ -1,0 +1,111 @@
+body {
+    background: #f9f7f1;
+}
+
+.profile-container {
+    max-width: 1240px;
+    margin: 40px auto 0 auto;
+    padding: 18px 18px 28px 18px;
+    background: #fff8ed;
+    border-radius: 18px;
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 22px;
+}
+
+.profile-avatar {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    margin-right: 36px;
+    object-fit: cover;
+    border: 2px solid #c5d6ea;
+    background: #f3f3f3;
+}
+
+.profile-basic h2 {
+    font-size: 2.2rem;
+    font-weight: bold;
+    margin-bottom: 14px;
+    color: #3955ac;
+}
+
+.profile-stats {
+    display: flex;
+    gap: 38px;
+    font-size: 1.12rem;
+    color: #454444;
+}
+
+.profile-section-title {
+    margin: 40px 0 18px 0;
+    font-weight: bold;
+    font-size: 1.13rem;
+    color: #3561a3;
+}
+
+.profile-card-list {
+    margin-bottom: 24px;
+}
+
+.profile-card.card {
+    border-radius: 13px;
+    box-shadow: 0 2px 8px #0001;
+    border: none;
+}
+
+.card-img-top {
+    width: 100%;
+    height: 110px;
+    object-fit: cover;
+    border-radius: 10px 10px 0 0;
+    background: #efefef;
+}
+
+.card-title {
+    font-weight: bold;
+    font-size: 1rem;
+    margin: 4px 0;
+}
+
+.card-sub {
+    font-size: 0.92rem;
+    color: #b44;
+    margin-bottom: 2px;
+}
+
+.more-btn {
+    background: none;
+    border: none;
+    color: #115be7;
+    font-weight: bold;
+    margin-top: 10px;
+    cursor: pointer;
+    font-size: 1rem;
+    float: right;
+}
+
+/* 讓卡片一行 6 張 */
+.row-cols-lg-6 > .col {
+    flex: 0 0 auto;
+    width: 16.66666667%;
+}
+
+/* RWD */
+@media (max-width: 1200px) {
+    .row-cols-lg-6 > .col { width: 25%; }
+}
+@media (max-width: 900px) {
+    .row-cols-lg-6 > .col { width: 33.3333%; }
+    .profile-header { flex-direction: column; align-items: flex-start; }
+    .profile-avatar { margin-bottom: 18px; }
+    .profile-stats { flex-direction: column; gap: 8px; }
+}
+@media (max-width: 600px) {
+    .profile-container { padding: 8px 2vw; }
+    .row-cols-lg-6 > .col { width: 50%; }
+    .profile-section-title { font-size: 1rem; }
+}
