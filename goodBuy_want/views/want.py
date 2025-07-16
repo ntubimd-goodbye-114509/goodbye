@@ -52,6 +52,8 @@ def add_want(request):
 @want_owner_required
 def edit_want(request, want):
     form = WantForm(request.POST or None, request.FILES or None, instance=want, user=request.user)
+
+    #==============================================================================
     #處理圖片封面更新
     if request.method == 'POST' and 'cover_set_id' in request.POST:
         set_id = request.POST.get('cover_set_id')
@@ -65,6 +67,19 @@ def edit_want(request, want):
     if request.method == 'POST':
         if form.is_valid():
             want = form.save()
+
+            #============================================================
+            # 更新標籤
+            WantTag.objects.filter(want=want).delete()
+
+            tag_names = request.POST.get('tag_names', '')
+            for name in tag_names.split(','):
+                name = name.strip()
+                if name:
+                    tag_obj, _ = Tag.objects.get_or_create(name=name)
+                    WantTag.objects.get_or_create(want=want, tag=tag_obj)
+            #============================================================
+
             images = request.FILES.getlist('images')
             cover_index_raw = request.POST.get('cover_index', '')
             cover_index = int(cover_index_raw) if cover_index_raw.isdigit() else -1
@@ -76,6 +91,7 @@ def edit_want(request, want):
             else:
                 sorted_images = images
 
+            #==============================================================================
             # 更新封面圖片防呆
             if cover_index >= 0:
                 WantImg.objects.filter(want=want).update(is_cover=False)
@@ -89,11 +105,7 @@ def edit_want(request, want):
         else:
             messages.error(request, '表單資料有誤')
     predefined_tags = Tag.objects.values_list('name', flat=True).distinct()
-    return render(request, 'edit_want.html', {
-    'form': form,
-    'want': want,
-    'predefined_tags': predefined_tags,
-})
+    return render(request, 'edit_want.html', locals())
 # -------------------------
 # 刪除收物帖
 # -------------------------
