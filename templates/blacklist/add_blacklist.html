@@ -23,11 +23,12 @@
     {% endif %}
     <span class="name">{{ blocked_user.black_user.username }}</span>
     <span class="join-date">加入日期：{{ blocked_user.date|date:"Y/m/d" }}</span>
-    <form method="POST" action="{% url 'remove_from_blacklist' %}">
-      {% csrf_token %}
-      <input type="hidden" name="blocked_user_id" value="{{ blocked_user.black_user.id }}">
-      <button type="submit" class="remove-btn">移出黑名單</button>
-    </form>
+<form method="POST" action="{% url 'blacklist_remove' %}">
+  {% csrf_token %}
+  <input type="hidden" name="black_user_id" value="{{ blocked_user.black_user.id }}">
+  <button type="submit" class="remove-btn">移出黑名單</button>
+</form>
+
   </li>
 {% empty %}
   <li class="text-muted" style="font-size:1.1rem;">目前尚無黑名單紀錄</li>
