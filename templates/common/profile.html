@@ -62,8 +62,8 @@
 <div class="profile-container">
     <div class="header">{% include 'base.html' %}</div>
     <div class="profile-header">
-        {% if profile_user.img %}
-            <img class="profile-avatar" src="{{ profile_user.img.url }}" alt="頭像">
+        {% if profile_user.profile.avatar %}
+            <img class="profile-avatar" src="{{ profile_user.profile.avatar.url }}" alt="頭像">
         {% else %}
             <img class="profile-avatar" src="{% static 'img/Defuser.png' %}" alt="預設頭像">
         {% endif %}
