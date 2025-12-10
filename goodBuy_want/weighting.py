@@ -1,13 +1,14 @@
 from collections import defaultdict
 from datetime import timedelta
 from django.utils import timezone
-from django.db.models import Q, Case, When, IntegerField
+from django.db.models import Q, Case, When, IntegerField, FloatField, Value
 import math
 import random
 
 from goodBuy_want.models import (
     Want, WantFootprints, WantBack, WantRecommendationHistory
 )
+from goodBuy_tag.models import TagCollect
 from goodBuy_web.models import SearchHistory
 from goodBuy_web.utils import get_blocked_user_ids
 from goodBuy_want.hot_rank import get_hot_wants
@@ -93,6 +94,20 @@ def personalized_want_recommendation(
 
     candidate_ids = list(qs.values_list('id', flat=True))
     scores = {wid: 0.0 for wid in candidate_ids}
+
+    if is_homefeed:
+        followed_tag_ids = list(
+            TagCollect.objects.filter(user=user)
+                                .values_list('tag_id', flat=True)
+        )
+        if followed_tag_ids:
+            followed_want_ids = set(
+                qs.filter(wanttag__tag_id__in=followed_tag_ids)
+                    .values_list('id', flat=True)
+            )
+            follow_bonus = float(PERSONAL_WEIGHTS.get('followed_tag_bonus', 1.0))
+            for wid in followed_want_ids:
+                scores[wid] += follow_bonus
 
     # ---------------- score ----------------
     recent_searches = list(
@@ -298,11 +313,34 @@ def personalized_want_recommendation(
             final_ids = pool[:L]
 
     # ---------------- 保序 + 寫歷史 ----------------
+    # preserved = Case(
+    #     *[When(id=pk, then=pos) for pos, pk in enumerate(final_ids)],
+    #     output_field=IntegerField()
+    # )
+    # qs_ordered = Want.objects.filter(id__in=final_ids).order_by(preserved)
+
+    # ---------------- 保序 + 寫歷史 ----------------
     preserved = Case(
         *[When(id=pk, then=pos) for pos, pk in enumerate(final_ids)],
         output_field=IntegerField()
     )
-    qs_ordered = Want.objects.filter(id__in=final_ids).order_by(preserved)
+
+    # 把演算法算好的分數塞進 annotate → recommend_score
+    score_case = Case(
+        *[
+            When(id=sid, then=Value(float(scores.get(sid, 0.0))))
+            for sid in final_ids
+        ],
+        default=Value(0.0),
+        output_field=FloatField(),
+    )
+
+    qs_ordered = (
+        Want.objects
+        .filter(id__in=final_ids)
+        .annotate(recommend_score=score_case)
+        .order_by(preserved)
+    )
 
     # 僅首頁寫入推薦歷史，避免汙染冷卻
     if is_homefeed:
@@ -323,5 +361,6 @@ def personalized_want_recommendation(
         )
 
     return qs_ordered
+
 
 
